@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>幼儿识字卡片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+        }
+
+        .category-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .category-btn {
+            padding: 8px 20px;
+            background: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .category-btn.active {
+            background: #ffd700;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            width: 350px;
+            height: 450px;
+            margin: 0 auto 30px;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            transform: rotateY(180deg);
+        }
+
+        .character {
+            font-size: 150px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite alternate;
+        }
+
+        .pinyin {
+            font-size: 2rem;
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meaning {
+            font-size: 1.5rem;
+            color: white;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .example {
+            font-size: 1.2rem;
+            color: white;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.8;
+        }
+
+        .stroke-count {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            background: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .control-btn:active {
+            transform: scale(0.98);
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px auto;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .card-counter {
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                width: 280px;
+                height: 360px;
+            }
+
+            .character {
+                font-size: 120px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 星星背景装饰 -->
+    <div class="stars" id="stars"></div>
+
+    <!-- 头部 -->
+    <div class="header">
+        <h1>🌟 幼儿识字卡片 🌟</h1>
+    </div>
+
+    <!-- 分类选择 -->
+    <div class="category-selector">
+        <button class="category-btn active" data-category="basic">基础字</button>
+        <button class="category-btn" data-category="animals">动物</button>
+        <button class="category-btn" data-category="nature">自然</button>
+        <button class="category-btn" data-category="family">家庭</button>
+    </div>
+
+    <!-- 卡片计数器 -->
+    <div class="card-counter">
+        <span id="currentCard">1</span> / <span id="totalCards">10</span>
+    </div>
+
+    <!-- 进度条 -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+    </div>
+
+    <!-- 卡片容器 -->
+    <div class="card-container">
+        <div class="card" id="flashcard">
+            <div class="card-face card-front">
+                <div class="stroke-count" id="strokeCount">5画</div>
+                <div class="character" id="character">人</div>
+                <div class="pinyin" id="pinyin">rén</div>
+                <div class="meaning" id="meaning">人类</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="example" id="example">
+                    例句：<br>
+                    我们都是中国人。<br>
+                    <br>
+                    组词：<br>
+                    人们、好人、工人
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button class="control-btn" id="prevBtn">
+            ⬅️ 上一张
+        </button>
+        <button class="control-btn" id="flipBtn">
+            🔄 翻转卡片
+        </button>
+        <button class="control-btn" id="speakBtn">
+            🔊 发音
+        </button>
+        <button class="control-btn" id="nextBtn">
+            下一张 ➡️
+        </button>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="autoPlayBtn">
+            ▶️ 自动播放
+        </button>
+        <button class="control-btn" id="shuffleBtn">
+            🔀 随机打乱
+        </button>
+    </div>
+
+    <!-- 完成提示模态框 -->
+    <div class="modal" id="completeModal">
+        <div class="modal-content">
+            <h2>🎉 恭喜完成！</h2>
+            <p>你已经学完了所有卡片！</p>
+            <button class="control-btn" onclick="restart()">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        // 字卡数据
+        const cardData = {
+            basic: [
+                { char: '人', pinyin: 'rén', meaning: '人类', strokes: 2, example: '我们都是中国人。\n组词：人们、好人、工人' },
+                { char: '大', pinyin: 'dà', meaning: '大的', strokes: 3, example: '大象很大。\n组词：大家、大小、大学' },
+                { char: '小', pinyin: 'xiǎo', meaning: '小的', strokes: 3, example: '小鸟在天上飞。\n组词：小孩、小心、小学' },
+                { char: '山', pinyin: 'shān', meaning: '山峦', strokes: 3, example: '山上有很多树。\n组词：高山、山水、火山' },
+                { char: '水', pinyin: 'shuǐ', meaning: '水', strokes: 4, example: '水是生命之源。\n组词：水果、开水、河水' },
+                { char: '火', pinyin: 'huǒ', meaning: '火焰', strokes: 4, example: '火很热，要小心。\n组词：火车、大火、火星' },
+                { char: '木', pinyin: 'mù', meaning: '树木', strokes: 4, example: '木头可以做家具。\n组词：木头、树木、木耳' },
+                { char: '土', pinyin: 'tǔ', meaning: '土地', strokes: 3, example: '植物生长在土里。\n组词：土地、泥土、土豆' },
+                { char: '日', pinyin: 'rì', meaning: '太阳', strokes: 4, example: '日出一东方。\n组词：日子、日记、日本' },
+                { char: '月', pinyin: 'yuè', meaning: '月亮', strokes: 4, example: '月亮很圆。\n组词：月亮、月饼、月份' }
+            ],
+            animals: [
+                { char: '猫', pinyin: 'māo', meaning: '猫咪', strokes: 11, example: '小猫喜欢吃鱼。\n组词：熊猫、猫眼、猫咪' },
+                { char: '狗', pinyin: 'gǒu', meaning: '小狗', strokes: 8, example: '小狗是人类的朋友。\n组词：小狗、热狗、狗熊' },
+                { char: '鸟', pinyin: 'niǎo', meaning: '飞鸟', strokes: 5, example: '鸟儿在树上唱歌。\n组词：小鸟、飞鸟、鸟窝' },
+                { char: '鱼', pinyin: 'yú', meaning: '鱼类', strokes: 8, example: '鱼儿在水里游。\n组词：金鱼、钓鱼、鱼缸' },
+                { char: '马', pinyin: 'mǎ', meaning: '骏马', strokes: 3, example: '马跑得很快。\n组词：小马、马路、马车' },
+                { char: '牛', pinyin: 'niú', meaning: '黄牛', strokes: 4, example: '牛喜欢吃草。\n组词：奶牛、牛肉、蜗牛' },
+                { char: '羊', pinyin: 'yáng', meaning: '绵羊', strokes: 6, example: '小羊很可爱。\n组词：山羊、羊毛、绵羊' },
+                { char: '鸡', pinyin: 'jī', meaning: '公鸡', strokes: 7, example: '公鸡早上打鸣。\n组词：小鸡、鸡蛋、母鸡' },
+                { char: '鸭', pinyin: 'yā', meaning: '鸭子', strokes: 10, example: '鸭子在水里游泳。\n组词：小鸭、鸭蛋、烤鸭' },
+                { char: '猪', pinyin: 'zhū', meaning: '小猪', strokes: 11, example: '小猪很胖。\n组词：小猪、野猪、猪肉' }
+            ],
+            nature: [
+                { char: '天', pinyin: 'tiān', meaning: '天空', strokes: 4, example: '天空是蓝色的。\n组词：天气、白天、雨天' },
+                { char: '云', pinyin: 'yún', meaning: '白云', strokes: 4, example: '白云在天上飘。\n组词：乌云、云朵、多云' },
+                { char: '雨', pinyin: 'yǔ', meaning: '下雨', strokes: 8, example: '下雨了要带伞。\n组词：雨天、大雨、小雨' },
+                { char: '雪', pinyin: 'xuě', meaning: '雪花', strokes: 11, example: '雪花很漂亮。\n组词：下雪、雪人、大雪' },
+                { char: '风', pinyin: 'fēng', meaning: '大风', strokes: 4, example: '风儿轻轻吹。\n组词：大风、台风、春风' },
+                { char: '花', pinyin: 'huā', meaning: '花朵', strokes: 7, example: '花儿很美丽。\n组词：开花、花朵、花生' },
+                { char: '草', pinyin: 'cǎo', meaning: '小草', strokes: 9, example: '小草绿绿的。\n组词：小草、青草、草原' },
+                { char: '树', pinyin: 'shù', meaning: '大树', strokes: 9, example: '大树很高。\n组词：树木、树叶、果树' },
+                { char: '河', pinyin: 'hé', meaning: '河流', strokes: 8, example: '河水在流淌。\n组词：小河、河水、过河' },
+                { char: '海', pinyin: 'hǎi', meaning: '大海', strokes: 10, example: '大海很宽广。\n组词：大海、海边、海洋' }
+            ],
+            family: [
+                { char: '爸', pinyin: 'bà', meaning: '爸爸', strokes: 8, example: '爸爸很高大。\n组词：爸爸、爸妈、老爸' },
+                { char: '妈', pinyin: 'mā', meaning: '妈妈', strokes: 6, example: '妈妈很温柔。\n组词：妈妈、干妈、老妈' },
+                { char: '爷', pinyin: 'yé', meaning: '爷爷', strokes: 6, example: '爷爷年纪大了。\n组词：爷爷、大爷、老爷' },
+                { char: '奶', pinyin: 'nǎi', meaning: '奶奶', strokes: 5, example: '奶奶很慈祥。\n组词：奶奶、牛奶、奶粉' },
+                { char: '哥', pinyin: 'gē', meaning: '哥哥', strokes: 10, example: '哥哥保护我。\n组词：哥哥、大哥、表哥' },
+                { char: '姐', pinyin: 'jiě', meaning: '姐姐', strokes: 8, example: '姐姐很漂亮。\n组词：姐姐、大姐、表姐' },
+                { char: '弟', pinyin: 'dì', meaning: '弟弟', strokes: 7, example: '弟弟很可爱。\n组词：弟弟、兄弟、表弟' },
+                { char: '妹', pinyin: 'mèi', meaning: '妹妹', strokes: 8, example: '妹妹很乖。\n组词：妹妹、姐妹、表妹' },
+                { char: '家', pinyin: 'jiā', meaning: '家庭', strokes: 10, example: '我爱我的家。\n组词：家人、回家、国家' },
+                { char: '爱', pinyin: 'ài', meaning: '关爱', strokes: 10, example: '爸爸妈妈爱我。\n组词：爱心、可爱、爱情' }
+            ]
+        };
+
+        let currentCategory = 'basic';
+        let currentCardIndex = 0;
+        let isAutoPlaying = false;
+        let autoPlayInterval;
+
+        // 初始化
+        function init() {
+            createStars();
+            updateCard();
+            attachEventListeners();
+        }
+
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 15 + 5 + 'px';
+                star.style.height = star.style.width;
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // 更新卡片内容
+        function updateCard() {
+            const cards = cardData[currentCategory];
+            const card = cards[currentCardIndex];
+
+            document.getElementById('character').textContent = card.char;
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('meaning').textContent = card.meaning;
+            document.getElementById('strokeCount').textContent = card.strokes + '画';
+            document.getElementById('example').innerHTML = '例句：<br>' + card.example.replace(/\n/g, '<br>');
+
+            document.getElementById('currentCard').textContent = currentCardIndex + 1;
+            document.getElementById('totalCards').textContent = cards.length;
+
+            const progress = ((currentCardIndex + 1) / cards.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // 重置翻转状态
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        // 翻转卡片
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        // 下一张卡片
+        function nextCard() {
+            const cards = cardData[currentCategory];
+            if (currentCardIndex < cards.length - 1) {
+                currentCardIndex++;
+                updateCard();
+            } else {
+                showCompleteModal();
+            }
+        }
+
+        // 上一张卡片
+        function prevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+            }
+        }
+
+        // 发音功能
+        function speak() {
+            const card = cardData[currentCategory][currentCardIndex];
+            const utterance = new SpeechSynthesisUtterance(card.char);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+
+        // 自动播放
+        function toggleAutoPlay() {
+            const btn = document.getElementById('autoPlayBtn');
+            if (isAutoPlaying) {
+                clearInterval(autoPlayInterval);
+                btn.innerHTML = '▶️ 自动播放';
+                isAutoPlaying = false;
+            } else {
+                btn.innerHTML = '⏸️ 暂停播放';
+                isAutoPlaying = true;
+                autoPlayInterval = setInterval(() => {
+                    const cards = cardData[currentCategory];
+                    if (currentCardIndex < cards.length - 1) {
+                        nextCard();
+                        speak();
+                    } else {
+                        clearInterval(autoPlayInterval);
+                        btn.innerHTML = '▶️ 自动播放';
+                        isAutoPlaying = false;
+                        showCompleteModal();
+                    }
+                }, 3000);
+            }
+        }
+
+        // 随机打乱
+        function shuffle() {
+            const cards = cardData[currentCategory];
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+            currentCardIndex = 0;
+            updateCard();
+        }
+
+        // 显示完成模态框
+        function showCompleteModal() {
+            document.getElementById('completeModal').style.display = 'flex';
+        }
+
+        // 重新开始
+        function restart() {
+            currentCardIndex = 0;
+            updateCard();
+            document.getElementById('completeModal').style.display = 'none';
+        }
+
+        // 切换分类
+        function switchCategory(category) {
+            currentCategory = category;
+            currentCardIndex = 0;
+            updateCard();
+
+            // 更新按钮状态
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 停止自动播放
+            if (isAutoPlaying) {
+                toggleAutoPlay();
+            }
+        }
+
+        // 绑定事件监听器
+        function attachEventListeners() {
+            document.getElementById('flipBtn').addEventListener('click', flipCard);
+            document.getElementById('nextBtn').addEventListener('click', nextCard);
+            document.getElementById('prevBtn').addEventListener('click', prevCard);
+            document.getElementById('speakBtn').addEventListener('click', speak);
+            document.getElementById('autoPlayBtn').addEventListener('click', toggleAutoPlay);
+            document.getElementById('shuffleBtn').addEventListener('click', shuffle);
+
+            // 点击卡片翻转
+            document.getElementById('flashcard').addEventListener('click', flipCard);
+
+            // 分类按钮
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    switchCategory(e.target.dataset.category);
+                });
+            });
+
+            // 键盘快捷键
+            document.addEventListener('keydown', (e) => {
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        prevCard();
+                        break;
+                    case 'ArrowRight':
+                        nextCard();
+                        break;
+                    case ' ':
+                        e.preventDefault();
+                        flipCard();
+                        break;
+                    case 'Enter':
+                        speak();
+                        break;
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
