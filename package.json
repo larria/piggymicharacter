@@ -1,0 +1,37 @@
+{
+  "name": "piggymicharacter",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/larria/piggymicharacter#readme",
+  "bugs": {
+    "url": "https://github.com/larria/piggymicharacter/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/larria/piggymicharacter.git"
+  },
+  "license": "ISC",
+  "author": "Larkin",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pinia": "^3.0.3",
+    "vue": "^3.5.22",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.1",
+    "naive-ui": "^2.43.1",
+    "vfonts": "^0.0.3",
+    "vite": "^7.1.11",
+    "vite-plugin-vue-devtools": "^8.0.3"
+  }
+}
