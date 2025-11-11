@@ -6,16 +6,18 @@
         "difficulty_level": 1,
         "example_words": [
             "人生",
-            "男人"
+            "男人",
+            "人格",
+            "好人"
         ],
         "example_sentences": [
-            "每个人都是独特的人。",
+            "人之初，性本善。",
             "咪猪头是一个勇敢的人。"
         ],
         "english_character": "person",
         "english_phonetic": "ˈpɜːr.sən",
         "english_example_sentences": [
-            "Every person is unique.",
+            "At birth, humans are naturally good.",
             "Piggy Mi is a brave person."
         ]
     },
@@ -5655,17 +5657,16 @@
             "丢失",
             "丢东西",
             "丢掉",
-            "丢手绢",
-            "丢球"
+            "丢手绢"
         ],
         "example_sentences": [
-            "咪猪头在玩丢手绢的游戏。",
+            "咪猪头喃喃自语：'丢了！丢了！'。",
             "乌鸦喝水的故事里，石子丢进了瓶子里。"
         ],
         "english_character": "lose",
         "english_phonetic": "luːz",
         "english_example_sentences": [
-            "Piggy Mi is playing the game of dropping the handkerchief.",
+            "Piggy Mi muttered to himself, \"Lost! Lost!\".",
             "In the story of the crow drinking water, the pebbles were dropped into the bottle."
         ]
     },
@@ -5751,13 +5752,13 @@
             "仪式"
         ],
         "example_sentences": [
-            "乌鸦喝水的故事里，它用了一种聪明的方式。",
+            "魔方的复原方式有不止一种。",
             "咪猪头找到了一个特别的样式来建他的房子。"
         ],
         "english_character": "style",
         "english_phonetic": "staɪl",
         "english_example_sentences": [
-            "In the story of the crow drinking water, it used a clever style.",
+            "A Rubik's Cube can be solved in multiple ways.",
             "Piggy Mi found a special style to build his house."
         ]
     },
@@ -5884,19 +5885,18 @@
         "example_words": [
             "糟糕",
             "糟心",
-            "糟粕",
             "酒糟",
             "糟蹋"
         ],
         "example_sentences": [
             "糟糕！咪猪头的冰淇淋掉了。",
-            "乌鸦喝水的故事告诉我们不要糟蹋水。"
+            "今天下雨忘带伞，糟透了！"
         ],
         "english_character": "bad",
         "english_phonetic": "bæd",
         "english_example_sentences": [
             "Oh no! Piggy Mi's ice cream fell.",
-            "The story of the crow teaches us not to waste water."
+            "Got caught in the rain without an umbrella today—total disaster!"
         ]
     },
     {
@@ -5907,19 +5907,18 @@
         "example_words": [
             "假期",
             "假山",
-            "假发",
             "假象",
-            "假人"
+            "假装"
         ],
         "example_sentences": [
             "咪猪头在假山旁边玩耍。",
-            "乌鸦喝水的故事里，聪明的乌鸦用石头让水位上升，这不是假象。"
+            "爸爸假装自己看见了什么。"
         ],
         "english_character": "fake",
         "english_phonetic": "feɪk",
         "english_example_sentences": [
             "Piggy Mi is playing near the fake mountain.",
-            "In the story of the crow drinking water, the clever crow made the water rise with stones, it's not a fake idea."
+            "Dad pretended to see something."
         ]
     },
     {
@@ -5959,13 +5958,13 @@
         ],
         "example_sentences": [
             "将来，咪猪头想成为一位勇敢的将军。",
-            "《西游记》中，孙悟空将要保护唐僧去取经。"
+            "今晚就在帐篷里将就一下。"
         ],
         "english_character": "will",
         "english_phonetic": "wɪl",
         "english_example_sentences": [
             "In the future, Piggy Mi wants to be a brave general.",
-            "In 'Journey to the West,' Sun Wukong will protect Tang Monk to get the scriptures."
+            "We'll just rough it in the tent tonight."
         ]
     },
     {
@@ -5976,7 +5975,6 @@
         "example_words": [
             "俩个",
             "俩人",
-            "俩孩子",
             "俩苹果",
             "俩朋友"
         ],
@@ -6176,10 +6174,7 @@
         "difficulty_level": 3,
         "example_words": [
             "山冈",
-            "冈峦",
-            "冈陵",
-            "冈坡",
-            "冈地"
+            "冈峦"
         ],
         "example_sentences": [
             "山冈上有一棵大树。",
@@ -6200,7 +6195,6 @@
         "example_words": [
             "牢房",
             "天牢",
-            "地牢",
             "监牢",
             "牢笼"
         ],
@@ -6246,18 +6240,19 @@
         "example_words": [
             "容易",
             "交易",
+            "轻易",
             "简易",
             "易拉罐"
         ],
         "example_sentences": [
-            "枫叶魔方很容易。",
-            "咪猪头觉得喝水很容易。"
+            "不要轻易相信陌生人。",
+            "咪猪头觉得枫叶魔方很容易。"
         ],
         "english_character": "easy",
         "english_phonetic": "ˈiː.zi",
         "english_example_sentences": [
-            "The Maple Leaf Rubik's Cube is very easy.",
-            "Piggy Mi thinks drinking water is very easy."
+            "Never trust strangers easily.",
+            "Piggy Mi thinks Maple Leaf Rubik's Cube is very easy."
         ]
     },
     {
@@ -6272,13 +6267,13 @@
             "死活"
         ],
         "example_sentences": [
-            "在西游记中，孙悟空打死了妖怪。",
+            "孙悟空打死了妖怪。",
             "咪猪头想尽办法不让花朵死掉。"
         ],
         "english_character": "dead",
         "english_phonetic": "dɛd",
         "english_example_sentences": [
-            "In Journey to the West, Sun Wukong defeated the demon.",
+            "Sun Wukong defeated the demon.",
             "Piggy Mi tried his best to keep the flower from dying."
         ]
     },
@@ -6312,20 +6307,17 @@
         "difficulty_level": 3,
         "example_words": [
             "希望",
-            "希望工程",
-            "希望之星",
-            "希望小学",
-            "希望之光"
+            "希翼"
         ],
         "example_sentences": [
             "咪猪头希望明天能吃到冰淇淋。",
-            "乌鸦喝水的故事告诉我们，要有希望。"
+            "希望明天会更好。"
         ],
         "english_character": "hope",
         "english_phonetic": "həʊp",
         "english_example_sentences": [
             "Piggy Mi hopes to eat ice cream tomorrow.",
-            "The story of the crow drinking water tells us to have hope."
+            "Hope tomorrow will be better."
         ]
     },
     {
@@ -6342,13 +6334,13 @@
         ],
         "example_sentences": [
             "咪猪头其实很聪明。",
-            "在西游记中，孙悟空极其勇敢。"
+            "孙悟空极其勇敢。"
         ],
         "english_character": "it",
         "english_phonetic": "ɪt",
         "english_example_sentences": [
             "Piggy Mi is actually very clever.",
-            "In Journey to the West, Sun Wukong is extremely brave."
+            "Sun Wukong is extremely brave."
         ]
     },
     {
@@ -6388,13 +6380,13 @@
         ],
         "example_sentences": [
             "咪猪头在万圣节打扮成了一只小南瓜。",
-            "在《西游记》中，咪猪头扮演了孙悟空。"
+            "孙悟空对妖怪扮鬼脸。"
         ],
         "english_character": "dress up",
         "english_phonetic": "drɛs ʌp",
         "english_example_sentences": [
             "Piggy Mi dressed up as a little pumpkin on Halloween.",
-            "In 'Journey to the West', Piggy Mi played the role of Sun Wukong."
+            "Sun Wukong pulled a silly face at the demon."
         ]
     },
     {
@@ -6434,13 +6426,13 @@
         ],
         "example_sentences": [
             "咪猪头并排坐着和小朋友们一起听故事。",
-            "乌鸦喝水的故事中，小石子并且水慢慢升上来了。"
+            "我们并肩作战。"
         ],
         "english_character": "and",
         "english_phonetic": "ænd",
         "english_example_sentences": [
             "Piggy Mi is sitting side by side with the other children listening to the story.",
-            "In the story of the crow drinking water, the pebbles and water slowly rise."
+            "We fight side by side."
         ]
     },
     {
@@ -6473,12 +6465,11 @@
             "芳香",
             "芳龄",
             "芳名",
-            "芳心",
-            "芳泽"
+            "芳心"
         ],
         "example_sentences": [
             "花园里的花朵散发出芳香的香味。",
-            "咪猪头在花园里找到一朵最芳的小花。"
+            "咪猪头在花园里找到一朵最芳香的小花。"
         ],
         "english_character": "fragrant",
         "english_phonetic": "ˈfreɪ.ɡrənt",
@@ -6496,18 +6487,17 @@
             "栽树",
             "栽花",
             "栽倒",
-            "盆栽",
-            "栽秧"
+            "盆栽"
         ],
         "example_sentences": [
             "春天到了，咪猪头在花园里栽花。",
-            "孙悟空在蟠桃园里栽了一棵桃树。"
+            "爷爷以前喜欢养殖盆栽。"
         ],
         "english_character": "plant",
         "english_phonetic": "plænt",
         "english_example_sentences": [
             "Piggy Mi is planting flowers in the garden in spring.",
-            "Sun Wukong planted a peach tree in the Peach Garden."
+            "Grandpa used to enjoy growing bonsai."
         ]
     },
     {
@@ -6516,21 +6506,21 @@
         "character_type": "adjective",
         "difficulty_level": 3,
         "example_words": [
+            "单独",
             "独立",
             "独自",
             "独特",
-            "独木桥",
-            "独生子女"
+            "独木桥"
         ],
         "example_sentences": [
             "咪猪头独自走过独木桥。",
-            "乌鸦喝水中，乌鸦用独特的方法喝到了水。"
+            "乌鸦用独特的方法喝到了水。"
         ],
         "english_character": "alone",
         "english_phonetic": "əˈləʊn",
         "english_example_sentences": [
             "Piggy Mi walks across the log bridge alone.",
-            "In the story of the crow drinking water, the crow uses a unique method to drink the water."
+            "The crow uses a unique method to drink the water."
         ]
     },
     {
@@ -6569,13 +6559,13 @@
         ],
         "example_sentences": [
             "咪猪头在路口拐弯时摔倒了。",
-            "孙悟空用金箍棒把妖怪拐跑了。"
+            "拐角的地方要注意来车。"
         ],
         "english_character": "turn",
         "english_phonetic": "tɜːrn",
         "english_example_sentences": [
             "Piggy Mi fell down when he turned at the intersection.",
-            "Sun Wukong turned the monster away with his golden cudgel."
+            "Watch for cars at corners."
         ]
     },
     {
@@ -6656,8 +6646,7 @@
             "适宜",
             "宜人",
             "宜家",
-            "宜然",
-            "宜静"
+            "宜然"
         ],
         "example_sentences": [
             "春天来了，气候宜人。",
@@ -7001,13 +6990,13 @@
         ],
         "example_sentences": [
             "咪猪头用彩纸折了一只小鸟。",
-            "乌鸦喝水的故事里，乌鸦用纸巾擦了擦嘴。"
+            "爸爸给咪猪头带回来很多纸。"
         ],
         "english_character": "paper",
         "english_phonetic": "ˈpeɪ.pər",
         "english_example_sentences": [
             "Piggy Mi folded a bird with colorful paper.",
-            "In the story of the crow drinking water, the crow wiped its beak with a tissue."
+            "Dad brought Piggy Mi a bunch of paper."
         ]
     },
     {
@@ -7364,13 +7353,13 @@
             "求助"
         ],
         "example_sentences": [
-            "咪猪头请求乌鸦给他一点水喝。",
+            "小猫请求孩子给它一点水喝。",
             "孙悟空要求师傅给他一个机会改正错误。"
         ],
         "english_character": "ask for",
         "english_phonetic": "ɑːsk fɔːr",
         "english_example_sentences": [
-            "Piggy Mi asked the crow for some water to drink.",
+            "The kid cat asked the child for some water to drink.",
             "Sun Wukong asked his master for a chance to correct his mistake."
         ]
     },
@@ -7700,14 +7689,14 @@
             "表面"
         ],
         "example_sentences": [
-            "咪猪头戴着一块新手表。",
-            "乌鸦喝水的故事告诉我们，要善于表达自己的想法。"
+            "咪猪头播报天气受到了表扬。",
+            "要善于表达自己的想法。"
         ],
         "english_character": "watch",
         "english_phonetic": "wɒtʃ",
         "english_example_sentences": [
-            "Piggy Mi is wearing a new watch.",
-            "The story of the crow drinking water tells us to express our ideas."
+            "Piggy Mi was praised for her weather report.",
+            "Always be ready to speak your ideas."
         ]
     },
     {
@@ -8407,13 +8396,13 @@
         ],
         "example_sentences": [
             "咪猪头用右手拿起了苹果。",
-            "在《西游记》中，孙悟空站在唐僧的右边。"
+            "孙悟空站在唐僧的右边。"
         ],
         "english_character": "right",
         "english_phonetic": "raɪt",
         "english_example_sentences": [
             "Piggy Mi picks up the apple with his right hand.",
-            "In 'Journey to the West', Sun Wukong stands on the right side of Tang Monk."
+            "Sun Wukong stands on the right side of Tang Monk."
         ]
     },
     {
@@ -8453,13 +8442,13 @@
         ],
         "example_sentences": [
             "咪猪头坐在教室的后面。",
-            "乌鸦喝水的故事里，聪明的乌鸦最后喝到了水。"
+            "聪明的乌鸦最后喝到了水。"
         ],
         "english_character": "back",
         "english_phonetic": "bæk",
         "english_example_sentences": [
             "Piggy Mi is sitting at the back of the classroom.",
-            "In the story of the crow drinking water, the clever crow finally got to drink the water."
+            "The clever crow finally got to drink the water."
         ]
     },
     {
@@ -8512,8 +8501,7 @@
             "蚊子",
             "蚊香",
             "蚊帐",
-            "蚊虫",
-            "蚊叮"
+            "蚊虫"
         ],
         "example_sentences": [
             "夏天到了，蚊子嗡嗡叫。",
@@ -8625,8 +8613,7 @@
             "青蛇",
             "眼镜蛇",
             "蛇皮",
-            "蛇年",
-            "小蛇"
+            "蛇年"
         ],
         "example_sentences": [
             "青蛇在草丛中慢慢地爬。",
@@ -9237,8 +9224,6 @@
         "difficulty_level": 2,
         "example_words": [
             "阿姨",
-            "阿爸",
-            "阿婆",
             "阿猫",
             "阿狗"
         ],
@@ -9313,13 +9298,13 @@
         ],
         "example_sentences": [
             "咪猪头的伯父送了他一个玩具。",
-            "从前，有一个善良的老伯帮助了乌鸦喝水。"
+            "这位老伯为人和善。"
         ],
         "english_character": "uncle",
         "english_phonetic": "ˈʌŋ.kəl",
         "english_example_sentences": [
             "Piggy Mi's uncle gave him a toy.",
-            "Once upon a time, a kind old man helped the crow drink water."
+            "This old man is very kind."
         ]
     },
     {
@@ -15878,13 +15863,13 @@
         ],
         "example_sentences": [
             "早餐时，咪猪头喜欢吃油条。",
-            "乌鸦喝水的故事里，瓶子里装的不是油。"
+            "咪猪头说：这个魔方拧起来油滋滋的。"
         ],
         "english_character": "oil",
         "english_phonetic": "ɔɪl",
         "english_example_sentences": [
             "Piggy Mi likes to eat fried dough sticks for breakfast.",
-            "In the story of the crow drinking water, the bottle is not filled with oil."
+            "Piggy Mi giggled, \"This Rubik's Cube feels all oily and slippery!\""
         ]
     },
     {
@@ -18603,13 +18588,13 @@
         ],
         "example_sentences": [
             "咪猪头吃苦瓜的时候皱起了眉头。",
-            "乌鸦喝水的故事告诉我们，遇到困难不要怕辛苦。"
+            "遇到麻烦事，不要怕辛苦。"
         ],
         "english_character": "bitter",
         "english_phonetic": "ˈbɪt.ər",
         "english_example_sentences": [
             "Piggy Mi made a face when he ate bitter melon.",
-            "The story of the crow drinking water teaches us not to be afraid of hardships."
+            "When faced with trouble, don't be afraid of the hard work."
         ]
     },
     {

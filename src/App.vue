@@ -1,16 +1,26 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-import { NButton } from 'naive-ui'
+import { useCounterStore } from '@/stores/counter'
+import { storeToRefs } from 'pinia'
+import CCard from './components/CCard.vue'
+import cData from '@/assets/data/data-full-all.json'
+
+console.log(cData);
+
+
+const counterStore = useCounterStore()
+const { count, doubleCount } = storeToRefs(counterStore)
+const { increment } = counterStore
 </script>
 
 <template>
+  <CCard :cInfo="cData[0]"></CCard>
   <header>
-    <img alt="Vue logo" class="logo" src="@/assets/images/style/logo.svg" width="125" height="125" />
-
     <div class="wrapper">
-      <n-button>naive-ui</n-button>
-      <HelloWorld msg="You did it!" />
+      <van-button type="primary" @click="increment">increase</van-button>
+      <p>Count: {{ count }}</p>
+      <p>Double Count: {{ doubleCount }}</p>
 
       <nav>
         <RouterLink to="/">Home</RouterLink>
