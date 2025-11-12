@@ -1,10 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
 import CCard from './components/CCard.vue'
+import PCard from './components/PCard.vue'
 import cData from '@/assets/data/data-full-all.json'
+
+import HelloWorld from './components/HelloWorld.vue'
 
 console.log(cData);
 
@@ -15,7 +17,8 @@ const { increment } = counterStore
 </script>
 
 <template>
-  <CCard :cInfo="cData[0]"></CCard>
+  <!-- <CCard :cInfo="cData[0]"></CCard>
+  <PCard cId="1"></PCard> -->
   <header>
     <div class="wrapper">
       <van-button type="primary" @click="increment">increase</van-button>
@@ -24,7 +27,7 @@ const { increment } = counterStore
 
       <nav>
         <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/mypcard">My PCard</RouterLink>
       </nav>
     </div>
   </header>
