@@ -4,6 +4,7 @@ import cData from '@/assets/data/data-full-all.json'
 
 export const useLearnProgressStore = defineStore('learnProgress', () => {
     const learned = ref([]);
+
     const addLearned = (item, date) => {
         // 参数验证
         if (!item || !item.character) {
@@ -29,15 +30,15 @@ export const useLearnProgressStore = defineStore('learnProgress', () => {
             console.log(`字符 "${character}" 已经学习过了`);
         }
     }
-    
+
     const learnedPercent = computed(() => {
         const percent = learned.value.length / cData.length;
-        
+
         // 如果进度达到100%，显示100%
         if (percent >= 1) {
             return '100%';
         }
-        
+
         // 如果进度小于100%，计算保留1位小数的百分比，但最多显示99.9%
         const displayPercent = Math.min(percent, 0.999) * 100;
         return `${displayPercent.toFixed(1)}%`;

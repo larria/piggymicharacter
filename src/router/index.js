@@ -10,6 +10,20 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/study',
+      name: 'study',
+      component: () => import('../views/StudyView.vue'),
+      meta: {
+        title: '识字学习',
+        keepAlive: true
+      }
+    },
+    {
+      path: '/myccard',
+      name: 'myCCard',
+      component: () => import('../views/MyCCardsView.vue'),
+    },
+    {
       path: '/mypcard',
       name: 'myPCard',
       // route level code-splitting

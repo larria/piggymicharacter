@@ -43,31 +43,24 @@ const imgURL = computed(() => {
 <style scoped>
 /* 卡片容器 */
 .pcard {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
-    border-radius: 16px;
-    /* 使用更圆润的边角，显得更现代 */
+    position: relative;
+    background: white;
+    border-radius: 15px;
     overflow: hidden;
-    /* 关键：确保图片圆角被裁剪 */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    /* 柔和的阴影，增加层次感 */
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-        box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    /* 平滑的过渡动画 */
     cursor: pointer;
-    /* 提示用户可交互 */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 140px;
 }
+.pcard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
 .pcard-img {
-    display: block;
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    /* 关键：保证图片不变形且填满容器 */
-    transition: all 1s ease-in-out;
-    /* 图片独立的、稍慢的缩放动画 */
 }
 
 /* 鼠标悬停效果 */
