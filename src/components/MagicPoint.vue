@@ -32,10 +32,10 @@ const gameStore = useGameStore()
 }
 
 .magic-text {
-    font-size: 30px;
+    font-size: 22px;
     font-family: 'Microsoft YaHei';
     color: #fff;
-    -webkit-text-stroke: 3px #b72de1; /* 为Webkit内核浏览器设置红色边框 */
-    text-stroke: 3px #b72de1; /* 标准属性，但目前大多数浏览器还不支持，所以主要靠前缀 */
+    -webkit-text-stroke: 2px #b72de1; /* 为Webkit内核浏览器设置红色边框 */
+    text-stroke: 2px #b72de1; /* 标准属性，但目前大多数浏览器还不支持，所以主要靠前缀 */
 }
 </style>
