@@ -9,6 +9,7 @@ import { VantResolver } from '@vant/auto-import-resolver';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/dist/', // 这里填写你的二级目录名称（必须以 / 开头和结尾）
   plugins: [
     vue(),
     vueDevTools(),

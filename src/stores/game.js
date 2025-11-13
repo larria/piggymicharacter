@@ -118,7 +118,7 @@ export const useGameStore = defineStore('game', () => {
     }
     
     state.stateList.push({ action: '初识', date: Date.now() })
-    magicPoints.value += 1
+    magicPoints.value += 3
     
     // 无需手动保存，插件会自动处理
     return { success: true, message: '初识成功' }
@@ -142,7 +142,7 @@ export const useGameStore = defineStore('game', () => {
     
     if (isCorrect && !wasAlreadyMastered && isNowMastered) {
       if (getTodayMasterCount() <= DAILY_MASTER_LIMIT) {
-        reward = 5
+        reward = 3
         magicPoints.value += reward
         message = '恭喜！已掌握此字'
       } else {
