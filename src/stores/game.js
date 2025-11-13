@@ -6,7 +6,7 @@ import cData from '@/assets/data/data-full-all.json'
 export const useGameStore = defineStore('game', () => {
   // ====================== 状态 (State) ======================
   // 魔力值
-  const magicPoints = ref(0)
+  const magicPoints = ref(360)
   
   // 用户学习状态 - 按localStorage格式存储
   const characterStates = ref([])

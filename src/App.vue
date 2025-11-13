@@ -3,11 +3,6 @@ import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
 import { useGameStore } from '@/stores/game'
-import CCard from './components/CCard.vue'
-import PCard from './components/PCard.vue'
-import cData from '@/assets/data/data-full-all.json'
-
-import HelloWorld from './components/HelloWorld.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()

@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { useGameStore } from '@/stores/game'
+import { showToast } from 'vant'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -15,7 +16,8 @@ const goToStudy = () => {
 }
 
 const goToExam = () => {
-  router.push('/exam')
+  showToast('敬请期待')
+  // router.push('/exam')
 }
 
 const goToCollection = () => {
@@ -23,7 +25,8 @@ const goToCollection = () => {
 }
 
 const goToStatistics = () => {
-  router.push('/statistics')
+  showToast('敬请期待')
+  // router.push('/statistics')
 }
 </script>
 
@@ -34,7 +37,7 @@ const goToStatistics = () => {
       <p>开始新字的初识</p>
       <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span>
     </div>
-    <div class="button" @click="goToExam">
+    <div class="button disabled" @click="goToExam">
       <h3>汉字测验</h3>
       <p>巩固已学内容</p>
       <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / 30</span>
@@ -44,7 +47,7 @@ const goToStatistics = () => {
       <p>查看收集的画片</p>
       <span class="badge">已收集：{{ gameStore.collectedCards.length }}</span>
     </div>
-    <div class="button" @click="goToStatistics">
+    <div class="button disabled" @click="goToStatistics">
       <h3>学习统计</h3>
       <p>详细数据分析</p>
     </div>
@@ -76,6 +79,10 @@ main {
   border: 2px solid transparent;
   text-align: center;
   min-height: 120px;
+}
+
+.button.disabled {
+  opacity: 0.8;
 }
 
 .button:hover {

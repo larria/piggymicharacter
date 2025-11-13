@@ -1,15 +1,20 @@
 <script setup>
-import cData from '@/assets/data/data-full-all.json'
 import MiniCCardList from '../components/MiniCCardList.vue'
 </script>
 
 <template>
   <h2>CCardList</h2>
-  <MiniCCardList :cInfo="cData[699]" />
+  <div class="ccards-wrap">
+    <MiniCCardList />
+  </div>
 </template>
 
 <style>
 h2 {
-    font-size: 14px;
+  font-size: 14px;
+}
+
+.ccards-wrap {
+  padding: 10px;
 }
 </style>

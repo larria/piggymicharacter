@@ -12,6 +12,9 @@ const props = defineProps({
         default: 0,
     }
 });
+
+// console.log(props.unlockProgress);
+
 const blurCSS = computed(() => {
     // 如果解锁进度为1，完全清除模糊
     if (props.unlockProgress === 1) {
