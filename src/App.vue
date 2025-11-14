@@ -1,15 +1,10 @@
 <script setup>
 import { useRouter, RouterLink, RouterView } from 'vue-router'
-import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
 import { useGameStore } from '@/stores/game'
 
 const router = useRouter()
 const gameStore = useGameStore()
-
-const counterStore = useCounterStore()
-const { count, doubleCount } = storeToRefs(counterStore)
-const { increment } = counterStore
 </script>
 
 <template>

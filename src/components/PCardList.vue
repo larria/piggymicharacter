@@ -1,6 +1,5 @@
 <script setup>
 import { useRouter, RouterLink, RouterView } from 'vue-router'
-import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
 
 import PCard from '../components/PCard.vue'
