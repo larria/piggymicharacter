@@ -9478,13 +9478,13 @@
         ],
         "example_sentences": [
             "咪猪头的口袋里有糖果。",
-            "乌鸦喝水的故事里，乌鸦用袋子装水。"
+            "我们可以用袋子装东西。"
         ],
         "english_character": "bag",
         "english_phonetic": "bæɡ",
         "english_example_sentences": [
             "Piggy Mi has candy in his pocket.",
-            "In the story of the crow drinking water, the crow used a bag to carry water."
+            "We can use a bag to carry things."
         ]
     },
     {
@@ -9524,13 +9524,13 @@
         ],
         "example_sentences": [
             "咪猪头用杯子喝水。",
-            "乌鸦喝水的故事里，乌鸦用杯子喝到了水。"
+            "妈妈给我倒了一杯温牛奶，喝起来暖暖的。"
         ],
         "english_character": "cup",
         "english_phonetic": "kʌp",
         "english_example_sentences": [
             "Piggy Mi drinks water with a cup.",
-            "In the story of the crow drinking water, the crow used a cup to drink water."
+            "Mom poured me a glass of warm milk. It tastes warm."
         ]
     },
     {
@@ -9638,33 +9638,34 @@
         ],
         "example_sentences": [
             "咪猪头在菜地里拔萝卜。",
-            "乌鸦喝水的故事里，旁边有一片菜地。"
+            "我们去菜市场买菜。"
         ],
         "english_character": "vegetable",
         "english_phonetic": "ˈvedʒ.tə.bəl",
         "english_example_sentences": [
             "Piggy Mi is pulling carrots in the vegetable garden.",
-            "In the story of the crow drinking water, there is a vegetable garden nearby."
+            "We went to the vegetable market to buy vegetables."
         ]
     },
     {
         "character": "萝",
         "pinyin": "luó",
         "character_type": "noun",
-        "difficulty_level": 4,
+        "difficulty_level": 5,
         "example_words": [
             "绿萝",
             "绿萝藤",
-            "绿萝叶"
+            "胡萝藤",
+            "萝卜"
         ],
         "example_sentences": [
-            "绿萝是一种很好看的植物。",
+            "小兔子喜欢吃胡萝卜。",
             "咪猪头在家里养了一盆绿萝。"
         ],
         "english_character": "ivy",
         "english_phonetic": "ˈaɪ.vi",
         "english_example_sentences": [
-            "Ivy is a very beautiful plant.",
+            "Rabbits like to eat carrots.",
             "Piggy Mi has a pot of ivy at home."
         ]
     },
@@ -9676,9 +9677,7 @@
         "example_words": [
             "萝卜",
             "胡萝卜",
-            "白萝卜",
-            "小萝卜",
-            "绿萝卜"
+            "白萝卜"
         ],
         "example_sentences": [
             "咪猪头喜欢吃胡萝卜。",
@@ -9820,13 +9819,13 @@
         ],
         "example_sentences": [
             "咪猪头用扫帚扫地。",
-            "乌鸦喝水前，先扫干净了瓶子周围的叶子。"
+            "我帮奶奶扫院子里的落叶。"
         ],
         "english_character": "sweep",
         "english_phonetic": "swiːp",
         "english_example_sentences": [
             "Piggy Mi sweeps the floor with a broom.",
-            "Before drinking water, the crow swept the leaves around the bottle."
+            "I helped grandma sweep the fallen leaves in the yard."
         ]
     },
     {
@@ -10389,13 +10388,13 @@
         ],
         "example_sentences": [
             "咪猪头摔倒后，膝盖上有个小伤口。",
-            "乌鸦喝水的故事里，乌鸦没有受伤。"
+            "不要玩尖尖的东西，容易伤到手。"
         ],
         "english_character": "hurt",
         "english_phonetic": "hɜːrt",
         "english_example_sentences": [
             "Piggy Mi fell down and had a small wound on his knee.",
-            "In the story of the crow drinking water, the crow did not get hurt."
+            "Don't play with sharp things—they can easily hurt your hands."
         ]
     },
     {
@@ -10435,13 +10434,13 @@
         ],
         "example_sentences": [
             "咪猪头抱着一个布娃娃。",
-            "乌鸦喝水的故事里，布条帮了大忙。"
+            "奶奶用花布缝了一个小钱包。"
         ],
         "english_character": "cloth",
         "english_phonetic": "klɒθ",
         "english_example_sentences": [
             "Piggy Mi is holding a cloth doll.",
-            "In the story of the crow drinking water, the cloth strip helped a lot."
+            "Grandma sewed a small wallet with printed cloth."
         ]
     },
     {
@@ -10731,13 +10730,13 @@
         ],
         "example_sentences": [
             "咪猪头坐汽车去公园。",
-            "乌鸦喝水的故事里，乌鸦用吸管喝汽水。"
+            "乌鸦用吸管喝汽水。"
         ],
         "english_character": "steam",
         "english_phonetic": "stiːm",
         "english_example_sentences": [
             "Piggy Mi rides a car to the park.",
-            "In the story of the crow drinking water, the crow drinks soda with a straw."
+            "The crow drinks soda with a straw."
         ]
     },
     {
@@ -10754,13 +10753,13 @@
         ],
         "example_sentences": [
             "咪猪头在公园里行走。",
-            "乌鸦喝水的故事告诉我们行动很重要。"
+            "爸爸会骑自行车，还会开汽车。"
         ],
         "english_character": "walk",
         "english_phonetic": "wɔːk",
         "english_example_sentences": [
             "Piggy Mi is walking in the park.",
-            "The story of the crow drinking water tells us that action is important."
+            "Dad can ride a bike and drive a car."
         ]
     },
     {
@@ -11109,20 +11108,18 @@
         "difficulty_level": 5,
         "example_words": [
             "舞蹈",
-            "蹈海",
-            "蹈袭",
             "赴汤蹈火",
             "手舞足蹈"
         ],
         "example_sentences": [
             "咪猪头在舞台上跳舞，手舞足蹈真开心。",
-            "乌鸦喝水的故事里，小鸟也高兴得手舞足蹈。"
+            "六一儿童节，我们表演了集体舞蹈。"
         ],
         "english_character": "dance",
         "english_phonetic": "dæns",
         "english_example_sentences": [
             "Piggy Mi is dancing on the stage, waving his hands and feet happily.",
-            "In the story of the crow drinking water, the little bird also danced with joy."
+            "On Children's Day, we performed a group dance."
         ]
     },
     {
@@ -11252,14 +11249,14 @@
             "极其"
         ],
         "example_sentences": [
-            "咪猪头在极光下跳舞。",
-            "乌鸦喝水的故事里，瓶子里的水极少。"
+            "咪猪头很喜欢看极光。",
+            "山顶的风景美极了。"
         ],
         "english_character": "extreme",
         "english_phonetic": "ɪkˈstriːm",
         "english_example_sentences": [
-            "Piggy Mi is dancing under the aurora.",
-            "In the story of the crow drinking water, the water in the bottle is extremely little."
+            "Piggy Mi is very interested in the aurora.",
+            "The scenery on the top of the mountain is extremely beautiful."
         ]
     },
     {
@@ -11411,13 +11408,13 @@
         ],
         "example_sentences": [
             "咪猪头打了个哈欠，他困了。",
-            "乌鸦喝水的故事里，乌鸦用石子解决了困难。"
+            "困难像小怪兽，打败它很开心。"
         ],
         "english_character": "tired",
         "english_phonetic": "taɪərd",
         "english_example_sentences": [
             "Piggy Mi yawns, he is tired.",
-            "In the story of the crow drinking water, the crow solved the problem with pebbles."
+            "Difficulties are like little monsters. It's happy to beat them."
         ]
     },
     {
@@ -11771,13 +11768,13 @@
             "思维活跃"
         ],
         "example_sentences": [
-            "乌鸦喝水的故事告诉我们，遇到困难要善于思考。",
+            "遇到困难要善于思考。",
             "咪猪头在课堂上积极思维，回答问题。"
         ],
         "english_character": "think",
         "english_phonetic": "θɪŋk",
         "english_example_sentences": [
-            "The story of the crow drinking water tells us to think when facing difficulties.",
+            "Think hard when facing difficulties.",
             "Piggy Mi thinks actively and answers questions in class."
         ]
     },
@@ -11863,13 +11860,13 @@
         ],
         "example_sentences": [
             "咪猪头在写作业。",
-            "乌鸦喝水的故事里，乌鸦的动作真聪明。"
+            "咪猪头喜欢模仿爸爸的篮球动作。"
         ],
         "english_character": "do",
         "english_phonetic": "duː",
         "english_example_sentences": [
             "Piggy Mi is doing his homework.",
-            "In the story of the crow drinking water, the crow's action is very clever."
+            "Piggy Mi likes to imitate his father's basketball actions."
         ]
     },
     {
@@ -12205,13 +12202,13 @@
         ],
         "example_sentences": [
             "咪猪头写错了一个字。",
-            "乌鸦喝水的故事里，瓶子里的水太少，乌鸦差点错过喝水的好机会。"
+            "没关系，谁都会犯错。"
         ],
         "english_character": "wrong",
         "english_phonetic": "rɒŋ",
         "english_example_sentences": [
             "Piggy Mi wrote a wrong word.",
-            "In the story of the crow drinking water, the water in the bottle was too little, and the crow almost missed the chance to drink."
+            "It's okay. Everyone makes mistakes."
         ]
     },
     {
@@ -12387,13 +12384,13 @@
         ],
         "example_sentences": [
             "老师问问题，咪猪头举手回答。",
-            "乌鸦喝水的故事里，聪明的乌鸦找到了答案。"
+            "他的回答是对的。"
         ],
         "english_character": "answer",
         "english_phonetic": "ˈɑːn.sər",
         "english_example_sentences": [
             "Piggy Mi raises his hand to answer the teacher's question.",
-            "In the story of the crow drinking water, the clever crow found the answer."
+            "His answer is correct."
         ]
     },
     {
@@ -12433,13 +12430,13 @@
         ],
         "example_sentences": [
             "咪猪头的帽子是尖尖的。",
-            "乌鸦喝水的瓶口是尖的。"
+            "铅笔头是尖的"
         ],
         "english_character": "sharp",
         "english_phonetic": "ʃɑːrp",
         "english_example_sentences": [
             "Piggy Mi's hat is sharp at the top.",
-            "The bottle's mouth is sharp in the story of the crow drinking water."
+            "The pencil tip is sharp."
         ]
     },
     {
@@ -12479,12 +12476,12 @@
         ],
         "example_sentences": [
             "咪猪头往前走了几步。",
-            "乌鸦喝水的瓶子放在前面，它把石子往瓶子里放。"
+            "水往低处流。"
         ],
         "english_character": "go",
         "english_phonetic": "ɡoʊ",
         "english_example_sentences": [
-            "Piggy Mi walked forward a few steps.",
+            "Water flows downward.",
             "The crow put pebbles into the bottle to drink water."
         ]
     },
@@ -12635,17 +12632,16 @@
             "破坏",
             "破洞",
             "破旧",
-            "破土",
             "破冰"
         ],
         "example_sentences": [
-            "乌鸦喝水的故事里，瓶子破了。",
+            "鸡蛋不小心摔破了。",
             "咪猪头不小心把气球弄破了。"
         ],
         "english_character": "break",
         "english_phonetic": "breɪk",
         "english_example_sentences": [
-            "In the story of the crow drinking water, the bottle broke.",
+            "The egg was accidentally dropped and broken.",
             "Piggy Mi accidentally popped the balloon."
         ]
     },
@@ -12732,13 +12728,13 @@
         ],
         "example_sentences": [
             "中秋节，咪猪头一家团圆了。",
-            "乌鸦喝水的故事里，乌鸦用石子把瓶子里的水升高了，终于喝到了水，真是一个聪明的团队。"
+            "我们手拉手围成团。"
         ],
         "english_character": "group",
         "english_phonetic": "ɡruːp",
         "english_example_sentences": [
             "Piggy Mi's family is together for the Mid-Autumn Festival.",
-            "In the story of the crow drinking water, the crow worked like a clever group to get the water."
+            "We hold hands and form a circle."
         ]
     },
     {
@@ -12755,13 +12751,13 @@
         ],
         "example_sentences": [
             "我想吃糖，但是妈妈说不行。",
-            "咪猪头想飞，但乌鸦喝水的故事告诉他，要先动脑筋。"
+            "我有点累，但还能坚持。"
         ],
         "english_character": "but",
         "english_phonetic": "bʌt",
         "english_example_sentences": [
             "I want to eat candy, but mom says no.",
-            "Piggy Mi wants to fly, but the story of the crow and the pitcher tells him to think first."
+            "I'm a little tired, but I can still hold on."
         ]
     },
     {
@@ -12845,13 +12841,13 @@
         ],
         "example_sentences": [
             "咪猪头想改正自己的坏习惯。",
-            "乌鸦喝水的故事告诉我们，遇到困难要改变方法。"
+            "老师帮我改作业。"
         ],
         "english_character": "change",
         "english_phonetic": "tʃeɪndʒ",
         "english_example_sentences": [
             "Piggy Mi wants to correct his bad habits.",
-            "The story of the crow drinking water tells us to change our methods when facing difficulties."
+            "The teacher helps me correct my homework."
         ]
     },
     {
@@ -12956,14 +12952,14 @@
             "玩吧"
         ],
         "example_sentences": [
-            "我们走吧去花园玩。",
-            "乌鸦喝水吧，终于解渴了。"
+            "我们走吧，去花园玩。",
+            "请喝水吧。"
         ],
         "english_character": "okay",
         "english_phonetic": "ˈəʊ.keɪ",
         "english_example_sentences": [
             "Let's go play in the garden, okay?",
-            "The crow drinks the water, okay, and finally quenches its thirst."
+            "Please drink some water."
         ]
     },
     {
@@ -12980,13 +12976,13 @@
         ],
         "example_sentences": [
             "咪猪头接住了从天上掉下来的气球。",
-            "乌鸦喝水的故事里，乌鸦接了一滴水喝。"
+            "妈妈来接我放学。"
         ],
         "english_character": "catch",
         "english_phonetic": "kætʃ",
         "english_example_sentences": [
             "Piggy Mi caught the balloon falling from the sky.",
-            "In the story of the crow drinking water, the crow caught a drop of water to drink."
+            "Mom comes to pick me up from school."
         ]
     },
     {
@@ -13003,13 +12999,13 @@
         ],
         "example_sentences": [
             "咪猪头准时到达幼儿园。",
-            "乌鸦喝水的故事里，石子要准确地放进瓶子里。"
+            "老师批准我们去玩了。"
         ],
         "english_character": "accurate",
         "english_phonetic": "ˈæk.jə.rət",
         "english_example_sentences": [
             "Piggy Mi arrives at kindergarten on time.",
-            "In the story of the crow drinking water, the pebbles must be placed accurately into the bottle."
+            "The teacher allowed us to go play."
         ]
     },
     {
@@ -13072,13 +13068,13 @@
         ],
         "example_sentences": [
             "咪猪头和小朋友交换玩具。",
-            "乌鸦喝水的故事里，乌鸦用石子换来了水。"
+            "我换了一件新衣服。"
         ],
         "english_character": "exchange",
         "english_phonetic": "ɪksˈtʃeɪndʒ",
         "english_example_sentences": [
             "Piggy Mi exchanges toys with his friends.",
-            "In the story of the crow drinking water, the crow exchanged stones for water."
+            "I changed into a new coat."
         ]
     },
     {
@@ -13091,17 +13087,17 @@
             "休假",
             "休学",
             "休想",
-            "休战"
+            "一不做二不休"
         ],
         "example_sentences": [
             "咪猪头在树下休息。",
-            "乌鸦喝水后，决定好好休息一下。"
+            "我们去休个假吧。"
         ],
         "english_character": "rest",
         "english_phonetic": "rɛst",
         "english_example_sentences": [
             "Piggy Mi is resting under the tree.",
-            "After drinking water, the crow decides to have a good rest."
+            "Let's go on vacation."
         ]
     },
     {
@@ -13164,13 +13160,13 @@
         ],
         "example_sentences": [
             "咪猪头背书包去上学。",
-            "乌鸦喝水的故事中，乌鸦背对着大家找到了水。"
+            "我会背古诗。"
         ],
         "english_character": "back, to carry on the back",
         "english_phonetic": "bæk, tu ˈkæri ɒn ðə bæk",
         "english_example_sentences": [
             "Piggy Mi carries his backpack to school.",
-            "In the story of the crow drinking water, the crow turns its back to everyone and finds water."
+            "I can recite ancient poems."
         ]
     },
     {
@@ -13210,13 +13206,13 @@
         ],
         "example_sentences": [
             "咪猪头拿着一本书。",
-            "乌鸦喝水的故事里，乌鸦用小石子拿到了水。"
+            "请帮我拿一下积木。"
         ],
         "english_character": "take",
         "english_phonetic": "teɪk",
         "english_example_sentences": [
             "Piggy Mi is taking a book.",
-            "In the story of the crow drinking water, the crow took the water with pebbles."
+            "Please help me get the building blocks."
         ]
     },
     {
@@ -13233,13 +13229,13 @@
         ],
         "example_sentences": [
             "咪猪头在幼儿园报名了。",
-            "乌鸦喝水的故事被写进了报纸。"
+            "我给妈妈报平安。"
         ],
         "english_character": "newspaper",
         "english_phonetic": "ˈnjuːz.peɪ.pər",
         "english_example_sentences": [
             "Piggy Mi signed up for kindergarten.",
-            "The story of the crow drinking water was written in the newspaper."
+            "I tell mom that I'm safe."
         ]
     },
     {
@@ -13279,13 +13275,13 @@
         ],
         "example_sentences": [
             "咪猪头在迷宫里迷路了。",
-            "乌鸦喝水的故事真迷人。"
+            "我迷上了搭积木。"
         ],
         "english_character": "lost",
         "english_phonetic": "lɒst",
         "english_example_sentences": [
             "Piggy Mi got lost in the maze.",
-            "The story of the crow drinking water is fascinating."
+            "I'm obsessed with building blocks."
         ]
     },
     {
@@ -13302,13 +13298,13 @@
         ],
         "example_sentences": [
             "咪猪头在测量他的力量。",
-            "乌鸦喝水的故事里，乌鸦用小石子增加了水的容量。"
+            "苹果的数量比香蕉多。"
         ],
         "english_character": "measure",
         "english_phonetic": "ˈmeʒ.ər",
         "english_example_sentences": [
             "Piggy Mi is measuring his strength.",
-            "In the story of the crow drinking water, the crow used pebbles to increase the water's volume."
+            "The number of apples is more than that of bananas."
         ]
     },
     {
@@ -13529,13 +13525,13 @@
         ],
         "example_sentences": [
             "咪猪头刚才还在花园里玩耍。",
-            "乌鸦喝水的故事里，乌鸦很聪明，用了好办法才喝到水。"
+            "我才吃完早饭。"
         ],
         "english_character": "just",
         "english_phonetic": "dʒʌst",
         "english_example_sentences": [
             "Piggy Mi was just playing in the garden.",
-            "In the story of the crow drinking water, the crow was clever and found a way to drink."
+            "I just finished breakfast."
         ]
     },
     {
@@ -13575,13 +13571,13 @@
         ],
         "example_sentences": [
             "咪猪头在桌子上摆玩具。",
-            "乌鸦喝水的故事里，乌鸦把石子摆进瓶子里。"
+            "妈妈摆好了饭菜。"
         ],
         "english_character": "arrange",
         "english_phonetic": "əˈreɪndʒ",
         "english_example_sentences": [
             "Piggy Mi arranges toys on the table.",
-            "In the story of the crow drinking water, the crow arranges pebbles into the bottle."
+            "Mom set the table with food."
         ]
     },
     {
@@ -13598,13 +13594,13 @@
         ],
         "example_sentences": [
             "咪猪头用力推门，门开了。",
-            "乌鸦喝水的故事里，乌鸦推倒瓶子，水就流出来了。"
+            "乌鸦推倒瓶子，水就流出来了。"
         ],
         "english_character": "push",
         "english_phonetic": "pʊʃ",
         "english_example_sentences": [
             "Piggy Mi pushes the door hard, and it opens.",
-            "In the story of the crow drinking water, the crow pushes over the bottle, and the water flows out."
+            "The crow pushes over the bottle, and the water flows out."
         ]
     },
     {
@@ -13733,13 +13729,13 @@
         ],
         "example_sentences": [
             "咪猪头在比赛中失败了，但他没有失去信心。",
-            "乌鸦喝水的故事告诉我们，不要因为一次失手就放弃。"
+            "他没有失信，准时来了。"
         ],
         "english_character": "lose",
         "english_phonetic": "luːz",
         "english_example_sentences": [
             "Piggy Mi failed in the race, but he didn't lose confidence.",
-            "The story of the crow drinking water tells us not to give up because of one mistake."
+            "He didn't break his promise and came on time."
         ]
     },
     {
@@ -13796,19 +13792,17 @@
         "example_words": [
             "代替",
             "替换",
-            "替身",
-            "替班",
-            "替人"
+            "替身"
         ],
         "example_sentences": [
-            "咪猪头替朋友完成了作业。",
-            "乌鸦喝水的故事里，小石子替乌鸦解决了口渴。"
+            "咪猪头用红色积木替换了蓝色积木。",
+            "我可以代替妈妈浇花。"
         ],
         "english_character": "replace",
         "english_phonetic": "rɪˈpleɪs",
         "english_example_sentences": [
-            "Piggy Mi replaces his friend to finish the homework.",
-            "In the story of the crow drinking water, pebbles replace the crow to solve the thirst."
+            "Piggy Mi replaced the blue building block with the red one.",
+            "I can water the flowers instead of mom."
         ]
     },
     {
@@ -13825,13 +13819,13 @@
         ],
         "example_sentences": [
             "咪猪头在课堂上学习日语。",
-            "乌鸦喝水的故事用汉语怎么说？"
+            "乌鸦喝水的故事用英语怎么说？"
         ],
         "english_character": "language",
         "english_phonetic": "ˈlæŋ.ɡwɪdʒ",
         "english_example_sentences": [
             "Piggy Mi is learning Japanese in class.",
-            "How do you say the story of the crow drinking water in Chinese?"
+            "How do you say the story of the crow drinking water in English?"
         ]
     },
     {
@@ -13892,13 +13886,13 @@
         ],
         "example_sentences": [
             "咪猪头是个聪明的小男孩。",
-            "乌鸦喝水的故事告诉我们，聪明可以解决很多问题。"
+            "爱动脑筋的孩子更聪明。"
         ],
         "english_character": "clever",
         "english_phonetic": "ˈklev.ər",
         "english_example_sentences": [
             "Piggy Mi is a clever little boy.",
-            "The story of the crow drinking water tells us that cleverness can solve many problems."
+            "Kids who like to use their brains are smarter."
         ]
     },
     {
@@ -13984,13 +13978,13 @@
         ],
         "example_sentences": [
             "咪猪头努力分辨哪只小猪是三只小猪中的老大。",
-            "乌鸦喝水的故事中，乌鸦用石子辨别水位。"
+            "我们来辨别哪个是苹果，哪个是橙子吧。"
         ],
         "english_character": "distinguish",
         "english_phonetic": "dɪˈstɪŋ.ɡwɪʃ",
         "english_example_sentences": [
             "Piggy Mi tried hard to distinguish which piglet was the eldest among the Three Little Pigs.",
-            "In the story of the crow drinking water, the crow used pebbles to distinguish the water level."
+            "Let's tell which is an apple and which is an orange."
         ]
     },
     {
@@ -21580,9 +21574,8 @@
         "example_words": [
             "啊呀",
             "啊哈",
-            "啊哦",
-            "啊哟",
-            "啊嗯"
+            "天啊",
+            "啊哟"
         ],
         "example_sentences": [
             "啊！天上有只小鸟在飞。",

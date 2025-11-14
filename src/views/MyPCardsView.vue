@@ -23,7 +23,7 @@ const resetLocal = () => {
   </div>
 </template>
 
-<style>
+<style scoped>
 h2 {
   font-size: 30px;
 }
