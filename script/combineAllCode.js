@@ -16,7 +16,7 @@ __filename = decodeURIComponent(__filename);
 const __dirname = path.dirname(__filename);
 
 /**
- * 深度遍历目录，收集.js和.vue文件
+ * 深度遍历目录，收集.js、.css和.vue文件
  * @param {string} dir - 要遍历的目录路径
  */
 function traverseDir(dir) {
@@ -30,7 +30,7 @@ function traverseDir(dir) {
                 traverseDir(fullPath); // 递归遍历子目录
             } else if (file.isFile()) {
                 const ext = path.extname(file.name).toLowerCase();
-                if (ext === '.js' || ext === '.vue') {
+                if (ext === '.js' || ext === '.css' || ext === '.vue') {
                     targetFiles.push(fullPath);
                 }
             }
@@ -95,7 +95,7 @@ function main() {
     traverseDir(rootDir);
     
     if (targetFiles.length === 0) {
-        console.log('没有找到.js或.vue文件');
+        console.log('没有找到.js、css或.vue文件');
         process.exit(0);
     }
     
