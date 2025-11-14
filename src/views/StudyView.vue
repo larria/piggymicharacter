@@ -31,7 +31,8 @@ const handleFinished = () => {
 
 // 该组charactersCountLeft个汉字全部完成
 const toExma = () => {
-  showToast('敬请期待')
+  // TODO
+  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
   // router.push('/exam')
 }
 const toHome = () => {

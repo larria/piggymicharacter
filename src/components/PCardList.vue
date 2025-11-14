@@ -10,7 +10,7 @@ import { useGameStore } from '@/stores/game'
 const router = useRouter()
 const gameStore = useGameStore()
 
-const pCardLen = 28
+const pCardLen = 32
 
 const CARD_COST = gameStore.CARD_COST;
 
@@ -37,7 +37,13 @@ const handleClick = (cId) => {
                     `是否消耗${CARD_COST}魔力解锁卡片？`,
             })
                 .then(() => {
-                    gameStore.exchangeCard(cId)
+                    gameStore.exchangeCard(cId);
+                    showSuccessToast('🐷 恭喜，解锁成功～');
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
                 })
                 .catch(() => {
                     // on cancel

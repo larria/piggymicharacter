@@ -3,7 +3,7 @@ import PCardList from '../components/PCardList.vue'
 import PageHeader from '../components/PageHeader.vue'
 
 const resetLocal = () => {
-  if (confirm('是否重置游戏数据？')) {
+  if (location.search.includes('debug') && confirm('是否重置游戏数据？')) {
     localStorage.removeItem('piggy-mi-character-game')
     window.location.reload()
   }

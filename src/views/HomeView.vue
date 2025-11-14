@@ -16,7 +16,8 @@ const goToStudy = () => {
 }
 
 const goToExam = () => {
-  showToast('敬请期待')
+  // TODO
+  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
   // router.push('/exam')
 }
 
@@ -25,7 +26,8 @@ const goToCollection = () => {
 }
 
 const goToStatistics = () => {
-  showToast('敬请期待')
+  // TODO
+  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
   // router.push('/statistics')
 }
 </script>
@@ -38,7 +40,7 @@ const goToStatistics = () => {
       <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span>
     </div>
     <div class="button disabled" @click="goToExam">
-      <h3>汉字测验</h3>
+      <h3>复习游戏</h3>
       <p>巩固已学内容</p>
       <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / 30</span>
     </div>
