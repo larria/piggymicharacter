@@ -19,8 +19,8 @@ const router = createRouter({
       // }
     },
     {
-      path: '/myccard',
-      name: 'myCCard',
+      path: '/statistics',
+      name: 'statistics',
       component: () => import('../views/MyCCardsView.vue'),
     },
     {

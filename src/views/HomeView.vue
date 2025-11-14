@@ -26,9 +26,7 @@ const goToCollection = () => {
 }
 
 const goToStatistics = () => {
-  // TODO
-  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
-  // router.push('/statistics')
+  router.push('/statistics')
 }
 </script>
 
@@ -42,14 +40,14 @@ const goToStatistics = () => {
     <div class="button disabled" @click="goToExam">
       <h3>复习游戏</h3>
       <p>巩固已学内容</p>
-      <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / 30</span>
+      <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ Math.min(gameStore.learnedCharacters.length, gameStore.DAILY_MASTER_LIMIT) }}</span>
     </div>
     <div class="button" @click="goToCollection">
       <h3>画片收藏</h3>
       <p>查看收集的画片</p>
       <span class="badge">已收集：{{ gameStore.collectedCards.length }}</span>
     </div>
-    <div class="button disabled" @click="goToStatistics">
+    <div class="button" @click="goToStatistics">
       <h3>学习统计</h3>
       <p>详细数据分析</p>
     </div>

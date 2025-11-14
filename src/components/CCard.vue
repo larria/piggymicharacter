@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
   cInfo: {
@@ -8,20 +8,20 @@ const props = defineProps({
   },
 });
 
-// 声明自定义事件
 const emit = defineEmits(['finished']);
 
-// 追踪当前朗读的条目索引
 const speakingIndex = ref(-1);
-// 标记是否全部朗读完毕
 const isFinished = ref(false);
-// 进度条
 const speakProgress = ref(0);
-// 状态锁，防止语音重叠
 const isBusySpeaking = ref(false);
 
+const characterRepetitions = Array(3).fill({
+  text: props.cInfo.character,
+  config: { rate: 0.03, lang: 'zh-CN' }
+});
+
 const speakContent = [
-  { text: props.cInfo.character, config: { rate: 0.03, lang: 'zh-CN' } }
+  ...characterRepetitions
 ].concat(props.cInfo.example_words.map(word => ({
   text: word,
   config: { rate: 0.7, lang: 'zh-CN' }
@@ -30,11 +30,7 @@ const speakContent = [
   config: { rate: 1, lang: 'zh-CN' }
 })));
 
-/**
- * 语音合成函数
- */
 async function speakText(text, options = {}) {
-  // ... (代码与之前版本相同，此处省略以保持简洁)
   return new Promise((resolve, reject) => {
     if (!('speechSynthesis' in window)) {
       reject(new Error('当前浏览器不支持语音合成功能'));
@@ -50,27 +46,18 @@ async function speakText(text, options = {}) {
   });
 }
 
-/**
- * 处理用户点击播放的函数
- * @param {number} index - 在 speakContent 数组中的索引
- */
 async function playItemOnClick(index) {
-  // 如果当前正在播放，则不响应新的点击
-  // 并且只在全部播放完成后才允许点击
   if (isBusySpeaking.value || !isFinished.value) {
     return;
   }
-
   isBusySpeaking.value = true;
   speakingIndex.value = index;
-
   try {
     const { text, config } = speakContent[index];
     await speakText(text, config);
   } catch (error) {
     console.error(error);
   } finally {
-    // 朗读结束后，重置高亮索引并释放状态锁
     speakingIndex.value = -1;
     isBusySpeaking.value = false;
   }
@@ -79,23 +66,52 @@ async function playItemOnClick(index) {
 // 组件挂载后，开始自动播放
 onMounted(async () => {
   if (props.cInfo) {
-    isBusySpeaking.value = true; // 锁定状态
+    isBusySpeaking.value = true;
 
     for (let i = 0; i < speakContent.length; i++) {
-      speakingIndex.value = i;
+      if (!isBusySpeaking.value) return;
+
       const { text, config } = speakContent[i];
-      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // **** 核心改动点 ****
+      // 1. 先设置朗读条目之间的停顿 (第一次除外)
+      if (i > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+      
+      if (!isBusySpeaking.value) return; // 再次检查，防止在等待时组件被卸载
+
+      // 2. 在即将播放时，才设置高亮
+      //    只有前三次是读汉字，使用相同的 speakingIndex (值为0) 来高亮
+      //    之后的词语和句子，索引要进行相应调整
+      if (i < 3) {
+        speakingIndex.value = 0; // 汉字高亮
+      } else if (i < 3 + props.cInfo.example_words.length) {
+        speakingIndex.value = i; // 词语高亮 (因为 speakContent 数组结构变了，这里直接用 i 即可)
+      } else {
+        speakingIndex.value = i; // 句子高亮
+      }
+
+      // 3. 立即开始朗读
       await speakText(text, config);
+      // **** 改动结束 ****
+
       speakProgress.value = Math.round(((i + 1) / speakContent.length) * 100);
     }
 
     speakingIndex.value = -1;
     isFinished.value = true;
-    isBusySpeaking.value = false; // 释放状态锁
-    
-    // 触发 finished 事件
+    isBusySpeaking.value = false;
     emit('finished');
   }
+});
+
+
+onUnmounted(() => {
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+  }
+  isBusySpeaking.value = false;
 });
 
 function getHighlightSentenceHTML(sentence, character) {
@@ -105,21 +121,22 @@ function getHighlightSentenceHTML(sentence, character) {
 
 <template>
   <section class="ccard" :class="{ finished: isFinished }">
+    <!-- 点击播放汉字的索引是 0, 1, 2。我们点击时播放第一个即可 -->
     <h2 :class="{ speaking: speakingIndex === 0 }" @click="playItemOnClick(0)">
       {{ cInfo.character }}
     </h2>
     <p class="pinyin">{{ cInfo.pinyin }}</p>
     <div class="words">
       <h3 class="sub-title">词语</h3>
-      <!-- 改造：添加点击事件，注意索引计算 -->
-      <span v-for="(word, index) in cInfo.example_words" :key="word" class="word-wrap" :class="{ speaking: speakingIndex === index + 1 }" @click="playItemOnClick(index + 1)">
+      <!-- speakContent 中词语的起始索引是 3 -->
+      <span v-for="(word, index) in cInfo.example_words" :key="word" class="word-wrap" :class="{ speaking: speakingIndex === index + 3 }" @click="playItemOnClick(index + 3)">
         {{ word }}
       </span>
     </div>
     <div class="sentences">
       <h3 class="sub-title">例句</h3>
-      <!-- 改造：添加点击事件，注意索引计算 -->
-      <p v-for="(sentence, index) in cInfo.example_sentences" :key="sentence" class="sentence-wrap" :class="{ speaking: speakingIndex === index + 1 + cInfo.example_words.length }" @click="playItemOnClick(index + 1 + cInfo.example_words.length)" v-html="getHighlightSentenceHTML(sentence, cInfo.character)"></p>
+      <!-- speakContent 中句子的起始索引是 3 + 词语数量 -->
+      <p v-for="(sentence, index) in cInfo.example_sentences" :key="sentence" class="sentence-wrap" :class="{ speaking: speakingIndex === index + 3 + cInfo.example_words.length }" @click="playItemOnClick(index + 3 + cInfo.example_words.length)" v-html="getHighlightSentenceHTML(sentence, cInfo.character)"></p>
     </div>
     <van-progress :percentage="speakProgress" />
   </section>
@@ -166,7 +183,7 @@ h2 {
 
 h2.speaking {
   color: #409eff;
-  transform: scale(1.1);
+  animation: pulse2 1.5s infinite;
 }
 
 .pinyin {
@@ -254,6 +271,21 @@ h2.speaking {
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(64, 158, 255, 0);
+  }
+}
+
+@keyframes pulse2 {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(64, 158, 255, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    text-shadow: 0 0 10px rgba(64, 158, 255, 0);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 0 rgba(64, 158, 255, 0);
   }
 }
 </style>

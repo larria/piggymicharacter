@@ -4,13 +4,14 @@ import { useCounterStore } from '@/stores/counter'
 import { storeToRefs } from 'pinia'
 
 import PCard from '../components/PCard.vue'
+import ProgressRing from '../components/ProgressRing.vue'
 
 import { useGameStore } from '@/stores/game'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
-const pCardLen = 32
+const pCardTotalLen = 32
 
 const CARD_COST = gameStore.CARD_COST;
 
@@ -57,8 +58,13 @@ const handleClick = (cId) => {
 </script>
 
 <template>
+
+    <div class="static-wrap">
+        <p>解锁进度</p>
+        <ProgressRing :progress="(gameStore.collectedCards.length / pCardTotalLen) * 100" :text="`${gameStore.collectedCards.length}/${pCardTotalLen}`" :size="50" />
+    </div>
     <section class="pcard-list">
-        <PCard :cId="(i - 1).toString()" :unlockProgress="gameStore.collectedCards.includes(i - 1) ? 1 : 0" v-for="i in pCardLen" :key="i" @click="handleClick(i - 1)"></PCard>
+        <PCard :cId="(i - 1).toString()" :unlockProgress="gameStore.collectedCards.includes(i - 1) ? 1 : 0" v-for="i in pCardTotalLen" :key="i" @click="handleClick(i - 1)"></PCard>
     </section>
 </template>
 
@@ -67,5 +73,13 @@ const handleClick = (cId) => {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 15px;
+}
+
+.static-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 10px 0;
 }
 </style>
