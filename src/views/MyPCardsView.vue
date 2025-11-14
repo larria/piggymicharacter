@@ -29,6 +29,8 @@ h2 {
 }
 
 .pcards-wrap {
+  flex: 1;
+  overflow-y: auto;
   padding: 20px;
 }
 </style>
