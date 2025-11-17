@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import Utils from '../Utils.js';
 
 const props = defineProps({
   cInfo: {
@@ -30,22 +31,6 @@ const speakContent = [
   config: { rate: 1, lang: 'zh-CN' }
 })));
 
-async function speakText(text, options = {}) {
-  return new Promise((resolve, reject) => {
-    if (!('speechSynthesis' in window)) {
-      reject(new Error('当前浏览器不支持语音合成功能'));
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    Object.assign(utterance, {
-      rate: 1, pitch: 1, volume: 1, lang: 'zh-CN', ...options
-    });
-    utterance.onend = () => resolve();
-    utterance.onerror = (event) => reject(new Error(`语音合成错误: ${event.error}`));
-    window.speechSynthesis.speak(utterance);
-  });
-}
-
 async function playItemOnClick(index) {
   if (isBusySpeaking.value || !isFinished.value) {
     return;
@@ -54,7 +39,7 @@ async function playItemOnClick(index) {
   speakingIndex.value = index;
   try {
     const { text, config } = speakContent[index];
-    await speakText(text, config);
+    await Utils.speakText(text, config);
   } catch (error) {
     console.error(error);
   } finally {
@@ -76,7 +61,7 @@ onMounted(async () => {
       // **** 核心改动点 ****
       // 1. 先设置朗读条目之间的停顿 (第一次除外)
       if (i > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
       
       if (!isBusySpeaking.value) return; // 再次检查，防止在等待时组件被卸载
@@ -93,7 +78,7 @@ onMounted(async () => {
       }
 
       // 3. 立即开始朗读
-      await speakText(text, config);
+      await Utils.speakText(text, config);
       // **** 改动结束 ****
 
       speakProgress.value = Math.round(((i + 1) / speakContent.length) * 100);
@@ -108,9 +93,7 @@ onMounted(async () => {
 
 
 onUnmounted(() => {
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
+  Utils.stopSpeak();
   isBusySpeaking.value = false;
 });
 
@@ -172,7 +155,7 @@ function getHighlightSentenceHTML(sentence, character) {
 }
 
 h2 {
-  font-size: 48px;
+  font-size: 60px;
   text-align: center;
   margin: 0 0 8px;
   color: #333;
@@ -183,11 +166,11 @@ h2 {
 
 h2.speaking {
   color: #409eff;
-  animation: pulse2 1.5s infinite;
+  animation: pulse2 1.2s infinite;
 }
 
 .pinyin {
-  font-size: 18px;
+  font-size: 22px;
   text-align: center;
   margin: 0 0 20px;
   color: #666;
@@ -280,7 +263,7 @@ h2.speaking {
     text-shadow: 0 0 0 rgba(64, 158, 255, 0.7);
   }
   70% {
-    transform: scale(1.1);
+    transform: scale(1.2);
     text-shadow: 0 0 10px rgba(64, 158, 255, 0);
   }
   100% {

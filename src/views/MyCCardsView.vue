@@ -24,7 +24,7 @@ const gameStore = useGameStore()
     <div class="static-wrap">
       <p class="static-item">已初识 {{ gameStore.learnedCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
       <p class="static-item">已掌握 {{ gameStore.masteredCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
-      <p class="static-tips">继续加油！</p>
+      <p class="static-tips">学习要有恒心，坚持努力吧！</p>
     </div>
     <MiniCCardList />
   </div>

@@ -1,17 +1,23 @@
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { showToast } from 'vant'
+import Utils from '../Utils.js';
+
+import ProgressRing from '../components/ProgressRing.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
-
-const goToStudy = () => {
-  // if (unlearnedCount.value === 0) {
-  //   alert('所有字都已经学习过了！')
-  //   return
-  // }
+const goToStudy = async () => {
+  if (gameStore.getTodayLearnCount() === gameStore.DAILY_LEARN_LIMIT) {
+    showToast('🐷 咪猪头今天的学习任务已经全部完成～')
+    await Utils.speakText('太棒了！咪猪头今天的学习任务已经全部完成～', {
+      lang: 'zh-CN',
+    });
+    return
+  }
   router.push('/study')
 }
 
@@ -28,6 +34,10 @@ const goToCollection = () => {
 const goToStatistics = () => {
   router.push('/statistics')
 }
+
+onUnmounted(() => {
+  Utils.stopSpeak();
+})
 </script>
 
 <template>
@@ -35,7 +45,8 @@ const goToStatistics = () => {
     <div class="button" @click="goToStudy">
       <h3>识字学习</h3>
       <p>开始新字的初识</p>
-      <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span>
+      <!-- <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span> -->
+      <ProgressRing :progress="gameStore.getTodayLearnCount() / gameStore.DAILY_LEARN_LIMIT * 100" :text="gameStore.getTodayLearnCount() + '/' + gameStore.DAILY_LEARN_LIMIT" size=50></ProgressRing>
     </div>
     <div class="button disabled" @click="goToExam">
       <h3>复习游戏</h3>
@@ -105,7 +116,7 @@ main {
 }
 
 .button p {
-  margin: 0;
+  margin: 0 0 20px;
   font-size: 0.95em;
   color: #7f8c8d;
   line-height: 1.4;
@@ -119,12 +130,12 @@ main {
     gap: 15px;
     padding: 15px;
   }
-  
+
   .button {
     padding: 25px 15px;
     min-height: 100px;
   }
-  
+
   .button h3 {
     font-size: 1.3em;
   }
