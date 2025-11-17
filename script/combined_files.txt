@@ -82,6 +82,36 @@ nav a:first-of-type {
 </style>
 
 
+===== Utils.js =====
+// 播放语音
+async function speakText(text, options = {}) {
+  return new Promise((resolve, reject) => {
+    if (!('speechSynthesis' in window)) {
+      reject(new Error('当前浏览器不支持语音合成功能'));
+      return;
+    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    Object.assign(utterance, {
+      rate: 1, pitch: 1, volume: 1, lang: 'zh-CN', ...options
+    });
+    utterance.onend = () => resolve();
+    utterance.onerror = (event) => reject(new Error(`语音合成错误: ${event.error}`));
+    window.speechSynthesis.speak(utterance);
+  });
+}
+
+// 中止播放语音
+function stopSpeak() {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+}
+
+export default {
+    speakText,
+    stopSpeak
+};
+
 ===== assets/css/base.css =====
 * {
   margin: 0;
@@ -401,6 +431,7 @@ body {
 ===== components/CCard.vue =====
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+import Utils from '../Utils.js';
 
 const props = defineProps({
   cInfo: {
@@ -431,22 +462,6 @@ const speakContent = [
   config: { rate: 1, lang: 'zh-CN' }
 })));
 
-async function speakText(text, options = {}) {
-  return new Promise((resolve, reject) => {
-    if (!('speechSynthesis' in window)) {
-      reject(new Error('当前浏览器不支持语音合成功能'));
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    Object.assign(utterance, {
-      rate: 1, pitch: 1, volume: 1, lang: 'zh-CN', ...options
-    });
-    utterance.onend = () => resolve();
-    utterance.onerror = (event) => reject(new Error(`语音合成错误: ${event.error}`));
-    window.speechSynthesis.speak(utterance);
-  });
-}
-
 async function playItemOnClick(index) {
   if (isBusySpeaking.value || !isFinished.value) {
     return;
@@ -455,7 +470,7 @@ async function playItemOnClick(index) {
   speakingIndex.value = index;
   try {
     const { text, config } = speakContent[index];
-    await speakText(text, config);
+    await Utils.speakText(text, config);
   } catch (error) {
     console.error(error);
   } finally {
@@ -477,7 +492,7 @@ onMounted(async () => {
       // **** 核心改动点 ****
       // 1. 先设置朗读条目之间的停顿 (第一次除外)
       if (i > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
       
       if (!isBusySpeaking.value) return; // 再次检查，防止在等待时组件被卸载
@@ -494,7 +509,7 @@ onMounted(async () => {
       }
 
       // 3. 立即开始朗读
-      await speakText(text, config);
+      await Utils.speakText(text, config);
       // **** 改动结束 ****
 
       speakProgress.value = Math.round(((i + 1) / speakContent.length) * 100);
@@ -509,9 +524,7 @@ onMounted(async () => {
 
 
 onUnmounted(() => {
-  if (window.speechSynthesis) {
-    window.speechSynthesis.cancel();
-  }
+  Utils.stopSpeak();
   isBusySpeaking.value = false;
 });
 
@@ -573,7 +586,7 @@ function getHighlightSentenceHTML(sentence, character) {
 }
 
 h2 {
-  font-size: 48px;
+  font-size: 60px;
   text-align: center;
   margin: 0 0 8px;
   color: #333;
@@ -584,11 +597,11 @@ h2 {
 
 h2.speaking {
   color: #409eff;
-  animation: pulse2 1.5s infinite;
+  animation: pulse2 1.2s infinite;
 }
 
 .pinyin {
-  font-size: 18px;
+  font-size: 22px;
   text-align: center;
   margin: 0 0 20px;
   color: #666;
@@ -681,7 +694,7 @@ h2.speaking {
     text-shadow: 0 0 0 rgba(64, 158, 255, 0.7);
   }
   70% {
-    transform: scale(1.1);
+    transform: scale(1.2);
     text-shadow: 0 0 10px rgba(64, 158, 255, 0);
   }
   100% {
@@ -1455,6 +1468,11 @@ const router = createRouter({
       // }
     },
     {
+      path: '/exam',
+      name: 'exam',
+      component: () => import('../views/ExamView.vue'),
+    },
+    {
       path: '/statistics',
       name: 'statistics',
       component: () => import('../views/MyCCardsView.vue'),
@@ -1481,16 +1499,9 @@ import cData from '@/assets/data/data-full-all.json'
 
 export const useGameStore = defineStore('game', () => {
   // ====================== 状态 (State) ======================
-  // 魔力值
   const magicPoints = ref(360)
-  
-  // 用户学习状态 - 按localStorage格式存储
   const characterStates = ref([])
-  
-  // 已兑换画片ID列表
   const collectedCards = ref([])
-  
-  // 所有汉字数据 (此数据不进行持久化)
   const allCharactersData = ref(cData)
 
   // ====================== 常量 (Constants) ======================
@@ -1500,21 +1511,18 @@ export const useGameStore = defineStore('game', () => {
   const CARD_COST = 160
 
   // ====================== 计算属性 (Getters) ======================
-  // 获取已掌握的字列表
   const masteredCharacters = computed(() => {
     return characterStates.value
       .filter(state => isCharacterMastered(state))
       .map(state => state.character)
   })
 
-  // 获取已初识但未掌握的字列表
   const learnedCharacters = computed(() => {
     return characterStates.value
       .filter(state => isCharacterLearned(state) && !isCharacterMastered(state))
       .map(state => state.character)
   })
 
-  // 获取未初识的字列表
   const unlearnedCharacters = computed(() => {
     const allChars = getAllCharacters()
     const learnedList = new Set([...masteredCharacters.value, ...learnedCharacters.value])
@@ -1522,7 +1530,6 @@ export const useGameStore = defineStore('game', () => {
   })
 
   // ====================== 内部辅助函数 ======================
-  // 判断字是否已掌握
   function isCharacterMastered(characterState) {
     if (!characterState?.stateList) return false
     const correctCount = characterState.stateList.filter(action =>
@@ -1531,24 +1538,27 @@ export const useGameStore = defineStore('game', () => {
     return correctCount >= REQUIRED_CORRECT_COUNT
   }
 
-  // 判断字是否已初识
   function isCharacterLearned(characterState) {
     if (!characterState?.stateList) return false
     return characterState.stateList.some(action => action.action === '初识')
   }
 
-  // 获取所有字的列表（从数据文件中提取）
   function getAllCharacters() {
     return allCharactersData.value.map(char => char.character)
   }
 
   // ====================== 核心业务方法 (Actions) ======================
-  // 获取字的状态记录
   function getCharacterState(character) {
     return characterStates.value.find(state => state.character === character)
   }
 
-  // 获取今日初识字数
+  // 获取指定汉字的当前正确次数 +++
+  function getCharacterCorrectCount(character) {
+    const state = getCharacterState(character);
+    if (!state?.stateList) return 0;
+    return state.stateList.filter(action => action.action === '测验' && action.isCorrect).length;
+  }
+
   function getTodayLearnCount() {
     const today = new Date().toDateString()
     return characterStates.value.filter(state => {
@@ -1557,7 +1567,6 @@ export const useGameStore = defineStore('game', () => {
     }).length
   }
 
-  // 获取今日掌握字数
   function getTodayMasterCount() {
     const today = new Date().toDateString();
     let count = 0;
@@ -1576,42 +1585,34 @@ export const useGameStore = defineStore('game', () => {
     return count;
   }
   
-  // 处理初识操作
   function learnCharacter(character) {
     if (getTodayLearnCount() >= DAILY_LEARN_LIMIT) {
       return { success: false, message: '今日初识字数已达上限' }
     }
-    
     let state = getCharacterState(character)
-    
     if (!state) {
       state = { character, stateList: [] }
       characterStates.value.push(state)
     }
-    
     if (isCharacterLearned(state)) {
       return { success: false, message: '已经初识过这个字' }
     }
-    
     state.stateList.push({ action: '初识', date: Date.now() })
     magicPoints.value += 3
-    
-    // 无需手动保存，插件会自动处理
     return { success: true, message: '初识成功' }
   }
   
-  // 处理测验操作
-  function testCharacter(character, isCorrect) {
+  // +++ 修改方法：使其返回 newCorrectCount +++
+  function recordExamResult(character, isCorrect) {
     let state = getCharacterState(character)
-    
     if (!state || !isCharacterLearned(state)) {
       return { success: false, message: '请先初识这个字' }
     }
     
     const wasAlreadyMastered = isCharacterMastered(state);
-
     state.stateList.push({ action: '测验', isCorrect, date: Date.now() })
     
+    const newCorrectCount = getCharacterCorrectCount(character); // 获取最新的正确次数
     const isNowMastered = isCharacterMastered(state);
     let message = ''
     let reward = 0
@@ -1628,18 +1629,15 @@ export const useGameStore = defineStore('game', () => {
       if (isNowMastered) {
         message = '已掌握的字，测验正确！'
       } else {
-        const correctCount = state.stateList.filter(a => a.action === '测验' && a.isCorrect).length
-        message = `测验正确！还需要${REQUIRED_CORRECT_COUNT - correctCount}次正确`
+        message = `测验正确！还需要${REQUIRED_CORRECT_COUNT - newCorrectCount}次正确`
       }
     } else {
       message = '测验错误，继续努力！'
     }
     
-    // 无需手动保存，插件会自动处理
-    return { success: true, message, reward, isMastered: isNowMastered }
+    return { success: true, message, reward, isMastered: isNowMastered, newCorrectCount };
   }
 
-  // 兑换画片
   function exchangeCard(cardId) {
     if (magicPoints.value < CARD_COST) {
       return { success: false, message: '魔力值不足' }
@@ -1647,25 +1645,19 @@ export const useGameStore = defineStore('game', () => {
     if (collectedCards.value.includes(cardId)) {
       return { success: false, message: '画片已存在' }
     }
-    
     magicPoints.value -= CARD_COST
     collectedCards.value.push(cardId)
-    
-    // 无需手动保存，插件会自动处理
     return { success: true, message: '兑换成功' }
   }
 
-  // 检查画片是否已兑换
   function isCardCollected(cardId) {
     return collectedCards.value.includes(cardId)
   }
 
-  // 设置所有汉字数据
   function setAllCharactersData(data) {
     allCharactersData.value = data || []
   }
   
-  // 获取统计数据
   function getStats() {
     return {
       total: getAllCharacters().length,
@@ -1676,43 +1668,32 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  // 返回 store 的公共接口
   return {
-    // State
     magicPoints,
     characterStates,
     collectedCards,
     allCharactersData,
-    
-    // Constants
     DAILY_LEARN_LIMIT,
     DAILY_MASTER_LIMIT,
     REQUIRED_CORRECT_COUNT,
     CARD_COST,
-    
-    // Getters
     masteredCharacters,
     learnedCharacters,
     unlearnedCharacters,
-    
-    // Actions
     getCharacterState,
     getTodayLearnCount,
     getTodayMasterCount,
     learnCharacter,
-    testCharacter,
+    recordExamResult,
     exchangeCard,
     isCardCollected,
     setAllCharactersData,
     getStats,
+    getCharacterCorrectCount,
   }
 }, {
-  // ====================== 持久化配置 ======================
   persist: {
-    // 存储在 localStorage 中的 key
     key: 'piggy-mi-character-game',
-    
-    // 需要持久化的 state，没写的则不会被持久化
     paths: ['magicPoints', 'characterStates', 'collectedCards'],
   }
 })
@@ -1735,28 +1716,564 @@ export const useGameStore = defineStore('game', () => {
 </style>
 
 
+===== views/ExamView.vue =====
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+import confetti from 'canvas-confetti';
+
+import PageHeader from '../components/PageHeader.vue';
+import ProgressRing from '../components/ProgressRing.vue';
+import CCard from '../components/CCard.vue';
+import Utils from '../Utils.js';
+
+const router = useRouter();
+const gameStore = useGameStore();
+
+// --- 组件状态 ---
+const quizState = ref('loading');
+const lastExaminedChar = ref(null);
+const currentQuestion = ref(null);
+const selectedAnswer = ref(null);
+const isAnswered = ref(false);
+const isCorrect = ref(false);
+const showReviewCard = ref(false);
+const isReviewCardFinished = ref(false);
+const progressInfo = ref({ show: false, char: '', from: 0, to: 0 });
+
+// --- 统计数据 ---
+const sessionStats = ref({
+  correct: 0,
+  total: 0,
+});
+
+// --- 计算属性 ---
+const examinableChars = computed(() => gameStore.learnedCharacters);
+const dailyMasterLimit = computed(() => gameStore.DAILY_MASTER_LIMIT);
+const todayMasteredCount = computed(() => gameStore.getTodayMasterCount());
+
+// --- 方法 ---
+const generateQuestion = () => {
+  // 重置状态
+  isAnswered.value = false;
+  isCorrect.value = false;
+  selectedAnswer.value = null;
+  isReviewCardFinished.value = false;
+  progressInfo.value.show = false;
+
+  if (examinableChars.value.length === 0 || todayMasteredCount.value >= dailyMasterLimit.value) {
+    quizState.value = 'finished';
+    playCelebrationAnimation();
+    return;
+  }
+
+  let availableChars = examinableChars.value;
+  if (lastExaminedChar.value && availableChars.length > 1) {
+    availableChars = availableChars.filter(c => c !== lastExaminedChar.value);
+  }
+
+  const targetChar = availableChars[Math.floor(Math.random() * availableChars.length)];
+  const targetCharInfo = gameStore.allCharactersData.find(c => c.character === targetChar);
+  lastExaminedChar.value = targetChar;
+
+  const sentence = targetCharInfo.example_sentences[Math.floor(Math.random() * targetCharInfo.example_sentences.length)];
+  const questionText = sentence.replace(new RegExp(targetChar, 'g'), '（__）');
+
+  const options = new Set([targetChar]);
+  const allOtherChars = gameStore.allCharactersData.filter(c => c.character !== targetChar);
+  while (options.size < 4 && allOtherChars.length > 0) {
+    const randomIndex = Math.floor(Math.random() * allOtherChars.length);
+    options.add(allOtherChars.splice(randomIndex, 1)[0].character);
+  }
+
+  const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
+
+  currentQuestion.value = {
+    targetChar,
+    targetCharInfo,
+    questionText,
+    options: shuffledOptions,
+  };
+
+  // +++ Bug修复：移除这里的 speakQuestion() 调用 +++
+  // speakQuestion(); 
+};
+
+const speakQuestion = async () => {
+  if (!currentQuestion.value) return;
+  const text = currentQuestion.value.questionText;
+  const parts = text.split('（__）');
+  
+  Utils.stopSpeak();
+
+  try {
+    if (parts[0]) {
+      await Utils.speakText(parts[0]);
+    }
+    
+    await new Promise(resolve => setTimeout(resolve, 500));
+    await Utils.speakText('什么的', { rate: 1.2 });
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    if (parts[1]) {
+      await Utils.speakText(parts[1]);
+    }
+  } catch (error) {
+    // 当语音被 handleAnswer 中止时，这里可能会捕获到一个错误，属于正常现象
+  }
+};
+
+const handleAnswer = (option) => {
+  if (isAnswered.value) return;
+
+  Utils.stopSpeak();
+
+  isAnswered.value = true;
+  selectedAnswer.value = option;
+  sessionStats.value.total++;
+
+  if (option === currentQuestion.value.targetChar) {
+    isCorrect.value = true;
+    sessionStats.value.correct++;
+
+    const oldCorrectCount = gameStore.getCharacterCorrectCount(currentQuestion.value.targetChar);
+    const result = gameStore.recordExamResult(currentQuestion.value.targetChar, true);
+
+    progressInfo.value = {
+      show: true,
+      char: currentQuestion.value.targetChar,
+      from: oldCorrectCount,
+      to: result.newCorrectCount,
+    };
+
+    if (result.reward > 0) {
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
+    
+    // +++ Bug修复：在这里调用 speakQuestion +++
+    setTimeout(() => {
+      generateQuestion();
+      speakQuestion(); // 自动进入下一题时，需要朗读
+    }, 2000);
+  } else {
+    isCorrect.value = false;
+    gameStore.recordExamResult(currentQuestion.value.targetChar, false);
+    
+    setTimeout(() => {
+        showReviewCard.value = true;
+    }, 2000);
+  }
+};
+
+const onReviewCardFinished = () => {
+  isReviewCardFinished.value = true;
+};
+
+const goToNextQuestion = () => {
+  showReviewCard.value = false;
+  // +++ Bug修复：这里只生成题目，不朗读 +++
+  generateQuestion(); 
+};
+
+const playCelebrationAnimation = () => {
+    var duration = 5 * 1000;
+    var animationEnd = Date.now() + duration;
+    var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+    function randomInRange(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    var interval = setInterval(function() {
+      var timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) return clearInterval(interval);
+
+      var particleCount = 50 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+    }, 250);
+};
+
+onMounted(() => {
+  // +++ Bug修复：在这里调用 speakQuestion +++
+  generateQuestion();
+  speakQuestion(); // 首次加载时，需要朗读
+  quizState.value = 'ongoing';
+});
+</script>
+
+<template>
+  <div class="exam-view">
+    <PageHeader>
+      <template #center>
+        <div class="exam-header-center">
+          <ProgressRing 
+            :progress="(todayMasteredCount / dailyMasterLimit) * 100" 
+            :text="`${todayMasteredCount}/${dailyMasterLimit}`" 
+            :size="60" 
+          />
+        </div>
+      </template>
+    </PageHeader>
+
+    <main class="quiz-content" v-if="quizState === 'ongoing' && currentQuestion">
+      <div class="question-panel" @click="speakQuestion">
+        <h2 class="question-text" :class="{ highlight: !isAnswered }">{{ currentQuestion.questionText }}</h2>
+      </div>
+
+      <div class="options-grid">
+        <button 
+          v-for="option in currentQuestion.options" 
+          :key="option" 
+          @click="handleAnswer(option)"
+          class="option-btn"
+          :class="{
+            'correct': isAnswered && option === currentQuestion.targetChar,
+            'incorrect': isAnswered && selectedAnswer === option && option !== currentQuestion.targetChar,
+            'disabled': isAnswered
+          }"
+          :disabled="isAnswered"
+        >
+          {{ option }}
+        </button>
+      </div>
+    </main>
+
+    <!-- 结果动画 -->
+    <div v-if="isAnswered" class="result-animation">
+      <div v-if="isCorrect" class="icon-correct">✔️</div>
+      <div v-if="!isCorrect" class="icon-incorrect">❌</div>
+    </div>
+
+    <!-- 底部进度条 -->
+    <footer class="progress-footer">
+      <Transition name="progress-fade">
+        <div v-if="progressInfo.show" class="progress-bar">
+          <template v-if="progressInfo.to >= gameStore.REQUIRED_CORRECT_COUNT">
+            <span class="celebration">🎉 恭喜掌握 “{{ progressInfo.char }}” 字！ 🎉</span>
+          </template>
+          <template v-else>
+            <span class="char-display">{{ progressInfo.char }}</span>
+            <div class="progress-track">
+              <span class="progress-from">{{ progressInfo.from }} / {{ gameStore.REQUIRED_CORRECT_COUNT }}</span>
+              <span class="arrow">→</span>
+              <span class="progress-to">{{ progressInfo.to }} / {{ gameStore.REQUIRED_CORRECT_COUNT }}</span>
+            </div>
+          </template>
+        </div>
+      </Transition>
+    </footer>
+
+    <!-- 复习卡片弹窗 -->
+    <van-popup v-model:show="showReviewCard" round :style="{ width: '90%', maxWidth: '600px' }" :close-on-click-overlay="false">
+      <div class="review-card-container">
+        <CCard v-if="currentQuestion" :key="currentQuestion.targetChar" :cInfo="currentQuestion.targetCharInfo" @finished="onReviewCardFinished" />
+        <button v-if="isReviewCardFinished" @click="goToNextQuestion" class="btn btn-blueberry next-btn">
+          下一题
+        </button>
+      </div>
+    </van-popup>
+
+    <!-- 测验结束界面 -->
+    <div class="finished-screen" v-if="quizState === 'finished'">
+      <h2>今日测验完成！</h2>
+      <p class="accuracy">
+        正确率：{{ sessionStats.total > 0 ? ((sessionStats.correct / sessionStats.total) * 100).toFixed(0) : 100 }}%
+      </p>
+      <button class="btn btn-grape" @click="router.push('/collection')">
+        <span class="btn-emoji">🖼️</span>
+        前往兑换画片
+      </button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* 样式保持不变 */
+.exam-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.exam-header-center {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.quiz-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  gap: 40px;
+}
+
+.question-panel {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+.question-text {
+  font-size: 3rem;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+}
+.question-text.highlight {
+  animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.option-btn {
+  padding: 20px;
+  font-size: 3rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #f0f0f0, #ffffff);
+  box-shadow: 10px 10px 20px #d9d9d9, -10px -10px 20px #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #555;
+}
+.option-btn:not(:disabled):hover {
+  transform: translateY(-5px);
+  box-shadow: 15px 15px 30px #d9d9d9, -15px -15px 30px #ffffff;
+}
+.option-btn:not(:disabled):active {
+  transform: translateY(-2px);
+  box-shadow: 8px 8px 16px #d9d9d9, -8px -8px 16px #ffffff;
+}
+.option-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.option-btn.correct {
+  background: linear-gradient(145deg, #a8ff78, #78ffd6);
+  color: white;
+  animation: correct-bounce 0.5s;
+}
+
+.option-btn.incorrect {
+  background: linear-gradient(145deg, #ff5e62, #ff9966);
+  color: white;
+  animation: incorrect-shake 0.5s;
+}
+
+.result-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.result-animation [class*="icon-"] {
+  font-size: 15rem;
+  animation: result-pop 0.5s ease-out;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes result-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes correct-bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes incorrect-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+.review-card-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.next-btn {
+  width: 80%;
+}
+
+.finished-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  text-align: center;
+}
+
+.finished-screen h2 {
+  font-size: 2.5rem;
+  color: #4CAF50;
+}
+
+.finished-screen .accuracy {
+  font-size: 1.8rem;
+  color: #555;
+}
+
+.progress-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.progress-bar {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 15px 30px;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.char-display {
+  font-size: 2rem;
+  background-color: #ffc107;
+  color: #333;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-from {
+  opacity: 0.7;
+}
+
+.arrow {
+  color: #ffc107;
+  animation: arrow-move 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes arrow-move {
+  from { transform: translateX(-3px); }
+  to { transform: translateX(3px); }
+}
+
+.progress-to {
+  transform: scale(1.2);
+  color: #8bc34a;
+}
+
+.celebration {
+  font-size: 1.5rem;
+  color: #ffeb3b;
+  animation: celebration-glow 1.5s infinite;
+}
+
+@keyframes celebration-glow {
+  0%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px #ffeb3b, 0 0 15px #ffc107; }
+  50% { text-shadow: 0 0 10px #fff, 0 0 20px #ffeb3b, 0 0 30px #ffc107; }
+}
+
+.progress-fade-enter-active,
+.progress-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.progress-fade-enter-from,
+.progress-fade-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+</style>
+
 ===== views/HomeView.vue =====
 <script setup>
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { showToast } from 'vant'
+import Utils from '../Utils.js';
+
+import ProgressRing from '../components/ProgressRing.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
+// 是否可以测验
+const canStartExam = computed(() => {
+  return gameStore.learnedCharacters.length > 0;
+});
 
-const goToStudy = () => {
-  // if (unlearnedCount.value === 0) {
-  //   alert('所有字都已经学习过了！')
-  //   return
-  // }
+const goToStudy = async () => {
+  if (gameStore.getTodayLearnCount() >= gameStore.DAILY_LEARN_LIMIT) {
+    showToast('🐷 咪猪头今天的学习任务已经全部完成～')
+    await Utils.speakText('太棒了！咪猪头今天的学习任务已经全部完成～', {
+      lang: 'zh-CN',
+    });
+    return
+  }
   router.push('/study')
 }
 
 const goToExam = () => {
-  // TODO
-  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
-  // router.push('/exam')
+  if (!canStartExam.value) {
+    showToast('🐷 还没有初识的字，先去学习一下吧～');
+    return;
+  }
+  if (gameStore.getTodayMasterCount() >= gameStore.DAILY_MASTER_LIMIT) {
+    showToast('🐷 今天的掌握名额已经用完啦，明天再来吧～');
+    return;
+  }
+  router.push('/exam');
 }
 
 const goToCollection = () => {
@@ -1766,6 +2283,10 @@ const goToCollection = () => {
 const goToStatistics = () => {
   router.push('/statistics')
 }
+
+onUnmounted(() => {
+  Utils.stopSpeak();
+})
 </script>
 
 <template>
@@ -1773,12 +2294,12 @@ const goToStatistics = () => {
     <div class="button" @click="goToStudy">
       <h3>识字学习</h3>
       <p>开始新字的初识</p>
-      <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span>
+      <ProgressRing :progress="gameStore.getTodayLearnCount() / gameStore.DAILY_LEARN_LIMIT * 100" :text="gameStore.getTodayLearnCount() + '/' + gameStore.DAILY_LEARN_LIMIT" size=50></ProgressRing>
     </div>
-    <div class="button disabled" @click="goToExam">
+    <div class="button" :class="{ disabled: !canStartExam }" @click="goToExam">
       <h3>复习游戏</h3>
       <p>巩固已学内容</p>
-      <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ Math.min(gameStore.learnedCharacters.length, gameStore.DAILY_MASTER_LIMIT) }}</span>
+      <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ gameStore.DAILY_MASTER_LIMIT }}</span>
     </div>
     <div class="button" @click="goToCollection">
       <h3>画片收藏</h3>
@@ -1793,6 +2314,7 @@ const goToStatistics = () => {
 </template>
 
 <style scoped>
+/* 样式保持不变 */
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1820,17 +2342,19 @@ main {
 }
 
 .button.disabled {
-  opacity: 0.8;
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(50%);
 }
 
-.button:hover {
+.button:not(.disabled):hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
   border-color: #4a90e2;
   background: #f8fbff;
 }
 
-.button:active {
+.button:not(.disabled):active {
   transform: translateY(-2px);
   transition: all 0.1s ease;
 }
@@ -1843,7 +2367,7 @@ main {
 }
 
 .button p {
-  margin: 0;
+  margin: 0 0 20px;
   font-size: 0.95em;
   color: #7f8c8d;
   line-height: 1.4;
@@ -1857,18 +2381,17 @@ main {
     gap: 15px;
     padding: 15px;
   }
-  
+
   .button {
     padding: 25px 15px;
     min-height: 100px;
   }
-  
+
   .button h3 {
     font-size: 1.3em;
   }
 }
 </style>
-
 
 ===== views/MyCCardsView.vue =====
 <script setup>
@@ -1897,7 +2420,7 @@ const gameStore = useGameStore()
     <div class="static-wrap">
       <p class="static-item">已初识 {{ gameStore.learnedCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
       <p class="static-item">已掌握 {{ gameStore.masteredCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
-      <p class="static-tips">继续加油！</p>
+      <p class="static-tips">学习要有恒心，坚持努力吧！</p>
     </div>
     <MiniCCardList />
   </div>

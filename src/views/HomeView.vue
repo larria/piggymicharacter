@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, RouterLink, RouterView } from 'vue-router'
 import { useGameStore } from '@/stores/game'
 import { showToast } from 'vant'
@@ -10,8 +10,13 @@ import ProgressRing from '../components/ProgressRing.vue'
 const router = useRouter()
 const gameStore = useGameStore()
 
+// 是否可以测验
+const canStartExam = computed(() => {
+  return gameStore.learnedCharacters.length > 0;
+});
+
 const goToStudy = async () => {
-  if (gameStore.getTodayLearnCount() === gameStore.DAILY_LEARN_LIMIT) {
+  if (gameStore.getTodayLearnCount() >= gameStore.DAILY_LEARN_LIMIT) {
     showToast('🐷 咪猪头今天的学习任务已经全部完成～')
     await Utils.speakText('太棒了！咪猪头今天的学习任务已经全部完成～', {
       lang: 'zh-CN',
@@ -22,9 +27,15 @@ const goToStudy = async () => {
 }
 
 const goToExam = () => {
-  // TODO
-  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
-  // router.push('/exam')
+  if (!canStartExam.value) {
+    showToast('🐷 还没有初识的字，先去学习一下吧～');
+    return;
+  }
+  if (gameStore.getTodayMasterCount() >= gameStore.DAILY_MASTER_LIMIT) {
+    showToast('🐷 今天的掌握名额已经用完啦，明天再来吧～');
+    return;
+  }
+  router.push('/exam');
 }
 
 const goToCollection = () => {
@@ -45,13 +56,13 @@ onUnmounted(() => {
     <div class="button" @click="goToStudy">
       <h3>识字学习</h3>
       <p>开始新字的初识</p>
-      <!-- <span class="badge">今日：{{ gameStore.getTodayLearnCount() }} / 30</span> -->
       <ProgressRing :progress="gameStore.getTodayLearnCount() / gameStore.DAILY_LEARN_LIMIT * 100" :text="gameStore.getTodayLearnCount() + '/' + gameStore.DAILY_LEARN_LIMIT" size=50></ProgressRing>
     </div>
-    <div class="button disabled" @click="goToExam">
+    <div class="button" :class="{ disabled: !canStartExam }" @click="goToExam">
       <h3>复习游戏</h3>
       <p>巩固已学内容</p>
-      <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ Math.min(gameStore.learnedCharacters.length, gameStore.DAILY_MASTER_LIMIT) }}</span>
+      <!-- <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ gameStore.DAILY_MASTER_LIMIT }}</span> -->
+      <ProgressRing :progress="gameStore.getTodayMasterCount() / gameStore.DAILY_MASTER_LIMIT * 100" :text="gameStore.getTodayMasterCount() + '/' + gameStore.DAILY_MASTER_LIMIT" size=50></ProgressRing>
     </div>
     <div class="button" @click="goToCollection">
       <h3>画片收藏</h3>
@@ -66,6 +77,7 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+/* 样式保持不变 */
 main {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -93,17 +105,19 @@ main {
 }
 
 .button.disabled {
-  opacity: 0.8;
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(50%);
 }
 
-.button:hover {
+.button:not(.disabled):hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
   border-color: #4a90e2;
   background: #f8fbff;
 }
 
-.button:active {
+.button:not(.disabled):active {
   transform: translateY(-2px);
   transition: all 0.1s ease;
 }

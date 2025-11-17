@@ -19,6 +19,11 @@ const router = createRouter({
       // }
     },
     {
+      path: '/exam',
+      name: 'exam',
+      component: () => import('../views/ExamView.vue'),
+    },
+    {
       path: '/statistics',
       name: 'statistics',
       component: () => import('../views/MyCCardsView.vue'),
