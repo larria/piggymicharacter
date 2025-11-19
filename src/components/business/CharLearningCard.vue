@@ -200,7 +200,7 @@ onUnmounted(() => {
 
                 <div class="flex flex-wrap gap-3 mb-8">
                     <span v-for="(word, idx) in info.example_words" :key="word" @click.stop="playSpecific(word, `word-${idx}`)" class="px-4 py-2 bg-white rounded-xl text-xl font-bold shadow-sm border transition-all duration-300" :class="[
-                        activeKey === `word-${idx}` ? 'text-white bg-candy-orange border-candy-orange scale-110 shadow-md' : 'text-dark-text border-gray-100',
+                        activeKey === `word-${idx}` ? 'bg-candy-orange border-candy-orange scale-110 shadow-md' : 'border-gray-100',
                         // 【修改】未解锁时移除 hover 效果
                         isInitialPlayDone ? 'hover:bg-gray-50' : ''
                     ]">
