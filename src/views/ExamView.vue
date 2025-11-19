@@ -39,7 +39,17 @@ const isReviewFinished = ref(false);
 const canEarnPoints = computed(() => gameStore.getTodayMasterCount() < gameStore.DAILY_MASTER_LIMIT);
 
 // 怪兽/进度条状态
-const dailyLimit = computed(() => gameStore.DAILY_MASTER_LIMIT);
+// 【修改】动态计算今日目标上限
+const dailyLimit = computed(() => {
+  const todayDone = gameStore.getTodayMasterCount();
+  const remainingCandidates = gameStore.learnedCharacters.length; // 剩余可考的字（已学但未掌握）
+  
+  // 理论上今天能达到的最大值 = 已完成 + 还能完成的
+  const potentialTotal = todayDone + remainingCandidates;
+  
+  // 取 每日上限(30) 和 理论最大值 中的较小者
+  return Math.min(gameStore.DAILY_MASTER_LIMIT, potentialTotal);
+});
 // 【修改】回退为：只显示今日已“掌握”的字数（即答对3次的字数）
 // 这样 Boss 血条更难打，但含金量更高
 const progressValue = computed(() => gameStore.getTodayMasterCount());
