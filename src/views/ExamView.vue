@@ -14,6 +14,7 @@ import GameButton from '@/components/base/GameButton.vue';
 import GameProgress from '@/components/base/GameProgress.vue';
 import GameModal from '@/components/base/GameModal.vue';
 import CharLearningCard from '@/components/business/CharLearningCard.vue';
+import MagicCapsule from '@/components/base/MagicCapsule.vue';
 
 const router = useRouter();
 const gameStore = useGameStore();
@@ -217,13 +218,16 @@ onUnmounted(() => {
                     <PhArrowLeft size="24" />
                 </button>
 
-                <!-- Boss 血条 (即今日掌握进度) -->
+                <!-- Boss 血条 -->
                 <div class="flex-1 flex items-center gap-2 bg-white/80 px-3 py-2 rounded-xl shadow-sm">
                     <span class="text-2xl">👾</span>
                     <div class="flex-1">
                         <GameProgress :value="progressValue" :max="dailyLimit" color="bg-candy-red" />
                     </div>
                 </div>
+
+                <!-- 【新增】魔力瓶模块 -->
+                <MagicCapsule />
             </div>
         </template>
 
