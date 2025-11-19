@@ -55,7 +55,7 @@ const playSequence = async () => {
                 await tts.speak(props.info.character, { rate: 0.6 });
 
                 if (!shouldContinue()) return; // 【检查】
-                await wait(500);
+                await wait(1000);
             }
             activeKey.value = '';
 
@@ -77,7 +77,7 @@ const playSequence = async () => {
                 await tts.speak(props.info.example_words[i], { rate: 0.8 });
 
                 if (!shouldContinue()) return; // 【检查】
-                await wait(400);
+                await wait(1000);
             }
         }
 
@@ -90,7 +90,7 @@ const playSequence = async () => {
                 await tts.speak(props.info.example_sentences[i], { rate: 0.9 });
 
                 if (!shouldContinue()) return; // 【检查】
-                await wait(600);
+                await wait(1000);
             }
         }
 
