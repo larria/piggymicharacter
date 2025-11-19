@@ -90,7 +90,24 @@ export const useGameStore = defineStore('game', () => {
     }
     return count;
   }
-  
+
+  // 【新增】获取今日所有答对的次数（用于UI展示，提供即时反馈）
+  function getTodayCorrectCount() {
+    const today = new Date().toDateString();
+    let count = 0;
+    for (const state of characterStates.value) {
+      if (state.stateList) {
+        // 统计所有 action 为 '测验' 且 isCorrect 为 true 且日期是今天的记录
+        count += state.stateList.filter(action =>
+          action.action === '测验' &&
+          action.isCorrect &&
+          new Date(action.date).toDateString() === today
+        ).length;
+      }
+    }
+    return count;
+  }
+
   function learnCharacter(character) {
     if (getTodayLearnCount() >= DAILY_LEARN_LIMIT) {
       return { success: false, message: '今日初识字数已达上限' }
@@ -107,22 +124,22 @@ export const useGameStore = defineStore('game', () => {
     magicPoints.value += 3
     return { success: true, message: '初识成功' }
   }
-  
+
   // +++ 修改方法：使其返回 newCorrectCount +++
   function recordExamResult(character, isCorrect) {
     let state = getCharacterState(character)
     if (!state || !isCharacterLearned(state)) {
       return { success: false, message: '请先初识这个字' }
     }
-    
+
     const wasAlreadyMastered = isCharacterMastered(state);
     state.stateList.push({ action: '测验', isCorrect, date: Date.now() })
-    
+
     const newCorrectCount = getCharacterCorrectCount(character); // 获取最新的正确次数
     const isNowMastered = isCharacterMastered(state);
     let message = ''
     let reward = 0
-    
+
     if (isCorrect && !wasAlreadyMastered && isNowMastered) {
       if (getTodayMasterCount() <= DAILY_MASTER_LIMIT) {
         reward = 3
@@ -140,7 +157,7 @@ export const useGameStore = defineStore('game', () => {
     } else {
       message = '测验错误，继续努力！'
     }
-    
+
     return { success: true, message, reward, isMastered: isNowMastered, newCorrectCount };
   }
 
@@ -163,7 +180,7 @@ export const useGameStore = defineStore('game', () => {
   function setAllCharactersData(data) {
     allCharactersData.value = data || []
   }
-  
+
   function getStats() {
     return {
       total: getAllCharacters().length,
@@ -189,6 +206,7 @@ export const useGameStore = defineStore('game', () => {
     getCharacterState,
     getTodayLearnCount,
     getTodayMasterCount,
+    getTodayCorrectCount,
     learnCharacter,
     recordExamResult,
     exchangeCard,
