@@ -5,7 +5,7 @@ import cData from '@/assets/data/data-full-all.json'
 
 export const useGameStore = defineStore('game', () => {
   // ====================== 状态 (State) ======================
-  const magicPoints = ref(360)
+  const magicPoints = ref(800)
   const characterStates = ref([])
   const collectedCards = ref([])
   const allCharactersData = ref(cData)
@@ -217,7 +217,7 @@ export const useGameStore = defineStore('game', () => {
   }
 }, {
   persist: {
-    key: 'piggy-mi-character-game',
+    key: 'piggy-mi-character-game-gemini3',
     paths: ['magicPoints', 'characterStates', 'collectedCards'],
   }
 })
