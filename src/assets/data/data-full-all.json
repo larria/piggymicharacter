@@ -3914,8 +3914,7 @@
             "一半",
             "半天",
             "半夜",
-            "半圆",
-            "半点"
+            "半圆"
         ],
         "example_sentences": [
             "我把苹果切成一半。",
@@ -4063,7 +4062,6 @@
             "又是",
             "又高又胖",
             "又唱又跳",
-            "又哭又笑",
             "又惊又喜"
         ],
         "example_sentences": [
@@ -4155,7 +4153,6 @@
             "贝壳",
             "宝贝",
             "贝类",
-            "贝雷帽",
             "扇贝"
         ],
         "example_sentences": [
@@ -4404,7 +4401,6 @@
             "小岛",
             "海岛",
             "岛屿",
-            "鸟岛",
             "珊瑚岛"
         ],
         "example_sentences": [
@@ -4637,10 +4633,8 @@
         "difficulty_level": 4,
         "example_words": [
             "绝对",
-            "绝句",
             "绝妙",
-            "绝望",
-            "绝顶"
+            "绝望"
         ],
         "example_sentences": [
             "我们绝不能玩火，那样很危险。",
@@ -4703,7 +4697,6 @@
         "difficulty_level": 5,
         "example_words": [
             "吾辈",
-            "吾人",
             "吾家"
         ],
         "example_sentences": [
@@ -4725,17 +4718,17 @@
         "example_words": [
             "忠诚",
             "忠心",
-            "忠厚"
+            "忠厚老实"
         ],
         "example_sentences": [
             "孙悟空对唐僧很忠诚。",
-            "咪猪头忠心耿耿地守护着宝藏。"
+            "弟弟忠厚老实，从不撒谎骗爸妈。"
         ],
         "english_character": "loyal",
         "english_phonetic": "ˈlɔɪ.əl",
         "english_example_sentences": [
             "Sun Wukong is loyal to Tang Monk.",
-            "Piggy Mi is loyal and guards the treasure."
+            "Younger brother is honest and sincere, never lies to parents."
         ]
     },
     {
@@ -4953,17 +4946,17 @@
             "终于",
             "由于",
             "对于",
-            "在于"
+            "于是"
         ],
         "example_sentences": [
             "咪猪头终于找到了他的帽子。",
-            "这个故事是关于一只勇敢的小猪。"
+            "一年之计在于春，一日之计在于晨。"
         ],
         "english_character": "in, on, at",
         "english_phonetic": "ɪn, ɒn, æt",
         "english_example_sentences": [
             "Piggy Mi finally found his hat.",
-            "This story is about a brave little pig."
+            "Plan your year in spring and your day at dawn."
         ]
     },
     {
@@ -5038,8 +5031,7 @@
         "difficulty_level": 5,
         "example_words": [
             "禅宗",
-            "禅意",
-            "禅修"
+            "禅意"
         ],
         "example_sentences": [
             "唐僧在西行的路上体会到了禅意。",
@@ -5150,8 +5142,6 @@
         "example_words": [
             "披风",
             "披肩",
-            "披上",
-            "披散",
             "披星戴月"
         ],
         "example_sentences": [
@@ -5574,7 +5564,7 @@
             "突出",
             "突击",
             "突飞猛进",
-            "突变"
+            "风云突变"
         ],
         "example_sentences": [
             "突然，天空下起了大雨。",
@@ -6712,7 +6702,7 @@
             "晚安",
             "晚饭",
             "晚霞",
-            "晚会"
+            "联欢晚会"
         ],
         "example_sentences": [
             "晚上天上有许多星星。",
@@ -6754,9 +6744,8 @@
         "example_words": [
             "晚霞",
             "彩霞",
-            "霞光",
-            "红霞",
-            "云霞"
+            "云霞",
+            "霞光万丈"
         ],
         "example_sentences": [
             "傍晚的彩霞真美丽。",
@@ -6778,8 +6767,7 @@
             "追逐",
             "追赶",
             "追风",
-            "追蝴蝶",
-            "追星星"
+            "追蝴蝶"
         ],
         "example_sentences": [
             "咪猪头在花园里追蝴蝶。",
@@ -6938,8 +6926,7 @@
             "烟花",
             "烟雾",
             "香烟",
-            "烟囱",
-            "烟火"
+            "烟囱"
         ],
         "example_sentences": [
             "新年时，天空中绽放出美丽的烟花。",
@@ -6984,8 +6971,7 @@
             "鸡蛋",
             "蛋糕",
             "蛋黄",
-            "蛋壳",
-            "蛋羹"
+            "蛋壳"
         ],
         "example_sentences": [
             "咪猪头早餐吃了一个鸡蛋。",
@@ -7005,9 +6991,8 @@
         "difficulty_level": 2,
         "example_words": [
             "蛋糕",
-            "黑糖糕",
             "糯米糕",
-            "发糕",
+            "糕点",
             "年糕"
         ],
         "example_sentences": [
@@ -7231,17 +7216,17 @@
             "神奇",
             "神经",
             "神话",
-            "神气"
+            "神气活现"
         ],
         "example_sentences": [
             "孙悟空是一个神奇的神仙。",
-            "咪猪头在神话故事中找到了神奇的力量。"
+            "咪猪头拿到奖状神气活现，向爸妈分享喜悦。"
         ],
         "english_character": "god",
         "english_phonetic": "ɡɒd",
         "english_example_sentences": [
             "Sun Wukong is a magical god.",
-            "Piggy Mi found magical power in a myth story."
+            "Piggy Mi Strutted with pride for the certificate, shared joy with parents."
         ]
     },
     {
@@ -7321,19 +7306,17 @@
         "example_words": [
             "树根",
             "根本",
-            "根子",
-            "草根",
-            "根须"
+            "根茎"
         ],
         "example_sentences": [
             "大树的根在泥土里。",
-            "咪猪头找到了故事的根本。"
+            "咪猪头根本没迟到，是你记错时间了。"
         ],
         "english_character": "root",
         "english_phonetic": "ruːt",
         "english_example_sentences": [
             "The tree's root is in the soil.",
-            "Piggy Mi found the root of the story."
+            "Piggy Mi wasn't late completely, it's you misremembered the time."
         ]
     },
     {
@@ -7451,8 +7434,7 @@
             "松树",
             "轻松",
             "松果",
-            "松手",
-            "松针"
+            "松手"
         ],
         "example_sentences": [
             "这棵松树很高，上面有很多松果。",
@@ -7658,7 +7640,7 @@
         ],
         "example_sentences": [
             "咪猪头学会了从1数到10。",
-            "此五行，本乎数。"
+            "曰水火，木金土，此五行，本乎数。"
         ],
         "english_character": "number",
         "english_phonetic": "ˈnʌm.bər",
@@ -7971,10 +7953,9 @@
         "difficulty_level": 4,
         "example_words": [
             "意思",
-            "如意",
+            "意见",
             "如意算盘",
-            "如意郎君",
-            "如意吉祥"
+            "吉祥如意"
         ],
         "example_sentences": [
             "咪猪头想知道这个故事的意思。",
@@ -8062,7 +8043,7 @@
             "道理",
             "道士",
             "车道",
-            "小道"
+            "小道消息"
         ],
         "example_sentences": [
             "咪猪头走在小道上，看到了一只小兔子。",
@@ -8085,17 +8066,17 @@
             "直角",
             "直接",
             "笔直",
-            "直立"
+            "直立行走"
         ],
         "example_sentences": [
             "咪猪头画了一条笔直的线。",
-            "孙悟空的金箍棒是直立的。"
+            "有想法直接说，沟通清晰不绕弯。"
         ],
         "english_character": "straight",
         "english_phonetic": "streɪt",
         "english_example_sentences": [
             "Piggy Mi drew a straight line.",
-            "Sun Wukong's golden cudgel stands straight."
+            "Speak your mind directly, clear communication without detours."
         ]
     },
     {
@@ -8130,7 +8111,6 @@
             "幸福",
             "幸运",
             "幸好",
-            "幸会",
             "庆幸"
         ],
         "example_sentences": [
@@ -8181,7 +8161,7 @@
         ],
         "example_sentences": [
             "这只小猫的样子真可爱。",
-            "咪猪头画的画和老师的一样漂亮。"
+            "咪猪头画的和老师画的一样漂亮。"
         ],
         "english_character": "appearance",
         "english_phonetic": "əˈpɪə.rəns",
@@ -8222,8 +8202,8 @@
             "外面",
             "外国",
             "外套",
-            "外边",
-            "外婆"
+            "外婆",
+            "外星松鼠"
         ],
         "example_sentences": [
             "咪猪头穿着外套去外面玩。",
@@ -8245,8 +8225,7 @@
             "远方",
             "远处",
             "远离",
-            "远山",
-            "远路"
+            "渐行渐远"
         ],
         "example_sentences": [
             "小鸟飞向了远方。",
@@ -8291,7 +8270,6 @@
             "左边",
             "左手",
             "左转",
-            "左面",
             "左眼"
         ],
         "example_sentences": [
@@ -8313,7 +8291,6 @@
         "example_words": [
             "右手",
             "右边",
-            "右面",
             "右眼",
             "右腿"
         ],
@@ -8444,8 +8421,6 @@
         "example_words": [
             "山洞",
             "洞口",
-            "桥洞",
-            "地洞",
             "洞穴"
         ],
         "example_sentences": [
@@ -8510,10 +8485,7 @@
         "difficulty_level": 3,
         "example_words": [
             "蚂蚁",
-            "蚁穴",
-            "蚁后",
-            "工蚁",
-            "兵蚁"
+            "蚁穴"
         ],
         "example_sentences": [
             "蚂蚁在搬运食物。",
@@ -8806,9 +8778,7 @@
         "example_words": [
             "位置",
             "座位",
-            "床位",
-            "车位",
-            "岗位"
+            "床位"
         ],
         "example_sentences": [
             "咪猪头找到了他的座位。",
@@ -8830,8 +8800,7 @@
             "房子",
             "房间",
             "厨房",
-            "书房",
-            "新房"
+            "书房"
         ],
         "example_sentences": [
             "三只小猪盖了一座新房子。",
@@ -8895,8 +8864,7 @@
             "窗户",
             "窗台",
             "窗花",
-            "玻璃窗",
-            "天窗"
+            "玻璃窗"
         ],
         "example_sentences": [
             "咪猪头在窗户边看外面的雨。",
@@ -9186,8 +9154,6 @@
         "example_words": [
             "叔叔",
             "大叔",
-            "小叔",
-            "叔公",
             "叔父"
         ],
         "example_sentences": [
@@ -9233,8 +9199,7 @@
             "姑姑",
             "姑娘",
             "姑妈",
-            "姑父",
-            "姑婆"
+            "姑爹"
         ],
         "example_sentences": [
             "咪猪头的姑姑给他带来了一个大蛋糕。",
@@ -9344,9 +9309,7 @@
         "example_words": [
             "筷子",
             "筷筒",
-            "竹筷",
-            "木筷",
-            "公筷"
+            "木筷"
         ],
         "example_sentences": [
             "咪猪头用筷子夹起了一颗小丸子。",
@@ -9571,7 +9534,6 @@
         "example_words": [
             "绿萝",
             "绿萝藤",
-            "胡萝藤",
             "萝卜"
         ],
         "example_sentences": [
@@ -9614,7 +9576,6 @@
         "example_words": [
             "黄豆",
             "绿豆",
-            "豆豆",
             "豆腐",
             "豆浆"
         ],
@@ -9660,8 +9621,7 @@
             "桃子",
             "桃花",
             "桃树",
-            "仙桃",
-            "扁桃"
+            "仙桃"
         ],
         "example_sentences": [
             "春天，桃树上开满了粉色的桃花。",
@@ -9705,9 +9665,7 @@
         "example_words": [
             "竹笋",
             "笋干",
-            "笋汤",
-            "笋尖",
-            "腐乳笋"
+            "笋尖"
         ],
         "example_sentences": [
             "春天到了，竹林里长出了嫩嫩的竹笋。",
@@ -9796,10 +9754,7 @@
         "difficulty_level": 3,
         "example_words": [
             "洒水",
-            "洒落",
-            "喷洒",
-            "洒满",
-            "洒泪"
+            "喷洒"
         ],
         "example_sentences": [
             "咪猪头在花园里洒水。",
@@ -9821,8 +9776,7 @@
             "洗衣",
             "洗手",
             "洗脸",
-            "洗澡",
-            "洗车"
+            "洗澡"
         ],
         "example_sentences": [
             "咪猪头在洗手。",
@@ -9867,8 +9821,7 @@
             "晒太阳",
             "晒衣服",
             "晒被子",
-            "晒黑",
-            "晒台"
+            "晒黑"
         ],
         "example_sentences": [
             "咪猪头在阳台上晒太阳。",
@@ -9889,7 +9842,7 @@
         "example_words": [
             "收获",
             "收拾",
-            "收入",
+            "接收",
             "收集",
             "收费"
         ],
@@ -9933,21 +9886,19 @@
         "character_type": "particle",
         "difficulty_level": 2,
         "example_words": [
-            "呢子",
-            "花呢",
-            "呢绒",
-            "唢呐呢",
-            "毛呢"
+            "在哪呢",
+            "六阶魔方呢",
+            "花呢"
         ],
         "example_sentences": [
-            "咪猪头穿着花呢外套去幼儿园。",
-            "孙悟空吹着唢呐呢，真热闹！"
+            "咪猪头大声问：“我的六阶魔方放在哪儿了呢？”。",
+            "小猫吹着唢呐呢，真热闹！"
         ],
         "english_character": "particle used for softening tone or indicating continuation",
         "english_phonetic": "nə",
         "english_example_sentences": [
-            "Piggy Mi is wearing a floral woolen coat to kindergarten.",
-            "Sun Wukong is playing the suona, it's so lively!"
+            "Piggy Mi asked loudly, 'Where did I put my 6x6 Rubik's cube?'",
+            "The cat is playing the suona, it's so lively!"
         ]
     },
     {
@@ -23200,7 +23151,6 @@
             "杭州",
             "苏州",
             "广州",
-            "福州",
             "扬州"
         ],
         "example_sentences": [
@@ -25215,10 +25165,7 @@
         "difficulty_level": 3,
         "example_words": [
             "苏州",
-            "苏醒",
-            "紫苏",
-            "苏铁",
-            "苏绣"
+            "苏醒"
         ],
         "example_sentences": [
             "春天来了，大地苏醒了。",
@@ -25309,7 +25256,6 @@
             "张开",
             "张望",
             "张嘴",
-            "张手",
             "张灯结彩"
         ],
         "example_sentences": [
@@ -25557,8 +25503,7 @@
             "乡村",
             "家乡",
             "故乡",
-            "乡间",
-            "乡音"
+            "乡间"
         ],
         "example_sentences": [
             "我的家乡在美丽的乡村。",
@@ -25579,9 +25524,8 @@
         "example_words": [
             "初中",
             "初级",
-            "初夏",
-            "初心",
-            "初雪"
+            "当初",
+            "初夏"
         ],
         "example_sentences": [
             "初夏的时候，咪猪头去河边捉小鱼。",
@@ -25687,7 +25631,7 @@
             "喜庆",
             "喜悦",
             "喜糖",
-            "喜气"
+            "欢天喜地"
         ],
         "example_sentences": [
             "咪猪头喜欢听西游记的故事。",
@@ -25752,8 +25696,7 @@
             "岁月",
             "岁数",
             "周岁",
-            "年岁",
-            "岁末"
+            "年年岁岁"
         ],
         "example_sentences": [
             "咪猪头今年三岁了。",
