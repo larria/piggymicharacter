@@ -15,7 +15,7 @@ import GameModal from '@/components/base/GameModal.vue';
 const router = useRouter();
 const gameStore = useGameStore();
 
-const pCardTotalLen = 32;
+const pCardTotalLen = 35;
 const selectedCardId = ref(null);
 const showUnlockModal = ref(false);
 const showPreviewModal = ref(false);

@@ -1,6 +1,8 @@
+// ===== utils/audio.js =====
 import { Howl } from 'howler';
+import { ref } from 'vue'; // 【新增】引入 ref
 
-// 导入资源路径 (Vite 会处理路径)
+// ... (资源导入保持不变)
 import sfxClickUrl from '@/assets/audio/sfx_click.mp3';
 import sfxCorrectUrl from '@/assets/audio/sfx_correct.mp3';
 import sfxWrongUrl from '@/assets/audio/sfx_wrong.mp3';
@@ -8,7 +10,11 @@ import sfxUnlockUrl from '@/assets/audio/sfx_unlock.mp3';
 import sfxCelebrateUrl from '@/assets/audio/sfx_celebrate.mp3';
 import bgmMainUrl from '@/assets/audio/bgm_main.mp3';
 
+// 【新增】全局导出音频解锁状态，供组件判断是否需要显示“开始”按钮
+export const isAudioUnlocked = ref(false);
+
 const sounds = {
+  // ... (保持不变)
   click: new Howl({ src: [sfxClickUrl], volume: 0.5 }),
   correct: new Howl({ src: [sfxCorrectUrl], volume: 0.6 }),
   wrong: new Howl({ src: [sfxWrongUrl], volume: 0.6 }),
@@ -17,8 +23,9 @@ const sounds = {
 };
 
 const bgm = new Howl({
+  // ... (保持不变)
   src: [bgmMainUrl],
-  html5: true, // BGM 使用 HTML5 Audio 以支持大文件流式播放
+  html5: true,
   loop: true,
   volume: 0.3,
   autoplay: false,
@@ -26,18 +33,22 @@ const bgm = new Howl({
 
 export const audioManager = {
   play(name) {
+    // ... (保持不变)
     if (sounds[name]) {
       sounds[name].play();
     }
   },
 
-  // iOS 需要用户交互后才能播放声音，通常在 App.vue 的第一次点击事件中调用此方法
+  // iOS 需要用户交互后才能播放声音
   initAudioContext() {
     if (Howler.ctx && Howler.ctx.state !== 'running') {
       Howler.ctx.resume();
     }
+    // 【新增】标记为已解锁
+    isAudioUnlocked.value = true;
   },
 
+  // ... (playBgm, stopBgm, setBgmVolume 保持不变)
   playBgm() {
     if (!bgm.playing()) {
       bgm.play();
@@ -48,7 +59,6 @@ export const audioManager = {
     bgm.stop();
   },
 
-  // 调整 BGM 音量 (例如 TTS 播放时降低背景音)
   setBgmVolume(vol) {
     bgm.fade(bgm.volume(), vol, 500);
   }

@@ -82,37 +82,6 @@ nav a:first-of-type {
 </style>
 
 
-===== Utils.js =====
-// 播放语音
-async function speakText(text, options = {}) {
-  return new Promise((resolve, reject) => {
-    if (!('speechSynthesis' in window)) {
-      reject(new Error('当前浏览器不支持语音合成功能'));
-      return;
-    }
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    Object.assign(utterance, {
-      rate: 1, pitch: 1, volume: 1, lang: 'zh-CN', ...options
-    });
-    utterance.onend = () => resolve();
-    utterance.onerror = (event) => reject(new Error(`语音合成错误: ${event.error}`));
-    window.speechSynthesis.speak(utterance);
-  });
-}
-
-// 中止播放语音
-function stopSpeak() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
-}
-
-export default {
-    speakText,
-    stopSpeak
-};
-
 ===== assets/css/base.css =====
 * {
   margin: 0;
@@ -120,590 +89,37 @@ export default {
 }
 
 ===== assets/css/main.css =====
-@import './base.css';
+@import 'animate.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* 防止 iOS Safari 点击出现灰色背景 */
+  -webkit-tap-highlight-color: transparent;
+}
 
 body {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-  flex-direction: column;
-  align-items: stretch;
-  overflow: hidden;
-  background: url(../images/style/bg.png);
-  background-size: 100% 100%;
+  @apply bg-paper-white text-dark-text font-sans overflow-hidden;
+  /* 禁止长按选择，适合 App 体验 */
+  user-select: none;
+  -webkit-user-select: none;
+  /* 优化触控响应 */
+  touch-action: manipulation;
 }
 
 #app {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-  height: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0;
-  font-weight: normal;
+  @apply w-screen h-screen relative;
 }
 
-@media (hover: hover) {
-  /* a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
-  } */
-}
-
-@media (min-width: 1024px) {}
-
-/* 基础按钮样式 */
-.btn {
-  padding: 10px 20px;
-  font-size: 1.5em;
-  font-weight: bold;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  color: white;
-  user-select: none;
-}
-
-.btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-}
-
-.btn:active {
-  transform: translateY(-1px) scale(1.02);
-}
-
-/* 主题色1 - 草莓红 */
-.btn-strawberry {
-  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-  animation: bounce 2s infinite;
-  animation: pulse 2s infinite;
-}
-
-/* 主题色2 - 蓝莓蓝 */
-.btn-blueberry {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  animation: wiggle 2s infinite;
-  animation: pulse 2s infinite;
-}
-
-/* 主题色3 - 柠檬黄 */
-.btn-lemon {
-  background: linear-gradient(135deg, #f7b731, #feca57);
-  animation: pulse 2s infinite;
-}
-
-/* 主题色4 - 葡萄紫 */
-.btn-grape {
-  background: linear-gradient(135deg, #a55eea, #8854d0);
-  animation: shake 2s infinite;
-  animation: pulse 2s infinite;
-}
-
-/* 主题色5 - 西瓜绿 */
-.btn-watermelon {
-  background: linear-gradient(135deg, #26de81, #20bf6b);
-  animation: rotate 3s infinite;
-  animation: pulse 2s infinite;
-}
-
-/* 主题色6 - 橙子橙 */
-.btn-orange {
-  background: linear-gradient(135deg, #fa8231, #fd9644);
-  animation: float 3s infinite;
-  animation: pulse 2s infinite;
-}
-
-/* 禁用状态 */
-.btn:disabled,
-.btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none !important;
-  animation: none !important;
-  filter: grayscale(50%);
-}
-
-.btn:disabled:hover,
-.btn.disabled:hover {
-  transform: none !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
-}
-
-.btn:disabled::before,
-.btn.disabled::before {
+/* 滚动条隐藏但保留功能 */
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-/* 动画效果 */
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-
-@keyframes wiggle {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-3deg);
-  }
-  75% {
-    transform: rotate(3deg);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-@keyframes shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  25% {
-    transform: translateX(-3px);
-  }
-  75% {
-    transform: translateX(3px);
-  }
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-3px) rotate(-1deg);
-  }
-  66% {
-    transform: translateY(3px) rotate(1deg);
-  }
-}
-
-/* 特殊样式按钮 */
-.btn-round {
-  border-radius: 50px;
-  padding: 20px 40px;
-}
-
-.btn-square {
-  border-radius: 15px;
-  padding: 20px 30px;
-}
-
-.btn-star {
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  width: 120px;
-  height: 120px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-heart {
-  clip-path: path('M12,21.35l-1.45-1.32C5.4,15.36,2,12.28,2,8.5 C2,5.42,4.42,3,7.5,3c1.74,0,3.41,0.81,4.5,2.09C13.09,3.81,14.76,3,16.5,3 C19.58,3,22,5.42,22,8.5c0,3.78-3.4,6.86-8.55,11.54L12,21.35z');
-  width: 100px;
-  height: 100px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* 图标和emoji样式 */
-.btn-icon {
-  font-size: 1.5em;
-}
-
-.btn-emoji {
-  font-size: 1.8em;
-}
-
-/* 大号按钮 */
-.btn-large {
-  padding: 25px 50px;
-  font-size: 1.5em;
-}
-
-/* 小号按钮 */
-.btn-small {
-  padding: 10px 20px;
-  font-size: 1em;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .buttons-row {
-    justify-content: center;
-  }
-
-  .btn {
-    font-size: 1em;
-    padding: 12px 24px;
-  }
-
-  h1 {
-    font-size: 2em;
-  }
-}
-
-/* 装饰元素 */
-.decoration {
-  position: fixed;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.decoration-1 {
-  top: 10%;
-  left: 5%;
-  font-size: 3em;
-  animation: float 4s infinite;
-}
-
-.decoration-2 {
-  top: 20%;
-  right: 10%;
-  font-size: 2.5em;
-  animation: bounce 3s infinite;
-}
-
-.decoration-3 {
-  bottom: 20%;
-  left: 10%;
-  font-size: 2.8em;
-  animation: wiggle 3.5s infinite;
-}
-
-.decoration-4 {
-  bottom: 10%;
-  right: 5%;
-  font-size: 3.2em;
-  animation: pulse 4s infinite;
-}
-
-===== components/CCard.vue =====
-<script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import Utils from '../Utils.js';
-
-const props = defineProps({
-  cInfo: {
-    type: Object,
-    required: true,
-  },
-});
-
-const emit = defineEmits(['finished']);
-
-const speakingIndex = ref(-1);
-const isFinished = ref(false);
-const speakProgress = ref(0);
-const isBusySpeaking = ref(false);
-
-const characterRepetitions = Array(3).fill({
-  text: props.cInfo.character,
-  config: { rate: 0.03, lang: 'zh-CN' }
-});
-
-const speakContent = [
-  ...characterRepetitions
-].concat(props.cInfo.example_words.map(word => ({
-  text: word,
-  config: { rate: 0.7, lang: 'zh-CN' }
-}))).concat(props.cInfo.example_sentences.map(sentence => ({
-  text: sentence,
-  config: { rate: 1, lang: 'zh-CN' }
-})));
-
-async function playItemOnClick(index) {
-  if (isBusySpeaking.value || !isFinished.value) {
-    return;
-  }
-  isBusySpeaking.value = true;
-  speakingIndex.value = index;
-  try {
-    const { text, config } = speakContent[index];
-    await Utils.speakText(text, config);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    speakingIndex.value = -1;
-    isBusySpeaking.value = false;
-  }
-}
-
-// 组件挂载后，开始自动播放
-onMounted(async () => {
-  if (props.cInfo) {
-    isBusySpeaking.value = true;
-
-    for (let i = 0; i < speakContent.length; i++) {
-      if (!isBusySpeaking.value) return;
-
-      const { text, config } = speakContent[i];
-
-      // **** 核心改动点 ****
-      // 1. 先设置朗读条目之间的停顿 (第一次除外)
-      if (i > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-      
-      if (!isBusySpeaking.value) return; // 再次检查，防止在等待时组件被卸载
-
-      // 2. 在即将播放时，才设置高亮
-      //    只有前三次是读汉字，使用相同的 speakingIndex (值为0) 来高亮
-      //    之后的词语和句子，索引要进行相应调整
-      if (i < 3) {
-        speakingIndex.value = 0; // 汉字高亮
-      } else if (i < 3 + props.cInfo.example_words.length) {
-        speakingIndex.value = i; // 词语高亮 (因为 speakContent 数组结构变了，这里直接用 i 即可)
-      } else {
-        speakingIndex.value = i; // 句子高亮
-      }
-
-      // 3. 立即开始朗读
-      await Utils.speakText(text, config);
-      // **** 改动结束 ****
-
-      speakProgress.value = Math.round(((i + 1) / speakContent.length) * 100);
-    }
-
-    speakingIndex.value = -1;
-    isFinished.value = true;
-    isBusySpeaking.value = false;
-    emit('finished');
-  }
-});
-
-
-onUnmounted(() => {
-  Utils.stopSpeak();
-  isBusySpeaking.value = false;
-});
-
-function getHighlightSentenceHTML(sentence, character) {
-  return sentence.replace(new RegExp(character, 'g'), `<span class="character-highlight">${character}</span>`);
-}
-</script>
-
-<template>
-  <section class="ccard" :class="{ finished: isFinished }">
-    <!-- 点击播放汉字的索引是 0, 1, 2。我们点击时播放第一个即可 -->
-    <h2 :class="{ speaking: speakingIndex === 0 }" @click="playItemOnClick(0)">
-      {{ cInfo.character }}
-    </h2>
-    <p class="pinyin">{{ cInfo.pinyin }}</p>
-    <div class="words">
-      <h3 class="sub-title">词语</h3>
-      <!-- speakContent 中词语的起始索引是 3 -->
-      <span v-for="(word, index) in cInfo.example_words" :key="word" class="word-wrap" :class="{ speaking: speakingIndex === index + 3 }" @click="playItemOnClick(index + 3)">
-        {{ word }}
-      </span>
-    </div>
-    <div class="sentences">
-      <h3 class="sub-title">例句</h3>
-      <!-- speakContent 中句子的起始索引是 3 + 词语数量 -->
-      <p v-for="(sentence, index) in cInfo.example_sentences" :key="sentence" class="sentence-wrap" :class="{ speaking: speakingIndex === index + 3 + cInfo.example_words.length }" @click="playItemOnClick(index + 3 + cInfo.example_words.length)" v-html="getHighlightSentenceHTML(sentence, cInfo.character)"></p>
-    </div>
-    <van-progress :percentage="speakProgress" />
-  </section>
-</template>
-
-<style scoped>
-.ccard {
-  /* max-width: 600px; */
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin: 16px;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.ccard.finished {
-  border-color: #67c23a;
-  box-shadow: 0 6px 16px rgba(103, 194, 58, 0.2);
-}
-
-/* 完成后，为可点击元素添加鼠标指针样式 */
-.ccard.finished h2,
-.ccard.finished .word-wrap,
-.ccard.finished .sentence-wrap {
-  cursor: pointer;
-}
-
-.ccard:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  transform: translateY(-2px);
-}
-
-h2 {
-  font-size: 60px;
-  text-align: center;
-  margin: 0 0 8px;
-  color: #333;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  /* text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); */
-}
-
-h2.speaking {
-  color: #409eff;
-  animation: pulse2 1.2s infinite;
-}
-
-.pinyin {
-  font-size: 22px;
-  text-align: center;
-  margin: 0 0 20px;
-  color: #666;
-}
-
-.words, .sentences {
-  margin-bottom: 24px;
-}
-
-.sub-title {
-  font-size: 18px;
-  margin: 0 0 12px;
-  color: #409eff;
-  border-left: 4px solid #409eff;
-  padding-left: 8px;
-}
-
-.word-wrap {
-  display: inline-block;
-  background-color: #f0f7ff;
-  color: #409eff;
-  padding: 6px 12px;
-  margin: 4px;
-  border-radius: 16px;
-  font-size: 16px;
-  transition: all 0.2s ease;
-}
-
-.word-wrap:hover {
-  background-color: #e1f0ff;
-  transform: scale(1.05);
-}
-
-.word-wrap.speaking {
-  background-color: #409eff;
-  color: white;
-  animation: pulse 1.5s infinite;
-}
-
-.sentence-wrap {
-  margin: 8px 0;
-  padding: 12px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  line-height: 1.6;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  border-left: 4px solid transparent;
-}
-
-.sentence-wrap:hover {
-  background-color: #f0f0f0;
-}
-
-.sentence-wrap.speaking {
-  background-color: #e9f5fe;
-  border-left-color: #409eff;
-}
-
-:deep(.character-highlight) {
-  background-color: #ffd700;
-  color: #333;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.van-progress {
-  margin-top: 16px;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0.7);
-  }
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px 10px rgba(64, 158, 255, 0);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(64, 158, 255, 0);
-  }
-}
-
-@keyframes pulse2 {
-  0% {
-    transform: scale(1);
-    text-shadow: 0 0 0 rgba(64, 158, 255, 0.7);
-  }
-  70% {
-    transform: scale(1.2);
-    text-shadow: 0 0 10px rgba(64, 158, 255, 0);
-  }
-  100% {
-    transform: scale(1);
-    text-shadow: 0 0 0 rgba(64, 158, 255, 0);
-  }
-}
-</style>
 
 ===== components/MagicPoint.vue =====
 <script setup>
@@ -776,653 +192,544 @@ watch(
 }
 </style>
 
-===== components/MiniCCardList.vue =====
+===== components/base/GameButton.vue =====
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { storeToRefs } from 'pinia'
-
-import CCard from '../components/CCard.vue'
-
-const gameStore = useGameStore();
-
-const getCharacterInfo = (character) => {
-    return gameStore.allCharactersData.find(item => item.character === character)
-}
-
-const getCharacterClass = (character) => {
-    const isLearned = gameStore.learnedCharacters.includes(character)
-    const isMastered = gameStore.masteredCharacters.includes(character)
-    return (isLearned && isMastered) ? 'ccard-mini-learned-mastered' : (isLearned ? 'ccard-mini-learned' : (isMastered ? 'ccard-mini-mastered' : ''))
-}
-
-const showingCharater = ref(null);
-
-const showCharacterCard = (character) => {
-    showingCharater.value = character
-}
-</script>
-
-<template>
-    <section class="ccard-mini-list">
-        <span class="ccard-mini-item-wrap" v-for="i in gameStore.allCharactersData" :key="i" :class="getCharacterClass(i.character)" @click="showCharacterCard(i.character)">
-            <!-- i.character为单个汉字，例如：“李”、“字”、“六”等 -->
-            {{ i.character }}
-        </span>
-    </section>
-    <van-popup v-model:show="showingCharater" :style="{ padding: '64px' }">
-        <CCard v-if="showingCharater" :cInfo="getCharacterInfo(showingCharater)"></CCard>
-    </van-popup>
-</template>
-
-<style scoped>
-/* --- 幼儿识字游戏 - 识字列表样式 --- */
-
-/* 列表容器：使用 Grid 布局实现响应式瀑布流 */
-.ccard-mini-list {
-    display: grid;
-    /* 自动填充列，每列最小宽度为 80px，可根据容器宽度自动调整列数 */
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px; /* 卡片之间的间距 */
-    padding: 16px; /* 列表内边距 */
-    max-width: 1200px; /* 限制最大宽度，避免在超宽屏幕上过度拉伸 */
-    margin: 0 auto; /* 水平居中 */
-}
-
-/* 单个汉字卡片项 */
-.ccard-mini-item-wrap {
-    opacity: 0.5;
-    /* 使用 Flexbox 让汉字在卡片内完美居中 */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    /* 卡片尺寸与形状 */
-    aspect-ratio: 1 / 1; /* 保持正方形 */
-    width: 100%;
-    
-    /* 字体样式：大、清晰、适合儿童阅读 */
-    font-size: 2.5rem;
-    font-weight: bold;
-    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
-    
-    /* 默认状态样式：未学习，未掌握 */
-    background-color: #f5f5f5; /* 浅灰色背景 */
-    color: #757575; /* 深灰色文字 */
-    border-radius: 12px; /* 圆角，使其更柔和 */
-    border: 2px solid #e0e0e0; /* 边框 */
-    
-    /* 交互性 */
-    cursor: pointer;
-    user-select: none; /* 防止快速点击时选中文字 */
-    
-    /* 平滑过渡效果，用于悬停和点击动画 */
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s ease;
-}
-
-/* --- 不同学习状态的样式覆盖 --- */
-
-/* 已学习状态：柔和的蓝色系，表示“进行中” */
-.ccard-mini-item-wrap.ccard-mini-learned {
-    opacity: 1;
-    background-color: #e3f2fd; /* 极浅蓝 */
-    border-color: #90caf9; /* 浅蓝 */
-    color: #1565c0; /* 深蓝 */
-}
-
-/* 已掌握状态：柔和的绿色系，表示“已完成” */
-.ccard-mini-item-wrap.ccard-mini-mastered {
-    opacity: 1;
-    background-color: #e8f5e9; /* 极浅绿 */
-    border-color: #a5d6a7; /* 浅绿 */
-    color: #2e7d32; /* 深绿 */
-}
-
-/* 已学习且已掌握状态：柔和的金色/琥珀色系，表示“精通” */
-.ccard-mini-item-wrap.ccard-mini-learned-mastered {
-    background-color: #fff8e1; /* 极浅黄 */
-    border-color: #ffcc02; /* 金色 */
-    color: #f57c00; /* 深橙色 */
-    font-weight: 900; /* 字体加粗，使其更突出 */
-    /* 可以添加一个微妙的动画或背景效果 */
-    /* animation: pulse 2s infinite; */
-}
-
-/* --- 交互状态 --- */
-
-/* 鼠标悬停时：卡片轻微上浮并放大，增加阴影 */
-.ccard-mini-item-wrap:hover {
-    transform: translateY(-4px) scale(1.05);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-/* 鼠标按下时：卡片轻微缩小，模拟“按下”的物理反馈 */
-.ccard-mini-item-wrap:active {
-    transform: translateY(-2px) scale(0.98);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-@keyframes pulse {
-    0% {
-        box-shadow: 0 0 0 0 rgba(255, 204, 2, 0.4);
-    }
-    70% {
-        box-shadow: 0 0 0 8px rgba(255, 204, 2, 0);
-    }
-    100% {
-        box-shadow: 0 0 0 0 rgba(255, 204, 2, 0);
-    }
-}
-
-</style>
-
-===== components/PCard.vue =====
-<script setup>
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
+import { audioManager } from '@/utils/audio';
 
 const props = defineProps({
-    cId: {
-        type: Number,
-        required: true,
-    },
-    // 解锁进度，0-1
-    unlockProgress: {
-        type: Number,
-        default: 0,
-    }
+  variant: {
+    type: String,
+    default: 'primary', // primary, secondary, success, danger, warning
+    validator: (val) => ['primary', 'secondary', 'success', 'danger', 'warning', 'info'].includes(val)
+  },
+  disabled: Boolean,
+  block: Boolean, // 是否占满宽度
+  size: {
+    type: String,
+    default: 'md', // sm, md, lg
+  }
 });
 
-// console.log(props.unlockProgress);
+const emit = defineEmits(['click']);
 
-const blurCSS = computed(() => {
-    // 如果解锁进度为1，完全清除模糊
-    if (props.unlockProgress === 1) {
-        return 'filter: blur(0px)';
-    }
+// 颜色映射：背景色 + 阴影色（深一点）
+const colorMap = {
+  primary: 'bg-candy-blue border-b-blue-700 active:border-b-0',
+  success: 'bg-candy-green border-b-emerald-700 active:border-b-0',
+  danger: 'bg-candy-red border-b-red-700 active:border-b-0',
+  warning: 'bg-candy-yellow border-b-amber-600 active:border-b-0',
+  info: 'bg-candy-purple border-b-purple-800 active:border-b-0',
+  secondary: 'bg-gray-400 border-b-gray-600 active:border-b-0',
+};
 
-    // 计算基础模糊值：根据解锁进度从30递减
-    // 当unlockProgress为0时，blur为30
-    // 当unlockProgress增加时，blur从30开始递减
-    const baseBlur = 20 * (1 - props.unlockProgress);
-
-    // 确保如果解锁进度不为1，至少有5px的模糊
-    const finalBlur = parseInt(props.unlockProgress, 10) === 1 ? 0 : Math.max(baseBlur, 5);
-
-    return `filter: blur(${finalBlur}px)`;
+const sizeClass = computed(() => {
+  switch(props.size) {
+    case 'sm': return 'px-4 py-2 text-lg rounded-xl border-b-[4px]';
+    case 'lg': return 'px-8 py-4 text-3xl rounded-3xl border-b-[8px]';
+    default: return 'px-6 py-3 text-2xl rounded-2xl border-b-[6px]';
+  }
 });
 
-const imgURL = computed(() => {
-    return new URL(`../assets/images/cards/c${props.cId}.jpg`, import.meta.url).href;
-});
-</script>
-
-<template>
-    <div class="pcard">
-        <img class="pcard-img" :src="imgURL" alt="" :style="blurCSS">
-    </div>
-</template>
-
-<style scoped>
-/* 卡片容器 */
-.pcard {
-    position: relative;
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    height: 140px;
-}
-.pcard:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.pcard-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* 鼠标悬停效果 */
-.pcard:hover {
-    transform: translateY(-10px) scale(1.02);
-    /* 轻微上浮并放大 */
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    /* 加深阴影，强化“浮起”效果 */
-}
-
-/* 鼠标悬停时，图片进一步放大 */
-.pcard:hover .pcard-img {
-    transform: scale(1.03);
-    /* 图片放大，创造视差感 */
-}
-</style>
-
-
-===== components/PCardList.vue =====
-<script setup>
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-import { storeToRefs } from 'pinia'
-
-import PCard from '../components/PCard.vue'
-import ProgressRing from '../components/ProgressRing.vue'
-
-import { useGameStore } from '@/stores/game'
-
-const router = useRouter()
-const gameStore = useGameStore()
-
-const pCardTotalLen = 32
-
-const CARD_COST = gameStore.CARD_COST;
-
-const handleClick = (cId) => {
-    // console.log(id)
-    if (gameStore.collectedCards.includes(cId)) {
-        console.log('已经解锁，展开img')
-        const startPosition = gameStore.collectedCards.indexOf(cId);
-        showImagePreview({
-            // images: [
-            //     'https://fastly.jsdelivr.net/npm/@vant/assets/apple-1.jpeg',
-            //     'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
-            // ],
-            images: gameStore.collectedCards.map((cId) => {
-                return new URL(`../assets/images/cards/c${cId}.jpg`, import.meta.url).href;
-            }),
-            startPosition,
-        });
-        return
-    } else {
-        if (gameStore.magicPoints >= CARD_COST) {
-            showConfirmDialog({
-                message:
-                    `是否消耗${CARD_COST}魔力解锁卡片？`,
-            })
-                .then(() => {
-                    gameStore.exchangeCard(cId);
-                    showSuccessToast('🐷 恭喜，解锁成功～');
-                    confetti({
-                        particleCount: 100,
-                        spread: 70,
-                        origin: { y: 0.6 }
-                    });
-                })
-                .catch(() => {
-                    // on cancel
-                });
-        } else {
-            console.log('魔力不足')
-            showFailToast('魔力不足，无法解锁')
-        }
-    }
-}
-</script>
-
-<template>
-
-    <div class="static-wrap">
-        <p>解锁进度</p>
-        <ProgressRing :progress="(gameStore.collectedCards.length / pCardTotalLen) * 100" :text="`${gameStore.collectedCards.length}/${pCardTotalLen}`" :size="50" />
-    </div>
-    <section class="pcard-list">
-        <PCard :cId="(i - 1).toString()" :unlockProgress="gameStore.collectedCards.includes(i - 1) ? 1 : 0" v-for="i in pCardTotalLen" :key="i" @click="handleClick(i - 1)"></PCard>
-    </section>
-</template>
-
-<style scoped>
-.pcard-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 15px;
-}
-
-.static-wrap {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 10px 0;
-}
-</style>
-
-===== components/PageHeader.vue =====
-<script setup>
-import { nextTick, ref } from 'vue'
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-
-import { useGameStore } from '@/stores/game'
-
-const router = useRouter()
-const gameStore = useGameStore()
-
-// const props = defineProps({
-//   title: {
-//     type: String,
-//     required: true,
-//   },
-// });
-
-const toHome = () => {
-  router.push('/')
+const handleClick = (e) => {
+  if (props.disabled) return;
+  audioManager.play('click');
+  emit('click', e);
 };
 </script>
 
 <template>
-    <header>
-      <!-- 左侧插槽 -->
-      <div class="left-slot">
-        <slot name="left">
-          <!-- 默认内容 -->
-          <i @click="toHome">🏠</i>
-        </slot>
-      </div>
+  <button
+    @click="handleClick"
+    :disabled="disabled"
+    class="relative font-bold text-white transition-all transform active:translate-y-[4px] active:border-b-0 focus:outline-none select-none"
+    :class="[
+      colorMap[variant],
+      sizeClass,
+      block ? 'w-full flex justify-center items-center' : 'inline-flex items-center justify-center gap-2',
+      disabled ? 'opacity-50 grayscale cursor-not-allowed active:translate-y-0 active:border-b-[6px]' : 'hover:brightness-110'
+    ]"
+  >
+    <slot></slot>
+  </button>
+</template>
+
+===== components/base/GameModal.vue =====
+<script setup>
+import { PhXCircle } from '@phosphor-icons/vue';
+
+defineProps({
+  show: Boolean,
+  title: String,
+  closeable: { type: Boolean, default: true }
+});
+
+const emit = defineEmits(['close']);
+</script>
+
+<template>
+  <Transition name="modal-fade">
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <!-- 遮罩 -->
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeable && emit('close')"></div>
       
-      <!-- 中间插槽 -->
-      <div class="center-slot">
-        <slot name="center">
-          <!-- 默认内容 -->
-        </slot>
+      <!-- 弹窗主体 -->
+      <div class="relative bg-paper-white w-full max-w-lg rounded-3xl shadow-2xl border-4 border-candy-blue overflow-hidden transform transition-all modal-content">
+        
+        <!-- 标题栏 -->
+        <div class="bg-candy-blue p-4 flex justify-between items-center">
+          <h3 class="text-2xl font-bold text-white font-cartoon tracking-wider">{{ title }}</h3>
+          <button v-if="closeable" @click="emit('close')" class="text-white hover:scale-110 transition">
+            <PhXCircle size="32" weight="fill" />
+          </button>
+        </div>
+
+        <!-- 内容区 -->
+        <div class="p-6 max-h-[70vh] overflow-y-auto">
+          <slot></slot>
+        </div>
       </div>
-      
-      <!-- 右侧插槽 -->
-      <div class="right-slot">
-        <slot name="right">
-          <!-- 默认内容 -->
-          <MagicPoint />
-        </slot>
-      </div>
-    </header>
+    </div>
+  </Transition>
 </template>
 
 <style scoped>
-header {
-  display: flex;
-  position: relative;
-  padding: 10px 20px;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #fff;
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 
-header i {
-  display: block;
-  font-style: normal;
-  font-size: 40px;
+.modal-fade-enter-active .modal-content {
+  animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-fade-leave-active .modal-content {
+  animation: zoom-out 0.3s ease;
 }
 
-.left-slot,
-.center-slot,
-.right-slot {
-  display: flex;
-  align-items: center;
+@keyframes bounce-in {
+  0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
 }
-
-.center-slot {
-  flex: 1;
-  justify-content: center;
-  text-align: center;
-}
-
-.left-slot {
-  justify-content: flex-start;
-}
-
-.right-slot {
-  justify-content: flex-end;
+@keyframes zoom-out {
+  to { transform: scale(0.9); opacity: 0; }
 }
 </style>
 
-===== components/ProgressRing.vue =====
+===== components/base/GameProgress.vue =====
+<script setup>
+defineProps({
+  value: { type: Number, default: 0 }, // 当前值
+  max: { type: Number, default: 100 }, // 最大值
+  color: { type: String, default: 'bg-candy-green' } // 进度条颜色类名
+});
+</script>
+
 <template>
-    <div class="ring-progress-container" :style="{ width: size + 'px', height: size + 'px' }">
-        <svg class="ring-progress" :width="size" :height="size">
-            <!-- 背景圆环 -->
-            <circle class="ring-background" :cx="center" :cy="center" :r="radius" :stroke-width="strokeWidth" fill="none" :stroke="backgroundColor" />
+  <div class="w-full h-6 bg-gray-200 rounded-full border-2 border-white shadow-inner overflow-hidden relative">
+    <!-- 进度填充 -->
+    <div 
+      class="h-full transition-all duration-500 ease-out relative"
+      :class="color"
+      :style="{ width: `${Math.min((value / max) * 100, 100)}%` }"
+    >
+      <!-- 光泽动画 -->
+      <div class="absolute inset-0 bg-white/30 w-full h-full animate-[shimmer_2s_infinite] skew-x-12 origin-left scale-x-150"></div>
+    </div>
+    <!-- 文字 -->
+    <div class="absolute inset-0 flex items-center justify-center text-xs font-bold text-dark-text/70 drop-shadow-sm">
+      {{ value }} / {{ max }}
+    </div>
+  </div>
+</template>
 
-            <!-- 进度圆环 -->
-            <circle class="ring-progress-bar" :cx="center" :cy="center" :r="radius" :stroke-width="strokeWidth" fill="none" :stroke="gradient ? 'url(#gradient)' : color" :stroke-dasharray="circumference" :stroke-dashoffset="dashOffset" :stroke-linecap="strokeLinecap" :style="transitionStyle" />
+<style scoped>
+@keyframes shimmer {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(150%) skewX(-20deg); }
+}
+</style>
 
-            <!-- 渐变定义 -->
-            <defs v-if="gradient">
-                <linearGradient id="gradient" :x1="gradientStart.x" :y1="gradientStart.y" :x2="gradientEnd.x" :y2="gradientEnd.y">
-                    <stop offset="0%" :stop-color="gradientStart.color" />
-                    <stop offset="100%" :stop-color="gradientEnd.color" />
-                </linearGradient>
-            </defs>
-        </svg>
+===== components/base/MagicCapsule.vue =====
+<script setup>
+import { ref, watch } from 'vue'; // 引入 ref, watch
+import { useGameStore } from '@/stores/game';
+import { storeToRefs } from 'pinia';
+import { PhSparkle } from '@phosphor-icons/vue';
 
-        <!-- 中间内容 -->
-        <div class="ring-content">
-            <slot>
-                <div class="default-content">
-                    <div class="percentage-text">{{ displayText }}</div>
-                    <div v-if="showLabel" class="label-text">{{ label }}</div>
+const gameStore = useGameStore();
+const { magicPoints } = storeToRefs(gameStore);
+
+// 【新增】动画状态
+const isAnimating = ref(false);
+const addedValue = ref(0);
+
+// 【新增】监听魔力值变化
+watch(magicPoints, (newVal, oldVal) => {
+  if (newVal > oldVal) {
+    // 记录增加的值（可选用于显示 +3）
+    addedValue.value = newVal - oldVal;
+    
+    // 触发动画
+    isAnimating.value = true;
+    setTimeout(() => {
+      isAnimating.value = false;
+    }, 600); // 动画持续时间
+  }
+});
+</script>
+
+<template>
+  <div 
+    class="flex items-center bg-black/40 backdrop-blur-md rounded-full px-4 py-1 border-2 shadow-lg text-white transition-all duration-300 relative"
+    :class="isAnimating ? 'scale-110 border-white bg-candy-orange/80' : 'border-candy-yellow'"
+  >
+    <!-- 漂浮的 +N 数字 (动画时显示) -->
+    <Transition name="float-up">
+      <span v-if="isAnimating" class="absolute -top-6 right-0 text-candy-yellow font-bold text-xl font-cartoon drop-shadow-md">
+        +{{ addedValue }}
+      </span>
+    </Transition>
+
+    <PhSparkle 
+      weight="fill" 
+      class="text-candy-yellow w-6 h-6 mr-2 transition-transform duration-500" 
+      :class="isAnimating ? 'rotate-180 scale-125' : 'animate-pulse'"
+    />
+    
+    <span class="font-bold text-xl font-mono tabular-nums">{{ magicPoints }}</span>
+  </div>
+</template>
+
+<style scoped>
+/* 简单的上浮消失动画 */
+.float-up-enter-active {
+  animation: float-up 0.8s ease-out forwards;
+}
+.float-up-leave-active {
+  display: none;
+}
+
+@keyframes float-up {
+  0% { opacity: 0; transform: translateY(5px) scale(0.5); }
+  20% { opacity: 1; transform: translateY(0) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-20px) scale(1); }
+}
+</style>
+
+===== components/business/CharLearningCard.vue =====
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
+import { PhSpeakerHigh } from '@phosphor-icons/vue';
+import { tts } from '@/utils/tts';
+
+const props = defineProps({
+    info: { type: Object, required: true },
+    autoPlay: { type: Boolean, default: true }
+});
+
+const emit = defineEmits(['finish']);
+
+const isFlipped = ref(false);
+const isPlaying = ref(false);
+const activeKey = ref(''); // 用于记录当前正在读的内容ID，用于高亮
+// 【新增】组件存活标记
+const isMounted = ref(true);
+
+// 【新增】标记初始强制播放是否完成
+// 如果不自动播放，默认就是完成状态，允许交互
+const isInitialPlayDone = ref(!props.autoPlay);
+
+// 【新增】安全的延时函数
+// 如果组件卸载了或停止播放了，这个等待就没意义了，虽然不能物理中断 Promise，
+// 但我们可以配合下方的检查逻辑使用
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+// 【新增】检查是否应该继续运行
+// 只有当：组件挂载中 且 播放状态为 true 时，才继续
+const shouldContinue = () => isMounted.value && isPlaying.value;
+
+// 【新增】高亮处理函数
+const highlightText = (text, char) => {
+    if (!text || !char) return text;
+    // 使用全局替换，将目标字包裹在 span 中
+    // 添加 font-bold (加粗), text-candy-blue (主题色), text-xl (稍微加大), inline-block (允许缩放), mx-0.5 (微小左右间距)
+    return text.replaceAll(
+        char,
+        `<span class="font-bold text-candy-blue text-xl inline-block mx-0.5">${char}</span>`
+    );
+};
+
+// 播放序列逻辑
+const playSequence = async () => {
+    if (isPlaying.value) return;
+    isPlaying.value = true;
+
+    try {
+        // 1. 正面：读汉字 (3遍)
+        if (!isFlipped.value) {
+            for (let i = 0; i < 3; i++) {
+                if (!shouldContinue()) return; // 【检查】
+
+                activeKey.value = 'char';
+                await tts.speak(props.info.character, { rate: 0.6 });
+
+                if (!shouldContinue()) return; // 【检查】
+                await wait(1000);
+            }
+            activeKey.value = '';
+
+            if (!shouldContinue()) return; // 【检查】
+            await wait(300);
+
+            if (!shouldContinue()) return; // 【检查】
+            isFlipped.value = true;
+
+            await wait(600); // 等待翻转动画
+        }
+
+        // 2. 背面：读词语 (全部)
+        if (props.info.example_words?.length) {
+            for (let i = 0; i < props.info.example_words.length; i++) {
+                if (!shouldContinue()) return; // 【检查】
+
+                activeKey.value = `word-${i}`;
+                await tts.speak(props.info.example_words[i], { rate: 0.8 });
+
+                if (!shouldContinue()) return; // 【检查】
+                await wait(1000);
+            }
+        }
+
+        // 3. 背面：读例句 (全部)
+        if (props.info.example_sentences?.length) {
+            for (let i = 0; i < props.info.example_sentences.length; i++) {
+                if (!shouldContinue()) return; // 【检查】
+
+                activeKey.value = `sentence-${i}`;
+                await tts.speak(props.info.example_sentences[i], { rate: 0.9 });
+
+                if (!shouldContinue()) return; // 【检查】
+                await wait(1000);
+            }
+        }
+
+        activeKey.value = '';
+        if (shouldContinue()) {
+            // 【解锁】播放完整结束，解锁交互
+            isInitialPlayDone.value = true;
+            emit('finish');
+        }
+    } catch (e) {
+        console.error('TTS interrupted', e);
+    } finally {
+        // 只有在非强制中断的情况下才重置 isPlaying
+        // 如果是因为组件卸载导致的退出，这里其实已经无所谓了
+        if (isMounted.value) {
+            isPlaying.value = false;
+            activeKey.value = '';
+        }
+    }
+};
+
+// 点击重读特定项
+const playSpecific = async (text, key) => {
+    // 【拦截】如果还在初始强制播放中，禁止点击
+    if (!isInitialPlayDone.value) return;
+
+    // 点击特定项时，打断自动流
+    isPlaying.value = false;
+    tts.stop();
+
+    // 给一点点时间让 loop 中的 check 生效退出
+    await wait(10);
+
+    activeKey.value = key;
+    await tts.speak(text);
+
+    if (isMounted.value) {
+        activeKey.value = '';
+    }
+};
+
+// 手动点击翻转
+const toggleFlip = async () => {
+    // 【拦截】如果还在初始强制播放中，禁止翻转
+    if (!isInitialPlayDone.value) return;
+
+    // 翻转时，立即打断自动流
+    isPlaying.value = false;
+    tts.stop();
+    activeKey.value = '';
+
+    isFlipped.value = !isFlipped.value;
+
+    // 如果翻回正面，简单读一下字
+    if (!isFlipped.value) {
+        // 这里不需要 await，因为是简单的触发
+        playSpecific(props.info.character, 'char');
+    }
+};
+
+onMounted(() => {
+    if (props.autoPlay) {
+        setTimeout(playSequence, 500);
+    }
+});
+
+onUnmounted(() => {
+    // 【关键】标记组件已卸载
+    isMounted.value = false;
+    // 停止播放标记
+    isPlaying.value = false;
+    // 物理停止 TTS
+    tts.stop();
+});
+</script>
+
+<template>
+    <!-- 【修改】样式绑定：如果未完成，显示 default 或 wait 光标，移除 cursor-pointer -->
+    <div class="perspective-container w-full max-w-md aspect-[3/4] relative select-none" :class="isInitialPlayDone ? 'cursor-pointer' : 'cursor-default'" @click="toggleFlip">
+        <div class="flip-card w-full h-full transition-transform duration-700 transform-style-3d" :class="{ 'flipped': isFlipped }">
+
+            <!-- 正面：汉字 -->
+            <div class="front absolute inset-0 backface-hidden bg-white rounded-3xl border-4 border-candy-blue shadow-xl flex flex-col items-center justify-center overflow-hidden">
+                <div class="absolute top-4 right-4 text-candy-blue opacity-50">
+                    <PhSpeakerHigh size="32" />
                 </div>
-            </slot>
+
+                <div class="text-gray-500 text-4xl font-mono mb-4 tracking-widest">{{ info.pinyin }}</div>
+                <div class="text-[10rem] leading-none font-bold text-dark-text font-sans transition-all duration-300" :class="{ 'scale-110 text-candy-blue drop-shadow-lg': activeKey === 'char' }">
+                    {{ info.character }}
+                </div>
+
+                <div class="mt-12 text-candy-blue animate-bounce-sm text-lg font-bold">
+                    <!-- 【修改】提示文案：未解锁时显示'正在朗读'，解锁后显示'点我翻转' -->
+                    {{ isInitialPlayDone ? '点我翻转 ↷' : '👂 仔细听哦...' }}
+                </div>
+            </div>
+
+            <!-- 背面：词句 -->
+            <div class="back absolute inset-0 backface-hidden bg-paper-white rounded-3xl border-4 border-candy-orange shadow-xl rotate-y-180 flex flex-col p-6 overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-candy-orange">词语</h3>
+                    <div class="text-candy-orange opacity-50">
+                        <PhSpeakerHigh size="24" weight="bold" />
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-8">
+                    <span v-for="(word, idx) in info.example_words" :key="word" @click.stop="playSpecific(word, `word-${idx}`)" class="px-4 py-2 bg-white rounded-xl text-xl font-bold shadow-sm border transition-all duration-300" :class="[
+                        activeKey === `word-${idx}` ? 'bg-candy-orange border-candy-orange scale-110 shadow-md' : 'border-gray-100',
+                        // 【修改】未解锁时移除 hover 效果
+                        isInitialPlayDone ? 'hover:bg-gray-50' : ''
+                    ]">
+                        {{ word }}
+                    </span>
+                </div>
+
+                <h3 class="text-2xl font-bold text-candy-green mb-4">例句</h3>
+                <div class="space-y-4">
+                    <!-- 【修改】将插值 {{ sentence }} 改为 v-html -->
+                    <p v-for="(sentence, idx) in info.example_sentences" :key="idx" @click.stop="playSpecific(sentence, `sentence-${idx}`)" class="text-lg leading-relaxed bg-white p-3 rounded-lg shadow-sm transition-all duration-300 border-l-4" :class="[
+                        activeKey === `sentence-${idx}` ? 'border-candy-green bg-green-50 text-green-900 scale-105' : 'border-transparent text-gray-700',
+                        isInitialPlayDone ? 'hover:bg-gray-50' : ''
+                    ]" v-html="highlightText(sentence, info.character)">
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 
-<script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+<style scoped>
+.perspective-container {
+    perspective: 1000px;
+}
+.transform-style-3d {
+    transform-style: preserve-3d;
+}
+.backface-hidden {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+    transform: rotateY(180deg);
+}
+.flipped {
+    transform: rotateY(180deg);
+}
+</style>
 
-// 定义props
+===== components/layout/MainLayout.vue =====
+<script setup>
+import { onMounted, computed } from 'vue';
+import { audioManager } from '@/utils/audio';
+
 const props = defineProps({
-    // 进度值 (0-100)
-    progress: {
-        type: Number,
-        required: true
-    },
-    // 组件大小
-    size: {
-        type: Number,
-        default: 120
-    },
-    // 环形宽度
-    strokeWidth: {
-        type: Number,
-        default: 8
-    },
-    // 进度条颜色
-    color: {
+    bgImage: {
         type: String,
-        default: '#b72de1'
+        default: 'bg_common.jpg'
     },
-    // 背景颜色
-    backgroundColor: {
-        type: String,
-        default: '#E5E7EB'
-    },
-    // 是否启用渐变
-    gradient: {
-        type: Boolean,
-        default: false
-    },
-    // 渐变起始颜色
-    gradientStartColor: {
-        type: String,
-        default: '#667EEA'
-    },
-    // 渐变结束颜色
-    gradientEndColor: {
-        type: String,
-        default: '#764BA2'
-    },
-    // 线条端点样式
-    strokeLinecap: {
-        type: String,
-        default: 'round',
-        validator: (value) => ['butt', 'round', 'square'].includes(value)
-    },
-    // 自定义显示文本
-    text: {
-        type: String,
-        default: ''
-    },
-    // 标签文字
-    label: {
-        type: String,
-        default: ''
-    },
-    // 是否显示标签
-    showLabel: {
-        type: Boolean,
-        default: false
-    },
-    // 动画持续时间（毫秒）
-    animationDuration: {
-        type: Number,
-        default: 1000
-    },
-    // 是否显示动画
-    animated: {
-        type: Boolean,
-        default: true
+    title: String,
+});
+
+// 【修正】使用 new URL 动态解析图片路径
+// 注意：MainLayout.vue 在 src/components/layout/ 目录下
+// 图片在 src/assets/images/ 目录下
+// 所以相对路径是 ../../assets/images/
+const bgStyle = computed(() => {
+    try {
+        // Vite 会在构建时处理这个 URL
+        const imgUrl = new URL(`../../assets/images/${props.bgImage}`, import.meta.url).href;
+        return { backgroundImage: `url(${imgUrl})` };
+    } catch (e) {
+        console.error('背景图加载失败', e);
+        return {};
     }
 });
 
-// 计算中心点和半径
-const center = computed(() => props.size / 2)
-const radius = computed(() => (props.size - props.strokeWidth) / 2)
-
-// 计算圆周长
-const circumference = computed(() => 2 * Math.PI * radius.value)
-
-// 当前进度
-const currentProgress = ref(0)
-
-// 计算偏移量
-const dashOffset = computed(() => {
-    const offset = circumference.value - (currentProgress.value / 100) * circumference.value
-    return offset
-})
-
-// 显示文本
-const displayText = computed(() => {
-    if (props.text) {
-        return props.text
-    }
-    return `${currentProgress.value.toFixed(1)}%`
-})
-
-// 渐变配置
-const gradientStart = computed(() => ({
-    x: '0%',
-    y: '0%',
-    color: props.gradientStartColor
-}))
-
-const gradientEnd = computed(() => ({
-    x: '100%',
-    y: '100%',
-    color: props.gradientEndColor
-}))
-
-// 过渡样式
-const transitionStyle = computed(() => {
-    if (props.animated) {
-        return {
-            transition: `stroke-dashoffset ${props.animationDuration}ms ease-in-out`
-        }
-    }
-    return {}
-})
-
-// 监听进度变化
-watch(() => props.progress, (newVal) => {
-    if (props.animated) {
-        // 动画过渡
-        const startValue = currentProgress.value
-        const endValue = Math.min(100, Math.max(0, newVal))
-        const duration = props.animationDuration
-        const startTime = Date.now()
-
-        const animate = () => {
-            const currentTime = Date.now()
-            const elapsed = currentTime - startTime
-            const progress = Math.min(elapsed / duration, 1)
-
-            // 使用缓动函数
-            const easeProgress = 1 - Math.pow(1 - progress, 3)
-            currentProgress.value = startValue + (endValue - startValue) * easeProgress
-
-            if (progress < 1) {
-                requestAnimationFrame(animate)
-            }
-        }
-
-        requestAnimationFrame(animate)
-    } else {
-        currentProgress.value = Math.min(100, Math.max(0, newVal))
-    }
-}, { immediate: true })
-
-onMounted(() => {
-    // 初始化进度
-    currentProgress.value = Math.min(100, Math.max(0, props.progress))
-})
+// 尝试初始化音频环境
+const handleInteraction = () => {
+    audioManager.initAudioContext();
+};
 </script>
 
+<template>
+    <div class="w-full h-full bg-cover bg-center bg-no-repeat relative overflow-hidden flex flex-col" :style="bgStyle" @click.once="handleInteraction" @touchstart.once="handleInteraction">
+        <!-- 遮罩层，让文字更清晰 -->
+        <div class="absolute inset-0 bg-white/10 pointer-events-none backdrop-blur-[1px]"></div>
+
+        <!-- 顶部栏 -->
+        <header v-if="$slots.header || title" class="relative z-10 p-4 pt-8 flex justify-between items-center">
+            <div v-if="title" class="text-3xl font-cartoon text-white drop-shadow-md text-stroke-sm">
+                {{ title }}
+            </div>
+            <slot name="header"></slot>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main class="relative z-10 flex-1 flex flex-col overflow-hidden p-4 safe-area-bottom">
+            <slot></slot>
+        </main>
+
+        <!-- 悬浮元素层 -->
+        <div class="absolute inset-0 pointer-events-none z-20">
+            <slot name="overlay"></slot>
+        </div>
+    </div>
+</template>
+
 <style scoped>
-.ring-progress-container {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transform: rotate(-90deg);
+.text-stroke-sm {
+    -webkit-text-stroke: 2px #2C3A47;
+    paint-order: stroke fill;
 }
-
-.ring-progress {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.ring-background {
-    opacity: 0.3;
-}
-
-.ring-progress-bar {
-    transform-origin: center;
-    filter: drop-shadow(0 0 3px rgba(79, 70, 229, 0.3));
-    transition: filter 0.3s ease;
-}
-
-.ring-progress-container:hover .ring-progress-bar {
-    filter: drop-shadow(0 0 6px rgba(79, 70, 229, 0.5));
-}
-
-.ring-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(90deg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
-}
-
-.default-content {
-    text-align: center;
-}
-
-.percentage-text {
-    font-size: calc(var(--size, 120) * 0.2);
-    font-weight: 600;
-    color: #1F2937;
-    line-height: 1;
-}
-
-.label-text {
-    font-size: calc(var(--size, 120) * 0.12);
-    color: #6B7280;
-    margin-top: 4px;
-    font-weight: 400;
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 20px);
 }
 </style>
 
@@ -1585,7 +892,24 @@ export const useGameStore = defineStore('game', () => {
     }
     return count;
   }
-  
+
+  // 【新增】获取今日所有答对的次数（用于UI展示，提供即时反馈）
+  function getTodayCorrectCount() {
+    const today = new Date().toDateString();
+    let count = 0;
+    for (const state of characterStates.value) {
+      if (state.stateList) {
+        // 统计所有 action 为 '测验' 且 isCorrect 为 true 且日期是今天的记录
+        count += state.stateList.filter(action =>
+          action.action === '测验' &&
+          action.isCorrect &&
+          new Date(action.date).toDateString() === today
+        ).length;
+      }
+    }
+    return count;
+  }
+
   function learnCharacter(character) {
     if (getTodayLearnCount() >= DAILY_LEARN_LIMIT) {
       return { success: false, message: '今日初识字数已达上限' }
@@ -1602,22 +926,22 @@ export const useGameStore = defineStore('game', () => {
     magicPoints.value += 3
     return { success: true, message: '初识成功' }
   }
-  
+
   // +++ 修改方法：使其返回 newCorrectCount +++
   function recordExamResult(character, isCorrect) {
     let state = getCharacterState(character)
     if (!state || !isCharacterLearned(state)) {
       return { success: false, message: '请先初识这个字' }
     }
-    
+
     const wasAlreadyMastered = isCharacterMastered(state);
     state.stateList.push({ action: '测验', isCorrect, date: Date.now() })
-    
+
     const newCorrectCount = getCharacterCorrectCount(character); // 获取最新的正确次数
     const isNowMastered = isCharacterMastered(state);
     let message = ''
     let reward = 0
-    
+
     if (isCorrect && !wasAlreadyMastered && isNowMastered) {
       if (getTodayMasterCount() <= DAILY_MASTER_LIMIT) {
         reward = 3
@@ -1635,7 +959,7 @@ export const useGameStore = defineStore('game', () => {
     } else {
       message = '测验错误，继续努力！'
     }
-    
+
     return { success: true, message, reward, isMastered: isNowMastered, newCorrectCount };
   }
 
@@ -1658,7 +982,7 @@ export const useGameStore = defineStore('game', () => {
   function setAllCharactersData(data) {
     allCharactersData.value = data || []
   }
-  
+
   function getStats() {
     return {
       total: getAllCharacters().length,
@@ -1684,6 +1008,7 @@ export const useGameStore = defineStore('game', () => {
     getCharacterState,
     getTodayLearnCount,
     getTodayMasterCount,
+    getTodayCorrectCount,
     learnCharacter,
     recordExamResult,
     exchangeCard,
@@ -1698,6 +1023,138 @@ export const useGameStore = defineStore('game', () => {
     paths: ['magicPoints', 'characterStates', 'collectedCards'],
   }
 })
+
+===== utils/audio.js =====
+// ===== utils/audio.js =====
+import { Howl } from 'howler';
+import { ref } from 'vue'; // 【新增】引入 ref
+
+// ... (资源导入保持不变)
+import sfxClickUrl from '@/assets/audio/sfx_click.mp3';
+import sfxCorrectUrl from '@/assets/audio/sfx_correct.mp3';
+import sfxWrongUrl from '@/assets/audio/sfx_wrong.mp3';
+import sfxUnlockUrl from '@/assets/audio/sfx_unlock.mp3';
+import sfxCelebrateUrl from '@/assets/audio/sfx_celebrate.mp3';
+import bgmMainUrl from '@/assets/audio/bgm_main.mp3';
+
+// 【新增】全局导出音频解锁状态，供组件判断是否需要显示“开始”按钮
+export const isAudioUnlocked = ref(false);
+
+const sounds = {
+  // ... (保持不变)
+  click: new Howl({ src: [sfxClickUrl], volume: 0.5 }),
+  correct: new Howl({ src: [sfxCorrectUrl], volume: 0.6 }),
+  wrong: new Howl({ src: [sfxWrongUrl], volume: 0.6 }),
+  unlock: new Howl({ src: [sfxUnlockUrl], volume: 0.7 }),
+  celebrate: new Howl({ src: [sfxCelebrateUrl], volume: 0.6 }),
+};
+
+const bgm = new Howl({
+  // ... (保持不变)
+  src: [bgmMainUrl],
+  html5: true,
+  loop: true,
+  volume: 0.3,
+  autoplay: false,
+});
+
+export const audioManager = {
+  play(name) {
+    // ... (保持不变)
+    if (sounds[name]) {
+      sounds[name].play();
+    }
+  },
+
+  // iOS 需要用户交互后才能播放声音
+  initAudioContext() {
+    if (Howler.ctx && Howler.ctx.state !== 'running') {
+      Howler.ctx.resume();
+    }
+    // 【新增】标记为已解锁
+    isAudioUnlocked.value = true;
+  },
+
+  // ... (playBgm, stopBgm, setBgmVolume 保持不变)
+  playBgm() {
+    if (!bgm.playing()) {
+      bgm.play();
+    }
+  },
+
+  stopBgm() {
+    bgm.stop();
+  },
+
+  setBgmVolume(vol) {
+    bgm.fade(bgm.volume(), vol, 500);
+  }
+};
+
+===== utils/tts.js =====
+import { audioManager } from './audio';
+
+let currentUtterance = null;
+
+export const tts = {
+  async speak(text, options = {}) {
+    return new Promise((resolve, reject) => {
+      if (!('speechSynthesis' in window)) {
+        reject(new Error('不支持语音合成'));
+        return;
+      }
+
+      this.stop(); // 停止之前的发声
+
+      // 播放语音时降低 BGM 音量
+      audioManager.setBgmVolume(0.1);
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      
+      // 默认配置优化
+      Object.assign(utterance, {
+        rate: 0.9, // 语速稍慢适合儿童
+        pitch: 1,
+        volume: 1,
+        lang: 'zh-CN',
+        ...options
+      });
+
+      currentUtterance = utterance;
+
+      utterance.onend = () => {
+        currentUtterance = null;
+        // 恢复 BGM 音量
+        audioManager.setBgmVolume(0.3);
+        resolve();
+      };
+
+      utterance.onerror = (event) => {
+        // 如果是被 cancel 掉的，通常不视为错误
+        currentUtterance = null;
+        audioManager.setBgmVolume(0.3);
+        // error.interrupted 是 iOS Safari 的一种情况
+        if (event.error === 'interrupted' || event.error === 'canceled') {
+           resolve(); 
+        } else {
+           reject(event);
+        }
+      };
+
+      window.speechSynthesis.speak(utterance);
+    });
+  },
+
+  stop() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      if (currentUtterance) {
+        audioManager.setBgmVolume(0.3);
+        currentUtterance = null;
+      }
+    }
+  }
+};
 
 ===== views/AboutView.vue =====
 <template>
@@ -1719,1139 +1176,954 @@ export const useGameStore = defineStore('game', () => {
 
 ===== views/ExamView.vue =====
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useGameStore } from '@/stores/game';
+import { audioManager } from '@/utils/audio';
+import { tts } from '@/utils/tts';
+import { PhArrowLeft, PhSword, PhShieldCheck } from '@phosphor-icons/vue';
 import confetti from 'canvas-confetti';
+// 【新增】引入图标
+import { PhStar, PhTrophy, PhTrendUp } from '@phosphor-icons/vue';
 
-import PageHeader from '../components/PageHeader.vue';
-import ProgressRing from '../components/ProgressRing.vue';
-import CCard from '../components/CCard.vue';
-import Utils from '../Utils.js';
+import MainLayout from '@/components/layout/MainLayout.vue';
+import GameButton from '@/components/base/GameButton.vue';
+import GameProgress from '@/components/base/GameProgress.vue';
+import GameModal from '@/components/base/GameModal.vue';
+import CharLearningCard from '@/components/business/CharLearningCard.vue';
+import MagicCapsule from '@/components/base/MagicCapsule.vue';
 
 const router = useRouter();
 const gameStore = useGameStore();
 
-// --- 组件状态 ---
-const quizState = ref('loading');
-const lastExaminedChar = ref(null);
+// 状态
+const gameState = ref('loading'); // loading, playing, finished
 const currentQuestion = ref(null);
-const selectedAnswer = ref(null);
+const selectedOption = ref(null);
 const isAnswered = ref(false);
 const isCorrect = ref(false);
-const showReviewCard = ref(false);
-const isReviewCardFinished = ref(false);
-const progressInfo = ref({ show: false, char: '', from: 0, to: 0 });
+const sessionCorrectCount = ref(0);
+const sessionTotalCount = ref(0);
 
-// --- 统计数据 ---
-const sessionStats = ref({
-    correct: 0,
-    total: 0,
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+// 复习弹窗
+const showReview = ref(false);
+// 【新增】控制复习卡片是否朗读完成
+const isReviewFinished = ref(false);
+
+// 每日掌握上限限制
+const canEarnPoints = computed(() => gameStore.getTodayMasterCount() < gameStore.DAILY_MASTER_LIMIT);
+
+// 怪兽/进度条状态
+// 【修改】动态计算今日目标上限
+const dailyLimit = computed(() => {
+  const todayDone = gameStore.getTodayMasterCount();
+  const remainingCandidates = gameStore.learnedCharacters.length; // 剩余可考的字（已学但未掌握）
+  
+  // 理论上今天能达到的最大值 = 已完成 + 还能完成的
+  const potentialTotal = todayDone + remainingCandidates;
+  
+  // 取 每日上限(30) 和 理论最大值 中的较小者
+  return Math.min(gameStore.DAILY_MASTER_LIMIT, potentialTotal);
+});
+// 【修改】回退为：只显示今日已“掌握”的字数（即答对3次的字数）
+// 这样 Boss 血条更难打，但含金量更高
+const progressValue = computed(() => gameStore.getTodayMasterCount());
+
+// 【新增】答题反馈状态
+const feedback = ref({
+    show: false,
+    isMastered: false,
+    count: 0,
+    total: 3, // 目标次数
+    reward: 0
 });
 
-// --- 计算属性 ---
-const examinableChars = computed(() => gameStore.learnedCharacters);
-const dailyMasterLimit = computed(() => gameStore.DAILY_MASTER_LIMIT);
-const todayMasteredCount = computed(() => gameStore.getTodayMasterCount());
-
-// --- 方法 ---
-const generateQuestion = () => {
-    // 重置状态
-    isAnswered.value = false;
-    isCorrect.value = false;
-    selectedAnswer.value = null;
-    isReviewCardFinished.value = false;
-    progressInfo.value.show = false;
-
-    if (examinableChars.value.length === 0 || todayMasteredCount.value >= dailyMasterLimit.value) {
-        quizState.value = 'finished';
-        playCelebrationAnimation();
+// --- 核心逻辑 ---
+const initExam = () => {
+    if (gameStore.learnedCharacters.length === 0) {
+        router.replace('/');
         return;
     }
+    gameState.value = 'playing';
+    nextQuestion();
+};
 
-    let availableChars = examinableChars.value;
-    if (lastExaminedChar.value && availableChars.length > 1) {
-        availableChars = availableChars.filter(c => c !== lastExaminedChar.value);
-    }
+const nextQuestion = () => {
+    // 检查是否今日已达标（可选：达标后是否强制结束？这里选择不强制，只是没奖励）
+    // 生成题目
+    // 【新增】重置反馈状态
+    feedback.value.show = false;
+    selectedOption.value = null;
+    isAnswered.value = false;
+    showReview.value = false;
 
-    const targetChar = availableChars[Math.floor(Math.random() * availableChars.length)];
-    const targetCharInfo = gameStore.allCharactersData.find(c => c.character === targetChar);
-    lastExaminedChar.value = targetChar;
+    // 简单的题目生成算法
+    const learnedChars = gameStore.learnedCharacters;
+    if (learnedChars.length === 0) return;
 
-    const sentence = targetCharInfo.example_sentences[Math.floor(Math.random() * targetCharInfo.example_sentences.length)];
-    const questionText = sentence.replace(new RegExp(targetChar, 'g'), '（__）');
+    const targetChar = learnedChars[Math.floor(Math.random() * learnedChars.length)];
+    const targetInfo = gameStore.allCharactersData.find(c => c.character === targetChar);
 
+    // 随机挖空一个句子
+    const sentence = targetInfo.example_sentences[Math.floor(Math.random() * targetInfo.example_sentences.length)];
+    // 【修改】定义统一的挖空占位符
+    const PLACEHOLDER = '（ __ ）';
+
+    // 将所有出现的汉字替换为占位符
+    const questionText = sentence.replace(new RegExp(targetChar, 'g'), PLACEHOLDER);
+
+    // 生成干扰项
     const options = new Set([targetChar]);
-    const allOtherChars = gameStore.allCharactersData.filter(c => c.character !== targetChar);
-    while (options.size < 4 && allOtherChars.length > 0) {
-        const randomIndex = Math.floor(Math.random() * allOtherChars.length);
-        options.add(allOtherChars.splice(randomIndex, 1)[0].character);
+    const allChars = gameStore.allCharactersData;
+    while (options.size < 4) {
+        const randomChar = allChars[Math.floor(Math.random() * allChars.length)].character;
+        options.add(randomChar);
     }
-
-    const shuffledOptions = Array.from(options).sort(() => Math.random() - 0.5);
 
     currentQuestion.value = {
         targetChar,
-        targetCharInfo,
-        questionText,
-        options: shuffledOptions,
+        targetInfo,
+        text: questionText,
+        options: Array.from(options).sort(() => Math.random() - 0.5)
     };
+
+    // 朗读题目（稍微延迟）
+    setTimeout(() => speakQuestion(), 500);
 };
 
 const speakQuestion = async () => {
-    // 有bug，无法自动朗读，暂不启用
-    // Utils.stopSpeak();
-    // await Utils.speakText('请咪猪头回答');
-    return;
-
     if (!currentQuestion.value) return;
-    const text = currentQuestion.value.questionText;
-    const parts = text.split('（__）');
 
-    Utils.stopSpeak();
+    // 1. 先停止之前的声音
+    tts.stop();
 
-    try {
-        if (parts[0]) {
-            await Utils.speakText(parts[0]);
+    const { text, placeholder } = currentQuestion.value;
+
+    // 2. 按照占位符切割句子
+    // 例如："小猫爱吃鱼" -> 挖空 "猫" -> "小（ __ ）爱吃鱼" -> parts: ["小", "爱吃鱼"]
+    const parts = text.split(placeholder);
+
+    // 3. 循环播放
+    for (let i = 0; i < parts.length; i++) {
+        // 如果用户已经答题了或切走了，停止播放
+        if (isAnswered.value || !currentQuestion.value) break;
+
+        // 播放文本片段 (如果片段不为空)
+        if (parts[i]) {
+            await tts.speak(parts[i]);
         }
 
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await Utils.speakText('什么的', { rate: 1.2 });
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // 如果不是最后一段，说明后面紧跟着一个占位符，需要播放提示音
+        if (i < parts.length - 1) {
+            if (isAnswered.value) break; // 再次检查中断
 
-        if (parts[1]) {
-            await Utils.speakText(parts[1]);
+            await wait(300); // 停顿 300ms
+
+            if (isAnswered.value) break;
+            await tts.speak('请咪猪头选择', { rate: 1.1 }); // 稍微快一点点，显得轻快
+
+            if (isAnswered.value) break;
+            await wait(300); // 停顿 300ms
         }
-    } catch (error) {
-        // 当语音被 handleAnswer 中止时，这里可能会捕获到一个错误，属于正常现象
     }
 };
 
-const handleAnswer = (option) => {
+const handleOptionClick = (option) => {
     if (isAnswered.value) return;
 
-    Utils.stopSpeak();
+    // 【新增】点击瞬间，立即打断读题
+    tts.stop();
 
     isAnswered.value = true;
-    selectedAnswer.value = option;
-    sessionStats.value.total++;
+    selectedOption.value = option;
+    sessionTotalCount.value++;
 
-    if (option === currentQuestion.value.targetChar) {
-        isCorrect.value = true;
-        sessionStats.value.correct++;
+    const isRight = option === currentQuestion.value.targetChar;
+    isCorrect.value = isRight;
 
-        const oldCorrectCount = gameStore.getCharacterCorrectCount(currentQuestion.value.targetChar);
-        const result = gameStore.recordExamResult(currentQuestion.value.targetChar, true);
+    if (isRight) {
+        audioManager.play('correct');
+        sessionCorrectCount.value++;
+        const res = gameStore.recordExamResult(currentQuestion.value.targetChar, true);
 
-        progressInfo.value = {
+        // 【修改】设置反馈信息
+        feedback.value = {
             show: true,
-            char: currentQuestion.value.targetChar,
-            from: oldCorrectCount,
-            to: result.newCorrectCount,
+            isMastered: res.isMastered,
+            count: res.newCorrectCount,
+            total: gameStore.REQUIRED_CORRECT_COUNT, // 默认为3
+            reward: res.reward
         };
 
-        if (result.reward > 0) {
+        // 如果掌握了，撒花并播放庆祝音效
+        if (res.isMastered) {
+            audioManager.play('celebrate');
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
-        setTimeout(() => {
-            generateQuestion();
-            speakQuestion(); // 自动进入下一题时，需要朗读
-        }, 2000);
+        // 【修改】延长等待时间到 2秒，让孩子看清反馈
+        setTimeout(nextQuestion, 2000);
     } else {
-        isCorrect.value = false;
+        audioManager.play('wrong');
         gameStore.recordExamResult(currentQuestion.value.targetChar, false);
-
+        // 错误后，延迟一点弹出复习卡片
         setTimeout(() => {
-            showReviewCard.value = true;
-        }, 2000);
+            // 【修正点1】打开弹窗时，重置按钮状态
+            isReviewFinished.value = false;
+            showReview.value = true;
+        }, 1000);
     }
 };
 
-const onReviewCardFinished = () => {
-    isReviewCardFinished.value = true;
+// 【新增】卡片朗读完毕的回调
+const onReviewCardReadDone = () => {
+    isReviewFinished.value = true;
 };
 
-// ======================= BUG修复点 =======================
-const goToNextQuestion = () => {
-    showReviewCard.value = false;
-    generateQuestion();
-    // speakQuestion 内部会先调用 stopSpeak()，可中断因CCard组件重渲染而触发的错误朗读
-    speakQuestion();
-};
-// ========================================================
-
-const playCelebrationAnimation = () => {
-    var duration = 5 * 1000;
-    var animationEnd = Date.now() + duration;
-    var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
-    var interval = setInterval(function () {
-        var timeLeft = animationEnd - Date.now();
-        if (timeLeft <= 0) return clearInterval(interval);
-
-        var particleCount = 50 * (timeLeft / duration);
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-        confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-    }, 250);
+// 【修改】点击按钮才进入下一题
+const closeReviewAndNext = () => {
+    showReview.value = false;
+    nextQuestion();
 };
 
 onMounted(() => {
-    generateQuestion();
-    speakQuestion(); // 首次加载时，需要朗读
-    quizState.value = 'ongoing';
+    initExam();
+});
+
+onUnmounted(() => {
+    tts.stop();
 });
 </script>
 
 <template>
-    <div class="exam-view">
-        <PageHeader>
-            <template #center>
-                <div class="exam-header-center">
-                    <ProgressRing :progress="(todayMasteredCount / dailyMasterLimit) * 100" :text="`${todayMasteredCount}/${dailyMasterLimit}`" :size="60" />
-                </div>
-            </template>
-        </PageHeader>
+    <MainLayout bgImage="bg_common.jpg">
+        <template #header>
+            <div class="flex items-center gap-4 w-full">
+                <button @click="router.push('/')" class="p-2 bg-white/50 rounded-full hover:bg-white transition">
+                    <PhArrowLeft size="24" />
+                </button>
 
-        <main class="quiz-content" v-if="quizState === 'ongoing' && currentQuestion">
-            <div class="question-panel" @click="speakQuestion">
-                <h2 class="question-text" :class="{ highlight: !isAnswered }">{{ currentQuestion.questionText }}</h2>
+                <!-- Boss 血条 -->
+                <div class="flex-1 flex items-center gap-2 bg-white/80 px-3 py-2 rounded-xl shadow-sm">
+                    <span class="text-2xl">👾</span>
+                    <div class="flex-1">
+                        <GameProgress :value="progressValue" :max="dailyLimit" color="bg-candy-red" />
+                    </div>
+                </div>
+
+                <!-- 【新增】魔力瓶模块 -->
+                <MagicCapsule />
+            </div>
+        </template>
+
+        <div v-if="currentQuestion" class="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full py-4">
+
+            <!-- 题目区域 -->
+            <div class="bg-white/90 backdrop-blur p-8 rounded-3xl shadow-xl w-full mb-8 min-h-[200px] flex items-center justify-center relative overflow-hidden">
+                <!-- 装饰背景 -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-candy-blue/10 rounded-full"></div>
+                <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-candy-orange/10 rounded-full"></div>
+
+                <h2 class="text-3xl md:text-4xl font-bold text-dark-text leading-relaxed text-center">
+                    {{ currentQuestion.text }}
+                </h2>
             </div>
 
-            <div class="options-grid">
-                <button v-for="option in currentQuestion.options" :key="option" @click="handleAnswer(option)" class="option-btn" :class="{
-                    'correct': isAnswered && option === currentQuestion.targetChar,
-                    'incorrect': isAnswered && selectedAnswer === option && option !== currentQuestion.targetChar,
-                    'disabled': isAnswered
-                }" :disabled="isAnswered">
-                    {{ option }}
+            <!-- 选项区域 -->
+            <div class="grid grid-cols-2 gap-6 w-full">
+                <button v-for="opt in currentQuestion.options" :key="opt" @click="handleOptionClick(opt)" :disabled="isAnswered" class="h-24 text-4xl font-bold rounded-2xl shadow-md transition-all transform hover:scale-105 active:scale-95 border-b-4 flex items-center justify-center relative overflow-hidden" :class="[
+                    isAnswered && opt === currentQuestion.targetChar ? 'bg-candy-green border-emerald-700 text-white' : '',
+                    isAnswered && opt === selectedOption && opt !== currentQuestion.targetChar ? 'bg-candy-red border-red-700 text-white' : '',
+                    !isAnswered ? 'bg-white border-gray-300 text-dark-text hover:bg-blue-50' : '',
+                    isAnswered && opt !== currentQuestion.targetChar && opt !== selectedOption ? 'opacity-40 bg-gray-200' : ''
+                ]">
+                    {{ opt }}
+
+                    <!-- 结果图标 -->
+                    <div v-if="isAnswered && opt === currentQuestion.targetChar" class="absolute right-2 bottom-2 animate-bounce">
+                        <PhShieldCheck size="24" weight="fill" />
+                    </div>
                 </button>
             </div>
-        </main>
 
-        <!-- 结果动画 -->
-        <div v-if="isAnswered" class="result-animation">
-            <div v-if="isCorrect" class="icon-correct">✔️</div>
-            <!-- <div v-if="!isCorrect" class="icon-incorrect">❌</div> -->
         </div>
 
-        <!-- 底部进度条 -->
-        <footer class="progress-footer">
-            <Transition name="progress-fade">
-                <div v-if="progressInfo.show" class="progress-bar">
-                    <template v-if="progressInfo.to >= gameStore.REQUIRED_CORRECT_COUNT">
-                        <span class="celebration">🎉 恭喜掌握 “{{ progressInfo.char }}” 字！ 🎉</span>
-                    </template>
-                    <template v-else>
-                        <span class="char-display">{{ progressInfo.char }}</span>
-                        <div class="progress-track">
-                            <span class="progress-from">{{ progressInfo.from }} / {{ gameStore.REQUIRED_CORRECT_COUNT }}</span>
-                            <span class="arrow">→</span>
-                            <span class="progress-to">{{ progressInfo.to }} / {{ gameStore.REQUIRED_CORRECT_COUNT }}</span>
+        <!-- 复习弹窗 -->
+        <GameModal :show="showReview" title="巩固一下" :closeable="false">
+            <div class="flex flex-col items-center min-h-[400px]"> <!-- 增加最小高度防止跳动 -->
+                <p class="text-gray-500 mb-4">哎呀答错了，再复习一遍吧！</p>
+
+                <!-- 【修正点2】@finish 不再直接关闭，而是显示按钮 -->
+                <CharLearningCard v-if="currentQuestion" :info="currentQuestion.targetInfo" :autoPlay="true" @finish="onReviewCardReadDone" />
+
+                <!-- 【修正点3】按钮增加显隐控制，且点击才触发关闭 -->
+                <div class="mt-6 w-full transition-opacity duration-500" :class="isReviewFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+                    <GameButton variant="primary" :block="true" @click="closeReviewAndNext">
+                        记住了，下一题
+                    </GameButton>
+                </div>
+            </div>
+        </GameModal><!-- 【新增】答对反馈弹层 (Overlay) -->
+        <Transition name="bounce-pop">
+            <div v-if="feedback.show" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+                <!-- 简单的背景遮罩 -->
+                <div class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+
+                <!-- 反馈卡片 -->
+                <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-4 border-candy-yellow flex flex-col items-center gap-4 min-w-[300px] transform scale-110">
+
+                    <!-- 图标：掌握了显示奖杯，没掌握显示星星 -->
+                    <div class="text-6xl mb-2 animate-bounce-sm">
+                        <span v-if="feedback.isMastered">🏆</span>
+                        <span v-else>🌟</span>
+                    </div>
+
+                    <!-- 标题 -->
+                    <h3 class="text-3xl font-bold text-candy-orange font-cartoon">
+                        {{ feedback.isMastered ? '恭喜掌握！' : '回答正确！' }}
+                    </h3>
+
+                    <!-- 进度条/文字 -->
+                    <div v-if="!feedback.isMastered" class="w-full space-y-2">
+                        <div class="flex justify-between text-gray-500 font-bold text-lg">
+                            <span>熟练度</span>
+                            <span>{{ feedback.count }} / {{ feedback.total }}</span>
                         </div>
-                    </template>
+                        <!-- 进度条 -->
+                        <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
+                            <div class="h-full bg-candy-yellow transition-all duration-500" :style="{ width: `${(feedback.count / feedback.total) * 100}%` }"></div>
+                        </div>
+                        <p class="text-center text-candy-blue text-sm mt-2 font-bold">
+                            再答对 {{ feedback.total - feedback.count }} 次就掌握啦！
+                        </p>
+                    </div>
+
+                    <!-- 掌握奖励提示 -->
+                    <div v-else class="text-center bg-yellow-50 p-3 rounded-xl border border-yellow-200">
+                        <p class="text-gray-600 font-bold">太棒了！你已经完全学会这个字了</p>
+                        <p v-if="feedback.reward > 0" class="text-candy-orange font-bold text-xl mt-1">
+                            魔力值 +{{ feedback.reward }} ✨
+                        </p>
+                    </div>
                 </div>
-            </Transition>
-        </footer>
-
-        <!-- 复习卡片弹窗 -->
-        <van-popup v-model:show="showReviewCard" round :style="{ width: '90%', maxWidth: '600px' }" :close-on-click-overlay="false" :destroy-on-close="true">
-            <div class="review-card-container">
-                <CCard v-if="currentQuestion" :key="currentQuestion.targetChar" :cInfo="currentQuestion.targetCharInfo" @finished="onReviewCardFinished" />
-                <button v-if="isReviewCardFinished" @click="goToNextQuestion" class="btn btn-blueberry next-btn">
-                    下一题
-                </button>
             </div>
-        </van-popup>
+        </Transition>
 
-        <!-- 测验结束界面 -->
-        <div class="finished-screen" v-if="quizState === 'finished'">
-            <h2>今日测验完成！</h2>
-            <p class="accuracy">
-                正确率：{{ sessionStats.total > 0 ? ((sessionStats.correct / sessionStats.total) * 100).toFixed(0) : 100 }}%
-            </p>
-            <button class="btn btn-grape" @click="router.push('/collection')">
-                <span class="btn-emoji">🖼️</span>
-                前往兑换画片
-            </button>
-        </div>
-    </div>
+    </MainLayout>
 </template>
 
 <style scoped>
-/* 样式保持不变 */
-.exam-view {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    position: relative;
+/* 弹跳入场动画 */
+.bounce-pop-enter-active {
+    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.bounce-pop-leave-active {
+    transition: opacity 0.2s ease;
+}
+.bounce-pop-leave-to {
+    opacity: 0;
 }
 
-.exam-header-center {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.quiz-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    gap: 40px;
-}
-
-.question-panel {
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-}
-
-.question-text {
-    font-size: 3rem;
-    color: #333;
-    text-align: center;
-    font-weight: bold;
-}
-.question-text.highlight {
-    animation: pulse-text 2s infinite;
-}
-
-@keyframes pulse-text {
-    0%, 100% {
-        transform: scale(1);
+@keyframes bounce-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
     }
     50% {
+        opacity: 1;
         transform: scale(1.05);
     }
-}
-
-.options-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    width: 100%;
-    max-width: 500px;
-}
-
-.option-btn {
-    padding: 20px;
-    font-size: 3rem;
-    font-weight: bold;
-    border: none;
-    border-radius: 18px;
-    background: linear-gradient(145deg, #f0f0f0, #ffffff);
-    box-shadow: 10px 10px 20px #d9d9d9, -10px -10px 20px #ffffff;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    color: #555;
-}
-.option-btn:not(:disabled):hover {
-    transform: translateY(-5px);
-    box-shadow: 15px 15px 30px #d9d9d9, -15px -15px 30px #ffffff;
-}
-.option-btn:not(:disabled):active {
-    transform: translateY(-2px);
-    box-shadow: 8px 8px 16px #d9d9d9, -8px -8px 16px #ffffff;
-}
-.option-btn.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.option-btn.correct {
-    background: linear-gradient(145deg, #a8ff78, #78ffd6);
-    color: white;
-    animation: correct-bounce 0.5s;
-}
-
-.option-btn.incorrect {
-    background: linear-gradient(145deg, #ff5e62, #ff9966);
-    color: white;
-    animation: incorrect-shake 0.5s;
-}
-
-.result-animation {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-    z-index: 999;
-}
-
-.result-animation [class*="icon-"] {
-    font-size: 15rem;
-    animation: result-pop 0.5s ease-out;
-    text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-@keyframes result-pop {
-    0% {
-        transform: scale(0);
-        opacity: 0;
-    }
-    60% {
-        transform: scale(1.2);
-        opacity: 1;
+    70% {
+        transform: scale(0.9);
     }
     100% {
         transform: scale(1);
-        opacity: 1;
     }
-}
-
-@keyframes correct-bounce {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.1);
-    }
-}
-
-@keyframes incorrect-shake {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    25% {
-        transform: translateX(-10px);
-    }
-    75% {
-        transform: translateX(10px);
-    }
-}
-
-.review-card-container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-.next-btn {
-    width: 80%;
-}
-
-.finished-screen {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-    text-align: center;
-}
-
-.finished-screen h2 {
-    font-size: 2.5rem;
-    color: #4CAF50;
-}
-
-.finished-screen .accuracy {
-    font-size: 1.8rem;
-    color: #555;
-}
-
-.progress-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: center;
-    pointer-events: none;
-}
-
-.progress-bar {
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.char-display {
-    font-size: 2rem;
-    background-color: #ffc107;
-    color: #333;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.progress-track {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.progress-from {
-    opacity: 0.7;
-}
-
-.arrow {
-    color: #ffc107;
-    animation: arrow-move 0.5s ease-in-out infinite alternate;
-}
-
-@keyframes arrow-move {
-    from {
-        transform: translateX(-3px);
-    }
-    to {
-        transform: translateX(3px);
-    }
-}
-
-.progress-to {
-    transform: scale(1.2);
-    color: #8bc34a;
-}
-
-.celebration {
-    font-size: 1.5rem;
-    color: #ffeb3b;
-    animation: celebration-glow 1.5s infinite;
-}
-
-@keyframes celebration-glow {
-    0%, 100% {
-        text-shadow: 0 0 5px #fff, 0 0 10px #ffeb3b, 0 0 15px #ffc107;
-    }
-    50% {
-        text-shadow: 0 0 10px #fff, 0 0 20px #ffeb3b, 0 0 30px #ffc107;
-    }
-}
-
-.progress-fade-enter-active,
-.progress-fade-leave-active {
-    transition: all 0.5s ease;
-}
-
-.progress-fade-enter-from,
-.progress-fade-leave-to {
-    opacity: 0;
-    transform: translateY(100%);
 }
 </style>
 
 ===== views/HomeView.vue =====
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { showToast } from 'vant'
-import Utils from '../Utils.js';
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+import { audioManager } from '@/utils/audio';
+import { showToast } from 'vant'; // 暂时保留 vant 的 toast，以后可以自己封装
+import MainLayout from '@/components/layout/MainLayout.vue';
+import GameButton from '@/components/base/GameButton.vue';
+import MagicCapsule from '@/components/base/MagicCapsule.vue';
+import GameProgress from '@/components/base/GameProgress.vue';
+// 修改引入：全部增加 Ph 前缀
+import { PhBookOpen, PhTrophy, PhImages, PhChartBar } from '@phosphor-icons/vue';
 
-import ProgressRing from '../components/ProgressRing.vue'
+const router = useRouter();
+const gameStore = useGameStore();
 
-const router = useRouter()
-const gameStore = useGameStore()
-
-// 是否可以测验
-const canStartExam = computed(() => {
-  return gameStore.learnedCharacters.length > 0;
-});
-
-const goToStudy = async () => {
-  if (gameStore.getTodayLearnCount() >= gameStore.DAILY_LEARN_LIMIT) {
-    showToast('🐷 咪猪头今天的学习任务已经全部完成～')
-    await Utils.speakText('太棒了！咪猪头今天的学习任务已经全部完成～', {
-      lang: 'zh-CN',
-    });
-    return
+// 导航逻辑
+const navTo = (route) => {
+  if (route === '/study') {
+    if (gameStore.getTodayLearnCount() >= gameStore.DAILY_LEARN_LIMIT) {
+      audioManager.play('correct'); // 用欢快的音效代替
+      showToast('今天的任务完成啦，明天再来吧！');
+      return;
+    }
   }
-  router.push('/study')
-}
-
-const goToExam = () => {
-  if (!canStartExam.value) {
-    showToast('🐷 还没有初识的字，先去学习一下吧～');
-    return;
+  if (route === '/exam') {
+    if (gameStore.learnedCharacters.length === 0) {
+      audioManager.play('wrong');
+      showToast('还没有学习过汉字，先去“汉字初识”吧~');
+      return;
+    }
   }
-  if (gameStore.getTodayMasterCount() >= gameStore.DAILY_MASTER_LIMIT) {
-    showToast('🐷 今天的掌握名额已经用完啦，明天再来吧～');
-    return;
-  }
-  router.push('/exam');
-}
-
-const goToCollection = () => {
-  router.push('/collection')
-}
-
-const goToStatistics = () => {
-  router.push('/statistics')
-}
-
-onUnmounted(() => {
-  Utils.stopSpeak();
-})
+  router.push(route);
+};
 </script>
 
 <template>
-  <main>
-    <div class="button" @click="goToStudy">
-      <h3>识字学习</h3>
-      <p>开始新字的初识</p>
-      <ProgressRing :progress="gameStore.getTodayLearnCount() / gameStore.DAILY_LEARN_LIMIT * 100" :text="gameStore.getTodayLearnCount() + '/' + gameStore.DAILY_LEARN_LIMIT" size=50></ProgressRing>
+  <MainLayout bgImage="bg_world_map.jpg">
+    <!-- 顶部栏 -->
+    <template #header>
+      <div class="flex items-center gap-4 w-full justify-between">
+        <!-- 左侧：简单的用户信息（未来可以做头像） -->
+        <div class="flex items-center gap-2 bg-white/80 backdrop-blur rounded-full p-2 pr-4 border-2 border-white shadow-sm">
+          <div class="w-10 h-10 bg-candy-blue rounded-full flex items-center justify-center text-2xl">🐷</div>
+          <span class="font-bold text-dark-text">咪猪头</span>
+        </div>
+        
+        <!-- 右侧：魔力值 -->
+        <MagicCapsule />
+      </div>
+    </template>
+
+    <!-- 中央地图区域 -->
+    <div class="flex-1 flex flex-col items-center justify-center gap-8 pb-10 relative">
+      
+      <!-- 1. 识字学校 -->
+      <div class="relative w-full max-w-sm">
+        <GameButton variant="primary" size="lg" :block="true" @click="navTo('/study')" class="shadow-xl">
+          <!-- 修改标签 -->
+          <PhBookOpen weight="fill" class="w-8 h-8" />
+          <span>汉字初识</span>
+        </GameButton>
+        <!-- ... (进度条代码不变) ... -->
+      </div>
+
+      <!-- 2. 复习竞技场 -->
+      <div class="relative w-full max-w-sm">
+        <GameButton variant="success" size="lg" :block="true" @click="navTo('/exam')" class="shadow-xl" :disabled="gameStore.learnedCharacters.length === 0">
+          <!-- 修改标签 -->
+          <PhTrophy weight="fill" class="w-8 h-8" />
+          <span>复习游戏</span>
+        </GameButton>
+         <!-- ... (进度条代码不变) ... -->
+      </div>
+
+      <!-- 3. 底部功能区 -->
+      <div class="flex gap-6 w-full max-w-sm mt-4">
+        <GameButton variant="warning" class="flex-1 shadow-lg" @click="navTo('/collection')">
+          <!-- 修改标签 -->
+          <PhImages weight="fill" class="w-6 h-6" />
+          <span class="text-xl">画片</span>
+        </GameButton>
+        <GameButton variant="info" class="flex-1 shadow-lg" @click="navTo('/statistics')">
+          <!-- 修改标签 -->
+          <PhChartBar weight="fill" class="w-6 h-6" />
+          <span class="text-xl">统计</span>
+        </GameButton>
+      </div>
+      
     </div>
-    <div class="button" :class="{ disabled: !canStartExam }" @click="goToExam">
-      <h3>复习游戏</h3>
-      <p>巩固已学内容</p>
-      <!-- <span class="badge">今日：{{ gameStore.getTodayMasterCount() }} / {{ gameStore.DAILY_MASTER_LIMIT }}</span> -->
-      <ProgressRing :progress="gameStore.getTodayMasterCount() / gameStore.DAILY_MASTER_LIMIT * 100" :text="gameStore.getTodayMasterCount() + '/' + gameStore.DAILY_MASTER_LIMIT" size=50></ProgressRing>
-    </div>
-    <div class="button" @click="goToCollection">
-      <h3>画片收藏</h3>
-      <p>查看收集的画片</p>
-      <span class="badge">已收集：{{ gameStore.collectedCards.length }}</span>
-    </div>
-    <div class="button" @click="goToStatistics">
-      <h3>学习统计</h3>
-      <p>详细数据分析</p>
-    </div>
-  </main>
+  </MainLayout>
 </template>
-
-<style scoped>
-/* 样式保持不变 */
-main {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 20px;
-  padding: 20px;
-  height: 100vh;
-  box-sizing: border-box;
-}
-
-.button {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: white;
-  border-radius: 16px;
-  padding: 30px 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  text-align: center;
-  min-height: 120px;
-}
-
-.button.disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  filter: grayscale(50%);
-}
-
-.button:not(.disabled):hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
-  border-color: #4a90e2;
-  background: #f8fbff;
-}
-
-.button:not(.disabled):active {
-  transform: translateY(-2px);
-  transition: all 0.1s ease;
-}
-
-.button h3 {
-  margin: 0 0 10px 0;
-  font-size: 1.4em;
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.button p {
-  margin: 0 0 20px;
-  font-size: 0.95em;
-  color: #7f8c8d;
-  line-height: 1.4;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  main {
-    grid-template-columns: 1fr;
-    grid-template-rows: repeat(4, 1fr);
-    gap: 15px;
-    padding: 15px;
-  }
-
-  .button {
-    padding: 25px 15px;
-    min-height: 100px;
-  }
-
-  .button h3 {
-    font-size: 1.3em;
-  }
-}
-</style>
 
 ===== views/MyCCardsView.vue =====
 <script setup>
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-import confetti from 'canvas-confetti'
+import { ref } from 'vue'; // 引入 ref
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+import { audioManager } from '@/utils/audio'; // 引入音频管理
+import { PhArrowLeft, PhStudent, PhMedal } from '@phosphor-icons/vue';
+import MainLayout from '@/components/layout/MainLayout.vue';
+// 【新增】引入通用组件
+import GameModal from '@/components/base/GameModal.vue';
+import CharLearningCard from '@/components/business/CharLearningCard.vue';
 
-import CCard from '../components/CCard.vue'
-import PageHeader from '../components/PageHeader.vue'
-import { useGameStore } from '@/stores/game'
-import MiniCCardList from '../components/MiniCCardList.vue'
+const router = useRouter();
+const gameStore = useGameStore();
 
-const router = useRouter()
-const gameStore = useGameStore()
+// 【新增】预览状态
+const showPreview = ref(false);
+const previewInfo = ref(null);
+
+const getStatusClass = (char) => {
+  if (gameStore.masteredCharacters.includes(char)) return 'bg-candy-green text-white border-emerald-600 shadow-md';
+  if (gameStore.learnedCharacters.includes(char)) return 'bg-candy-blue text-white border-blue-600 shadow-md';
+  // 未学状态优化：加个 hover 效果暗示可点击
+  return 'bg-gray-50 text-gray-400 border-gray-200 hover:border-candy-blue hover:text-candy-blue hover:bg-white'; 
+};
+
+// 【新增】点击汉字处理
+const handleCharClick = (item) => {
+  previewInfo.value = item;
+  showPreview.value = true;
+  audioManager.play('click');
+};
 </script>
 
 <template>
-  <PageHeader>
-    <template #center>
-      <div class="study-head-center">
-        <h2>成就统计</h2>
-        <!-- <p class="character-progress">{{ currentCharacterIndex + 1 }} / {{ charactersToLearn.length }}</p> -->
+  <MainLayout bgImage="bg_common.jpg">
+    <template #header>
+      <div class="flex items-center gap-4 w-full">
+        <button @click="router.push('/')" class="p-2 bg-white/50 rounded-full hover:bg-white transition">
+          <PhArrowLeft size="24" />
+        </button>
+        <div class="text-xl font-bold text-dark-text">学习足迹</div>
       </div>
     </template>
-  </PageHeader>
-  <div class="ccards-wrap">
-    <div class="static-wrap">
-      <p class="static-item">已初识 {{ gameStore.learnedCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
-      <p class="static-item">已掌握 {{ gameStore.masteredCharacters.length }} / {{ gameStore.allCharactersData.length }}</p>
-      <p class="static-tips">学习要有恒心，坚持努力吧！</p>
+
+    <div class="flex-1 overflow-y-auto p-2 no-scrollbar">
+      <!-- 顶部数据卡 (保持不变) -->
+      <div class="flex gap-4 mb-6">
+        <div class="flex-1 bg-white/80 rounded-2xl p-4 shadow-sm flex flex-col items-center">
+          <PhStudent size="32" class="text-candy-blue mb-2" weight="duotone"/>
+          <span class="text-3xl font-bold text-dark-text">{{ gameStore.learnedCharacters.length }}</span>
+          <span class="text-xs text-gray-500">已初识</span>
+        </div>
+        <div class="flex-1 bg-white/80 rounded-2xl p-4 shadow-sm flex flex-col items-center">
+          <PhMedal size="32" class="text-candy-green mb-2" weight="duotone"/>
+          <span class="text-3xl font-bold text-dark-text">{{ gameStore.masteredCharacters.length }}</span>
+          <span class="text-xs text-gray-500">已掌握</span>
+        </div>
+      </div>
+
+      <!-- 汉字墙 -->
+      <div class="bg-white/60 backdrop-blur rounded-3xl p-6 shadow-inner min-h-[300px]">
+        <h3 class="font-bold text-gray-600 mb-4">所有汉字 (点击查看)</h3>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <!-- 【修改】添加点击事件，优化鼠标样式 -->
+          <div 
+            v-for="item in gameStore.allCharactersData" 
+            :key="item.character"
+            class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl font-bold border-b-4 transition transform hover:scale-110 cursor-pointer active:scale-95"
+            :class="getStatusClass(item.character)"
+            @click="handleCharClick(item)"
+          >
+            {{ item.character }}
+          </div>
+        </div>
+      </div>
     </div>
-    <MiniCCardList />
-  </div>
+
+    <!-- 【新增】汉字详情弹窗 -->
+    <GameModal :show="showPreview" title="汉字详情" @close="showPreview = false">
+      <div class="flex justify-center py-2">
+        <!-- 复用卡片组件：
+             1. :key 确保切换汉字时组件彻底重载
+             2. :autoPlay="true" 打开自动读一遍
+             3. 这里不绑定 @finish，因为是预览模式，不需要出现“我学会了”按钮
+        -->
+        <CharLearningCard 
+          v-if="previewInfo"
+          :key="previewInfo.character"
+          :info="previewInfo"
+          :autoPlay="true"
+        />
+      </div>
+    </GameModal>
+
+  </MainLayout>
 </template>
-
-<style>
-h2 {
-  font-size: 30px;
-}
-
-.ccards-wrap {
-  margin-top: 20px;
-  flex:1;
-  overflow-y: auto;
-}
-
-/* --- 统计面板样式 --- */
-.static-wrap {
-    background-color: #ffffff;
-    border-radius: 16px;
-    padding: 10px 20px; /* 调整内边距，使其更适合一行布局 */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-    
-    /* 核心：使用 Flexbox 实现一行布局 */
-    display: flex;
-    align-items: center;         /* 垂直方向居中对齐 */
-    justify-content: space-between;     /* 水平方向居中，元素环绕分布 */
-    flex-wrap: wrap;             /* 在极窄屏幕下允许换行，防止内容溢出 */
-    gap: 20px;                   /* 统一使用 gap 控制元素间距 */
-
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* 单行统计信息 */
-.static-item {
-    font-size: 1.25rem;
-    color: #333;
-    /* 移除原有的 margin，因为现在由 gap 控制间距 */
-    font-weight: 500;
-    white-space: nowrap; /* 防止数字和文字在极小空间内意外换行 */
-}
-
-/* 激励性提示文字 */
-.static-tips {
-    font-size: 1rem;
-    color: #888;
-    font-style: italic;
-    /* 移除原有的 margin-top */
-    
-    /* 添加左右装饰符，使其在视觉上更像一个分隔符 */
-    position: relative;
-    padding: 0 20px; /* 为装饰符留出空间 */
-}
-
-/* 使用伪元素创建装饰符 */
-.static-tips::before,
-.static-tips::after {
-    content: '•'; /* 使用圆点作为装饰 */
-    color: #ddd;   /* 淡化装饰符颜色 */
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.static-tips::before {
-    left: 0;
-}
-
-.static-tips::after {
-    right: 0;
-}
-</style>
-
 
 ===== views/MyPCardsView.vue =====
 <script setup>
-import PCardList from '../components/PCardList.vue'
-import PageHeader from '../components/PageHeader.vue'
+import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+import { audioManager } from '@/utils/audio';
+import { PhLockKey, PhArrowLeft, PhImages, PhBookOpen, PhSword } from '@phosphor-icons/vue';
+import { showToast } from 'vant'; 
+import confetti from 'canvas-confetti';
 
-const resetLocal = () => {
-  if (location.search.includes('debug') && confirm('是否重置游戏数据？')) {
-    localStorage.removeItem('piggy-mi-character-game')
-    window.location.reload()
+import MainLayout from '@/components/layout/MainLayout.vue';
+import GameButton from '@/components/base/GameButton.vue';
+import MagicCapsule from '@/components/base/MagicCapsule.vue';
+import GameModal from '@/components/base/GameModal.vue';
+
+const router = useRouter();
+const gameStore = useGameStore();
+
+const pCardTotalLen = 35;
+const selectedCardId = ref(null);
+const showUnlockModal = ref(false);
+const showPreviewModal = ref(false);
+
+// 【新增】引导弹窗状态
+const showGuideModal = ref(false);
+const guideType = ref(''); // 'study' | 'exam'
+
+// 生成卡片列表
+const cardList = Array.from({ length: pCardTotalLen }, (_, i) => i);
+
+const isCollected = (id) => gameStore.collectedCards.includes(id);
+
+const handleCardClick = (id) => {
+  selectedCardId.value = id;
+  audioManager.play('click');
+  
+  // 1. 如果已解锁，直接看大图
+  if (isCollected(id)) {
+    showPreviewModal.value = true;
+    return;
+  } 
+  
+  // 2. 如果未解锁，检查魔力值
+  if (gameStore.magicPoints >= gameStore.CARD_COST) {
+    // 魔力值足够 -> 弹出解锁确认
+    showUnlockModal.value = true;
+  } else {
+    // 魔力值不足 -> 进入引导逻辑
+    audioManager.play('wrong');
+    checkAndGuide();
   }
-}
+};
+
+// 【新增】检查配额并引导
+const checkAndGuide = () => {
+  const canLearn = gameStore.unlearnedCharacters.length > 0 && 
+                   gameStore.getTodayLearnCount() < gameStore.DAILY_LEARN_LIMIT;
+                   
+  const canExam = gameStore.learnedCharacters.length > 0 && 
+                  gameStore.getTodayMasterCount() < gameStore.DAILY_MASTER_LIMIT;
+
+  if (canLearn) {
+    guideType.value = 'study';
+    showGuideModal.value = true;
+  } else if (canExam) {
+    guideType.value = 'exam';
+    showGuideModal.value = true;
+  } else {
+    // 都没有名额了
+    showToast('魔力值不足，且今日任务已全完成。\n早点休息，明天再来领取奖励吧！🌙');
+  }
+};
+
+// 【新增】执行跳转
+const handleGuideAction = () => {
+  showGuideModal.value = false;
+  if (guideType.value === 'study') {
+    router.push('/study');
+  } else {
+    router.push('/exam');
+  }
+};
+
+const confirmUnlock = () => {
+  if (gameStore.magicPoints >= gameStore.CARD_COST) {
+    const res = gameStore.exchangeCard(selectedCardId.value);
+    if (res.success) {
+      audioManager.play('unlock');
+      showUnlockModal.value = false;
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      showToast('解锁成功！');
+      setTimeout(() => {
+        showPreviewModal.value = true;
+      }, 500);
+    }
+  }
+};
+
+const getImgUrl = (id) => new URL(`../assets/images/cards/c${id}.jpg`, import.meta.url).href;
 </script>
 
 <template>
-  <PageHeader>
-    <template #center>
-      <div class="study-head-center">
-        <h2 @click="resetLocal">画片藏馆</h2>
+  <MainLayout bgImage="bg_museum.jpg">
+    <!-- header 和 content 保持不变 ... -->
+    <template #header>
+      <div class="flex items-center justify-between w-full gap-4">
+        <button @click="router.push('/')" class="p-2 bg-white/50 rounded-full hover:bg-white transition">
+          <PhArrowLeft size="24" />
+        </button>
+        <div class="bg-white/80 px-4 py-1 rounded-full font-bold text-candy-orange flex items-center gap-2">
+          <PhImages size="20" weight="fill" />
+          <span>已收集 {{ gameStore.collectedCards.length }} / {{ pCardTotalLen }}</span>
+        </div>
+        <MagicCapsule />
       </div>
     </template>
-  </PageHeader>
-  <div class="pcards-wrap">
-    <PCardList />
-  </div>
+
+    <div class="flex-1 overflow-y-auto p-2 pb-20 no-scrollbar">
+      <div class="grid grid-cols-3 md:grid-cols-4 gap-4">
+        <div 
+          v-for="id in cardList" 
+          :key="id" 
+          class="aspect-square rounded-xl relative overflow-hidden shadow-md border-2 border-white cursor-pointer transition transform hover:scale-105 active:scale-95 bg-gray-100"
+          @click="handleCardClick(id)"
+        >
+          <img 
+            :src="getImgUrl(id)" 
+            loading="lazy"
+            class="w-full h-full object-cover transition duration-500"
+            :class="isCollected(id) ? 'blur-0' : 'blur-md grayscale opacity-60'"
+          />
+          <div v-if="!isCollected(id)" class="absolute inset-0 flex flex-col items-center justify-center bg-black/10">
+            <PhLockKey size="32" weight="fill" class="text-white drop-shadow-lg mb-1" />
+            <span class="text-xs font-bold text-white bg-black/30 px-2 py-0.5 rounded-full">{{ gameStore.CARD_COST }}✨</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 原有：解锁弹窗 -->
+    <GameModal :show="showUnlockModal" title="解锁画片" @close="showUnlockModal = false">
+      <div class="text-center space-y-6">
+        <p class="text-lg text-gray-600">是否消耗 <span class="font-bold text-candy-orange text-xl">{{ gameStore.CARD_COST }}</span> 魔力值解锁这张画片？</p>
+        <div class="flex justify-center gap-4">
+          <GameButton variant="secondary" @click="showUnlockModal = false">再想想</GameButton>
+          <GameButton variant="success" @click="confirmUnlock">确定解锁</GameButton>
+        </div>
+      </div>
+    </GameModal>
+
+    <!-- 原有：大图预览弹窗 -->
+    <GameModal :show="showPreviewModal" title="画片欣赏" @close="showPreviewModal = false">
+      <div class="rounded-xl overflow-hidden shadow-inner">
+        <img v-if="selectedCardId !== null" :src="getImgUrl(selectedCardId)" class="w-full h-auto" />
+      </div>
+      <div class="text-center mt-4">
+        <GameButton variant="primary" size="sm" @click="showPreviewModal = false">好看！</GameButton>
+      </div>
+    </GameModal>
+
+    <!-- 【新增】任务引导弹窗 -->
+    <GameModal :show="showGuideModal" title="魔力值不足" @close="showGuideModal = false">
+      <div class="text-center space-y-6">
+        <div class="text-6xl">🤔</div>
+        <p class="text-lg text-gray-600 px-4">
+          <span v-if="guideType === 'study'">想解锁画片吗？<br>去认识新汉字可以获得魔力哦！</span>
+          <span v-else>想解锁画片吗？<br>去挑战怪兽可以赢取魔力哦！</span>
+        </p>
+        
+        <div class="flex justify-center gap-4">
+          <GameButton variant="secondary" @click="showGuideModal = false">暂不</GameButton>
+          
+          <GameButton v-if="guideType === 'study'" variant="primary" @click="handleGuideAction">
+            <PhBookOpen weight="bold" class="mr-2" />去学习
+          </GameButton>
+          
+          <GameButton v-else variant="danger" @click="handleGuideAction">
+            <PhSword weight="bold" class="mr-2" />去挑战
+          </GameButton>
+        </div>
+      </div>
+    </GameModal>
+
+  </MainLayout>
 </template>
 
-<style scoped>
-h2 {
-  font-size: 30px;
-}
-
-.pcards-wrap {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-}
-</style>
-
-
 ===== views/StudyView.vue =====
+<!-- ===== views/StudyView.vue ===== -->
 <script setup>
-import { nextTick, ref } from 'vue'
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-import confetti from 'canvas-confetti'
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { useGameStore } from '@/stores/game';
+// 【修改】引入 isAudioUnlocked
+import { audioManager, isAudioUnlocked } from '@/utils/audio';
+import confetti from 'canvas-confetti';
+// 【修改】补充引入 Play 图标
+import { PhArrowLeft, PhCheck, PhArrowRight, PhPlayCircle } from '@phosphor-icons/vue';
 
-import CCard from '../components/CCard.vue'
-import PageHeader from '../components/PageHeader.vue'
-import { useGameStore } from '@/stores/game'
+import MainLayout from '@/components/layout/MainLayout.vue';
+import CharLearningCard from '@/components/business/CharLearningCard.vue';
+import GameButton from '@/components/base/GameButton.vue';
+import GameProgress from '@/components/base/GameProgress.vue';
+import MagicCapsule from '@/components/base/MagicCapsule.vue';
 
-const router = useRouter()
-const gameStore = useGameStore()
+const router = useRouter();
+const gameStore = useGameStore();
 
-// 当天还剩下多少个字可以学习
-const charactersCountLeft = gameStore.DAILY_LEARN_LIMIT - gameStore.getTodayLearnCount()
-// const charactersCountLeft = 2
-// console.log(gameStore.DAILY_LEARN_LIMIT, gameStore.getTodayLearnCount(), charactersCountLeft);
+// 状态
+const isLoading = ref(true);
+// 【新增】等待用户交互的状态
+const waitingForInteraction = ref(false);
 
-// 随机从未学的字中选取 charactersCountLeft 个并乱序，组成这次的学习列表
-const charactersToLearn = gameStore.unlearnedCharacters.slice().sort(() => 0.5 - Math.random()).slice(0, charactersCountLeft)
-const currentCharacterIndex = ref(0);
+const learningQueue = ref([]);
+const currentIndex = ref(0);
+const isTransitioning = ref(false);
+const isCardFinished = ref(false);
 
-const isCurrentCharacterFinished = ref(false)
-const isAllFinished = ref(false)
-const isTransitioning = ref(false)
+const currentCharacterInfo = computed(() => {
+  // ... (保持不变)
+  if (!learningQueue.value.length) return null;
+  const char = learningQueue.value[currentIndex.value];
+  return gameStore.allCharactersData.find(i => i.character === char);
+});
 
-const handleFinished = () => {
-  // 在这里处理卡片播放完成后的逻辑
-  console.log('该卡片播放完成')
-  isCurrentCharacterFinished.value = true;
-}
+const progressValue = computed(() => currentIndex.value + 1);
+const totalCount = computed(() => learningQueue.value.length);
+const isAllDone = computed(() => currentIndex.value >= learningQueue.value.length);
 
-// 该组charactersCountLeft个汉字全部完成
-const toExma = () => {
-  // TODO
-  showToast('🐷 这个功能爸爸还在做，咪猪头很快就能玩到了哦～')
-  // router.push('/exam')
-}
-const toHome = () => {
-  router.push('/')
-}
+onMounted(() => {
+  prepareStudyData();
+});
 
-const showNextCharacter = async () => {
-  gameStore.learnCharacter(charactersToLearn[currentCharacterIndex.value])
-  // 在这里处理显示下一个汉字的逻辑
-  console.log('显示下一个汉字')
-  isTransitioning.value = true
+const prepareStudyData = () => {
+  const countLeft = gameStore.DAILY_LEARN_LIMIT - gameStore.getTodayLearnCount();
 
-  // 等待过渡动画开始后再改变状态
-  await nextTick()
+  if (countLeft <= 0) {
+    router.replace('/');
+    return;
+  }
 
-  setTimeout(() => {
-    if (currentCharacterIndex.value < charactersToLearn.length - 1) {
-      isCurrentCharacterFinished.value = false
-      currentCharacterIndex.value++
-    } else {
-      isAllFinished.value = true
-      // 所有汉字学习完毕，显示完成提示
-      console.log('所有汉字学习完毕，显示完成提示')
-      // 庆祝动画
-      var end = Date.now() + (3 * 1000);
+  const chars = gameStore.unlearnedCharacters
+    .slice()
+    .sort(() => 0.5 - Math.random())
+    .slice(0, countLeft);
 
-      // go Buckeyes!
-      var colors = [
-        '#FFD700',
-        '#FF69B4',
-        '#00CED1',
-        '#FF6347'
-      ];
+  learningQueue.value = chars;
+  currentIndex.value = 0;
 
-      (function frame() {
-        confetti({
-          particleCount: 2,
-          angle: 60,
-          spread: 55,
-          origin: { x: 0 },
-          colors: colors
-        });
-        confetti({
-          particleCount: 2,
-          angle: 120,
-          spread: 55,
-          origin: { x: 1 },
-          colors: colors
-        });
+  // 【核心修改】逻辑分支：
+  // 1. 如果音频未解锁(刷新进入)，设为 waitingForInteraction，显示开始按钮
+  // 2. 如果已解锁(从首页进入)，直接开始
+  if (!isAudioUnlocked.value) {
+    waitingForInteraction.value = true;
+  }
 
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      }());
-    }
-    isTransitioning.value = false
-  }, 50)
-}
+  isLoading.value = false;
+};
 
-// 根据汉字获取汉字信息
-function getCharacterInfoFromCharacter(character) {
-  const characterInfo = gameStore.allCharactersData.find((info) => info.character === character)
-  return characterInfo
-}
+// 【新增】手动开始函数
+const handleStart = () => {
+  audioManager.initAudioContext(); // 这行代码由点击触发，完美解锁 iOS 音频
+  waitingForInteraction.value = false;
+};
+
+const handleCardFinish = () => {
+  // ... (保持不变)
+  isCardFinished.value = true;
+};
+
+const nextChar = async () => {
+  // ... (保持不变)
+  const currentChar = learningQueue.value[currentIndex.value];
+  gameStore.learnCharacter(currentChar);
+
+  audioManager.play('click');
+
+  if (currentIndex.value < totalCount.value - 1) {
+    isTransitioning.value = true;
+    isCardFinished.value = false;
+
+    setTimeout(() => {
+      currentIndex.value++;
+      isTransitioning.value = false;
+    }, 300);
+  } else {
+    currentIndex.value++;
+    audioManager.play('celebrate');
+    fireConfetti();
+  }
+};
+
+const goHome = () => router.push('/');
+const goExam = () => router.push('/exam');
+const fireConfetti = () => {
+  // ... (保持不变)
+  const duration = 3000;
+  const end = Date.now() + duration;
+  (function frame() {
+    confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+    confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+    if (Date.now() < end) requestAnimationFrame(frame);
+  }());
+};
 </script>
 
 <template>
-  <div class="study-container">
-    <PageHeader>
-      <template #center>
-        <div class="study-head-center">
-          <h2>汉字初识</h2>
-          <p class="character-progress">{{ currentCharacterIndex + 1 }} / {{ charactersToLearn.length }}</p>
+  <MainLayout bgImage="bg_common.jpg">
+    <!-- 顶部导航与进度 -->
+    <div class="flex items-center gap-4 mb-2 flex-shrink-0"> <!-- 【修改】mb-4 -> mb-2, 防止占用过多高度 -->
+      <button @click="goHome" class="p-2 bg-white/50 rounded-full hover:bg-white transition">
+        <PhArrowLeft size="24" />
+      </button>
+
+      <div class="flex-1">
+        <GameProgress :value="Math.min(progressValue, totalCount)" :max="totalCount" color="bg-candy-blue" />
+      </div>
+
+      <MagicCapsule />
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-center relative perspective-wrapper min-h-0 w-full overflow-visible py-4" v-if="!isLoading">
+      
+      <!-- 等待交互遮罩 -->
+      <div v-if="waitingForInteraction" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/40 backdrop-blur-sm rounded-3xl">
+        <button @click="handleStart" class="flex flex-col items-center gap-4 animate-bounce-sm group">
+            <PhPlayCircle size="96" weight="fill" class="text-candy-blue drop-shadow-xl group-hover:scale-110 transition-transform duration-300" />
+            <span class="text-3xl font-bold text-candy-blue font-cartoon tracking-wider bg-white px-6 py-2 rounded-full shadow-md">
+                点击开始学习
+            </span>
+        </button>
+      </div>
+
+      <Transition name="card-slide" mode="out-in" v-else>
+        <!-- 
+            【修改】卡片容器
+            1. 确保 w-full 
+            2. 去掉过多的 padding 防止挤压
+        -->
+        <div v-if="!isAllDone && currentCharacterInfo" :key="currentIndex" class="w-full h-full flex items-center justify-center p-2">
+          <CharLearningCard :info="currentCharacterInfo" :autoPlay="true" @finish="handleCardFinish" />
         </div>
-      </template>
-    </PageHeader>
 
-    <!-- 使用 Transition 组件包裹 CCard -->
-    <Transition name="card-flip" mode="out-in" @before-enter="isTransitioning = true" @after-enter="isTransitioning = false">
-      <CCard :key="currentCharacterIndex" :cInfo="getCharacterInfoFromCharacter(charactersToLearn[currentCharacterIndex])" @finished="handleFinished" :class="{ 'card-completed': isCurrentCharacterFinished }" />
-    </Transition>
-
-    <footer>
-      <Transition name="btn-bounce">
-        <button class="btn btn-orange next-character" v-if="isCurrentCharacterFinished && !isTransitioning && !isAllFinished" @click="showNextCharacter">
-          <span class="btn-emoji">✌️</span>
-          我学会了！
-        </button>
+        <div v-else-if="isAllDone" class="text-center animate__animated animate__zoomIn bg-white/90 p-8 rounded-3xl shadow-2xl max-w-md m-auto">
+          <!-- ... 完成页保持不变 ... -->
+          <div class="text-6xl mb-4">🎉</div>
+          <h2 class="text-3xl font-bold text-candy-green mb-2">太棒了！</h2>
+          <p class="text-gray-600 mb-8 text-lg">你已经完成了今天的初识任务！</p>
+          <div class="flex flex-col gap-4">
+            <GameButton variant="success" size="lg" :block="true" @click="goExam">
+              去测验巩固
+            </GameButton>
+            <GameButton variant="secondary" :block="true" @click="goHome">
+              返回主页
+            </GameButton>
+          </div>
+        </div>
       </Transition>
+    </div>
 
-      <Transition name="btn-bounce">
-        <button class="btn btn-lemon next-character" v-if="isAllFinished && !isTransitioning" @click="toExma">
-          <span class="btn-emoji">📚</span>
-          去测验
-        </button>
-      </Transition>
-
-      <Transition name="btn-bounce">
-        <button class="btn btn-watermelon next-character" v-if="isAllFinished && !isTransitioning" @click="toHome">
-          <span class="btn-emoji">🏠</span>
-          回主界面
-        </button>
-      </Transition>
-    </footer>
-  </div>
+    <!-- 
+        【修改】底部按钮区域
+        1. mt-8 -> my-2 (大幅减少垂直间距)
+        2. h-20 -> h-auto py-2 (高度改为自适应，防止定高占位)
+        3. flex-shrink-0 确保按钮不会被挤扁
+    -->
+    <div v-if="!isAllDone && !isLoading && !waitingForInteraction" class="my-2 py-2 flex-shrink-0 flex justify-center transition-opacity duration-500 min-h-[80px] items-center" :class="isCardFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+      <GameButton size="lg" variant="primary" class="w-48 shadow-xl" @click="nextChar">
+        <PhCheck weight="bold" class="mr-2" />
+        <span>我学会了</span>
+        <PhArrowRight weight="bold" class="ml-2" />
+      </GameButton>
+    </div>
+  </MainLayout>
 </template>
 
+<!-- ... (样式保持不变) ... -->
 <style scoped>
-.study-container {
-  position: relative;
-  min-height: 500px;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center; */
+.perspective-wrapper {
+  perspective: 1200px;
 }
-
-h2 {
-  font-size: 30px;
+.card-slide-enter-active, .card-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
-.progress {
-  font-size: 20px;
-  font-weight: bold;
-  color: #666;
+.card-slide-enter-from {
+  opacity: 0;
+  transform: translateX(100%) rotateY(-20deg) scale(0.8);
 }
-
-/* 卡片翻转动画 */
-.card-flip-enter-active {
-  animation: flipInRight 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.card-flip-leave-active {
-  animation: flipOutLeft 0.5s ease-in-out;
-}
-
-@keyframes flipInRight {
-  0% {
-    transform: translateX(100px) rotateY(90deg) scale(0.8);
-    opacity: 0;
-  }
-  50% {
-    transform: translateX(-20px) rotateY(-10deg) scale(1.05);
-  }
-  100% {
-    transform: translateX(0) rotateY(0) scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes flipOutLeft {
-  0% {
-    transform: translateX(0) rotateY(0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(-100px) rotateY(-90deg) scale(0.8);
-    opacity: 0;
-  }
-}
-
-/* 按钮弹跳动画 */
-.btn-bounce-enter-active {
-  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-.btn-bounce-leave-active {
-  animation: bounceOut 0.3s ease-in;
-}
-
-@keyframes bounceIn {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2) rotate(10deg);
-  }
-  100% {
-    transform: scale(1) rotate(0);
-    opacity: 1;
-  }
-}
-
-@keyframes bounceOut {
-  0% {
-    transform: scale(1) rotate(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(0) rotate(0deg);
-    opacity: 0;
-  }
-}
-
-/* 卡片完成状态的光晕效果 */
-.card-completed {
-  animation: glow 0.5s ease-in-out;
-}
-
-@keyframes glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
-  }
-}
-
-/* 按钮样式增强 */
-.next-character {
-  margin-top: 30px;
-  position: relative;
-  overflow: hidden;
-}
-
-.next-character::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.next-character:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.btn-emoji {
-  display: inline-block;
-  animation: wave 1s ease-in-out infinite;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-10deg);
-  }
-  75% {
-    transform: rotate(10deg);
-  }
-}
-
-footer {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 20px;
+.card-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-100%) rotateY(20deg) scale(0.8);
 }
 </style>
 

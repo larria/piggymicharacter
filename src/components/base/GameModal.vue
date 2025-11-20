@@ -17,7 +17,7 @@ const emit = defineEmits(['close']);
       <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeable && emit('close')"></div>
       
       <!-- 弹窗主体 -->
-      <div class="relative bg-paper-white w-full max-w-md rounded-3xl shadow-2xl border-4 border-candy-blue overflow-hidden transform transition-all modal-content">
+      <div class="relative bg-paper-white w-full max-w-lg rounded-3xl shadow-2xl border-4 border-candy-blue overflow-hidden transform transition-all modal-content">
         
         <!-- 标题栏 -->
         <div class="bg-candy-blue p-4 flex justify-between items-center">
