@@ -4,10 +4,8 @@ import { useRouter } from 'vue-router';
 import { useGameStore } from '@/stores/game';
 import { audioManager } from '@/utils/audio';
 import { tts } from '@/utils/tts';
-import { PhArrowLeft, PhSword, PhShieldCheck } from '@phosphor-icons/vue';
+import { PhArrowLeft, PhSword, PhShieldCheck, PhStar, PhTrophy, PhTrendUp } from '@phosphor-icons/vue';
 import confetti from 'canvas-confetti';
-// 【新增】引入图标
-import { PhStar, PhTrophy, PhTrendUp } from '@phosphor-icons/vue';
 
 import MainLayout from '@/components/layout/MainLayout.vue';
 import GameButton from '@/components/base/GameButton.vue';
@@ -20,7 +18,7 @@ const router = useRouter();
 const gameStore = useGameStore();
 
 // 状态
-const gameState = ref('loading'); // loading, playing, finished
+const gameState = ref('loading'); 
 const currentQuestion = ref(null);
 const selectedOption = ref(null);
 const isAnswered = ref(false);
@@ -28,44 +26,41 @@ const isCorrect = ref(false);
 const sessionCorrectCount = ref(0);
 const sessionTotalCount = ref(0);
 
+// 【新增】记录每个汉字上一次使用的句子，防止连续重复
+// 格式: { '汉字': '上一次使用的完整句子内容' }
+const lastUsedSentenceMap = ref({});
+
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
 // 复习弹窗
 const showReview = ref(false);
-// 【新增】控制复习卡片是否朗读完成
 const isReviewFinished = ref(false);
 
 // 每日掌握上限限制
 const canEarnPoints = computed(() => gameStore.getTodayMasterCount() < gameStore.DAILY_MASTER_LIMIT);
 
-// 怪兽/进度条状态
-// 【修改】动态计算今日目标上限
+// 进度条状态
 const dailyLimit = computed(() => {
   const todayDone = gameStore.getTodayMasterCount();
-  const remainingCandidates = gameStore.learnedCharacters.length; // 剩余可考的字（已学但未掌握）
-  
-  // 理论上今天能达到的最大值 = 已完成 + 还能完成的
+  const remainingCandidates = gameStore.learnedCharacters.length; 
   const potentialTotal = todayDone + remainingCandidates;
-  
-  // 取 每日上限(30) 和 理论最大值 中的较小者
   return Math.min(gameStore.DAILY_MASTER_LIMIT, potentialTotal);
 });
-// 【修改】回退为：只显示今日已“掌握”的字数（即答对3次的字数）
-// 这样 Boss 血条更难打，但含金量更高
 const progressValue = computed(() => gameStore.getTodayMasterCount());
 
-// 【新增】答题反馈状态
+// 答题反馈状态
 const feedback = ref({
     show: false,
     isMastered: false,
     count: 0,
-    total: 3, // 目标次数
+    total: 3, 
     reward: 0
 });
 
 // --- 核心逻辑 ---
 const initExam = () => {
-    if (gameStore.learnedCharacters.length === 0) {
+    // 双重保险：虽然有路由守卫，但初始化时再检查一次更安全
+    if (gameStore.learnedCharacters.length < gameStore.MIN_REVIEW_COUNT) {
         router.replace('/');
         return;
     }
@@ -74,27 +69,38 @@ const initExam = () => {
 };
 
 const nextQuestion = () => {
-    // 检查是否今日已达标（可选：达标后是否强制结束？这里选择不强制，只是没奖励）
-    // 生成题目
-    // 【新增】重置反馈状态
     feedback.value.show = false;
     selectedOption.value = null;
     isAnswered.value = false;
     showReview.value = false;
 
-    // 简单的题目生成算法
     const learnedChars = gameStore.learnedCharacters;
     if (learnedChars.length === 0) return;
 
+    // 随机选择一个汉字
     const targetChar = learnedChars[Math.floor(Math.random() * learnedChars.length)];
     const targetInfo = gameStore.allCharactersData.find(c => c.character === targetChar);
 
-    // 随机挖空一个句子
-    const sentence = targetInfo.example_sentences[Math.floor(Math.random() * targetInfo.example_sentences.length)];
-    // 【修改】定义统一的挖空占位符
-    const PLACEHOLDER = '（ __ ）';
+    // 【修改】句子选择逻辑：避免连续重复
+    const sentences = targetInfo.example_sentences;
+    let availableSentences = sentences;
+    
+    // 如果该汉字有上一次的使用记录，且总句子数大于1，则过滤掉上次用过的
+    if (lastUsedSentenceMap.value[targetChar] && sentences.length > 1) {
+        availableSentences = sentences.filter(s => s !== lastUsedSentenceMap.value[targetChar]);
+        // 万一过滤后为空（理论上不会，因为判断了 length > 1），兜底使用原数组
+        if (availableSentences.length === 0) {
+            availableSentences = sentences;
+        }
+    }
 
-    // 将所有出现的汉字替换为占位符
+    // 从可用列表中随机选一句
+    const sentence = availableSentences[Math.floor(Math.random() * availableSentences.length)];
+    
+    // 更新记录
+    lastUsedSentenceMap.value[targetChar] = sentence;
+
+    const PLACEHOLDER = '（ __ ）';
     const questionText = sentence.replace(new RegExp(targetChar, 'g'), PLACEHOLDER);
 
     // 生成干扰项
@@ -112,51 +118,33 @@ const nextQuestion = () => {
         options: Array.from(options).sort(() => Math.random() - 0.5)
     };
 
-    // 朗读题目（稍微延迟）
     setTimeout(() => speakQuestion(), 500);
 };
 
 const speakQuestion = async () => {
     if (!currentQuestion.value) return;
-
-    // 1. 先停止之前的声音
     tts.stop();
-
     const { text, placeholder } = currentQuestion.value;
-
-    // 2. 按照占位符切割句子
-    // 例如："小猫爱吃鱼" -> 挖空 "猫" -> "小（ __ ）爱吃鱼" -> parts: ["小", "爱吃鱼"]
     const parts = text.split(placeholder);
 
-    // 3. 循环播放
     for (let i = 0; i < parts.length; i++) {
-        // 如果用户已经答题了或切走了，停止播放
         if (isAnswered.value || !currentQuestion.value) break;
-
-        // 播放文本片段 (如果片段不为空)
         if (parts[i]) {
             await tts.speak(parts[i]);
         }
-
-        // 如果不是最后一段，说明后面紧跟着一个占位符，需要播放提示音
         if (i < parts.length - 1) {
-            if (isAnswered.value) break; // 再次检查中断
-
-            await wait(300); // 停顿 300ms
-
+            if (isAnswered.value) break; 
+            await wait(300); 
             if (isAnswered.value) break;
-            await tts.speak('请咪猪头选择', { rate: 1.1 }); // 稍微快一点点，显得轻快
-
+            await tts.speak('请咪猪头选择', { rate: 1.1 }); 
             if (isAnswered.value) break;
-            await wait(300); // 停顿 300ms
+            await wait(300); 
         }
     }
 };
 
 const handleOptionClick = (option) => {
     if (isAnswered.value) return;
-
-    // 【新增】点击瞬间，立即打断读题
     tts.stop();
 
     isAnswered.value = true;
@@ -171,41 +159,34 @@ const handleOptionClick = (option) => {
         sessionCorrectCount.value++;
         const res = gameStore.recordExamResult(currentQuestion.value.targetChar, true);
 
-        // 【修改】设置反馈信息
         feedback.value = {
             show: true,
             isMastered: res.isMastered,
             count: res.newCorrectCount,
-            total: gameStore.REQUIRED_CORRECT_COUNT, // 默认为3
+            total: gameStore.REQUIRED_CORRECT_COUNT, 
             reward: res.reward
         };
 
-        // 如果掌握了，撒花并播放庆祝音效
         if (res.isMastered) {
             audioManager.play('celebrate');
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
-        // 【修改】延长等待时间到 2秒，让孩子看清反馈
         setTimeout(nextQuestion, 2000);
     } else {
         audioManager.play('wrong');
         gameStore.recordExamResult(currentQuestion.value.targetChar, false);
-        // 错误后，延迟一点弹出复习卡片
         setTimeout(() => {
-            // 【修正点1】打开弹窗时，重置按钮状态
             isReviewFinished.value = false;
             showReview.value = true;
         }, 1000);
     }
 };
 
-// 【新增】卡片朗读完毕的回调
 const onReviewCardReadDone = () => {
     isReviewFinished.value = true;
 };
 
-// 【修改】点击按钮才进入下一题
 const closeReviewAndNext = () => {
     showReview.value = false;
     nextQuestion();
@@ -236,7 +217,6 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <!-- 【新增】魔力瓶模块 -->
                 <MagicCapsule />
             </div>
         </template>
@@ -245,7 +225,6 @@ onUnmounted(() => {
 
             <!-- 题目区域 -->
             <div class="bg-white/90 backdrop-blur p-8 rounded-3xl shadow-xl w-full mb-8 min-h-[200px] flex items-center justify-center relative overflow-hidden">
-                <!-- 装饰背景 -->
                 <div class="absolute -top-10 -right-10 w-32 h-32 bg-candy-blue/10 rounded-full"></div>
                 <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-candy-orange/10 rounded-full"></div>
 
@@ -263,8 +242,6 @@ onUnmounted(() => {
                     isAnswered && opt !== currentQuestion.targetChar && opt !== selectedOption ? 'opacity-40 bg-gray-200' : ''
                 ]">
                     {{ opt }}
-
-                    <!-- 结果图标 -->
                     <div v-if="isAnswered && opt === currentQuestion.targetChar" class="absolute right-2 bottom-2 animate-bounce">
                         <PhShieldCheck size="24" weight="fill" />
                     </div>
@@ -275,46 +252,34 @@ onUnmounted(() => {
 
         <!-- 复习弹窗 -->
         <GameModal :show="showReview" title="巩固一下" :closeable="false">
-            <div class="flex flex-col items-center min-h-[400px]"> <!-- 增加最小高度防止跳动 -->
+            <div class="flex flex-col items-center min-h-[400px]">
                 <p class="text-gray-500 mb-4">哎呀答错了，再复习一遍吧！</p>
-
-                <!-- 【修正点2】@finish 不再直接关闭，而是显示按钮 -->
                 <CharLearningCard v-if="currentQuestion" :info="currentQuestion.targetInfo" :autoPlay="true" @finish="onReviewCardReadDone" />
-
-                <!-- 【修正点3】按钮增加显隐控制，且点击才触发关闭 -->
                 <div class="mt-6 w-full transition-opacity duration-500" :class="isReviewFinished ? 'opacity-100' : 'opacity-0 pointer-events-none'">
                     <GameButton variant="primary" :block="true" @click="closeReviewAndNext">
                         记住了，下一题
                     </GameButton>
                 </div>
             </div>
-        </GameModal><!-- 【新增】答对反馈弹层 (Overlay) -->
+        </GameModal>
+
+        <!-- 答对反馈弹层 -->
         <Transition name="bounce-pop">
             <div v-if="feedback.show" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-                <!-- 简单的背景遮罩 -->
                 <div class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
-
-                <!-- 反馈卡片 -->
                 <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-4 border-candy-yellow flex flex-col items-center gap-4 min-w-[300px] transform scale-110">
-
-                    <!-- 图标：掌握了显示奖杯，没掌握显示星星 -->
                     <div class="text-6xl mb-2 animate-bounce-sm">
                         <span v-if="feedback.isMastered">🏆</span>
                         <span v-else>🌟</span>
                     </div>
-
-                    <!-- 标题 -->
                     <h3 class="text-3xl font-bold text-candy-orange font-cartoon">
                         {{ feedback.isMastered ? '恭喜掌握！' : '回答正确！' }}
                     </h3>
-
-                    <!-- 进度条/文字 -->
                     <div v-if="!feedback.isMastered" class="w-full space-y-2">
                         <div class="flex justify-between text-gray-500 font-bold text-lg">
                             <span>熟练度</span>
                             <span>{{ feedback.count }} / {{ feedback.total }}</span>
                         </div>
-                        <!-- 进度条 -->
                         <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
                             <div class="h-full bg-candy-yellow transition-all duration-500" :style="{ width: `${(feedback.count / feedback.total) * 100}%` }"></div>
                         </div>
@@ -322,8 +287,6 @@ onUnmounted(() => {
                             再答对 {{ feedback.total - feedback.count }} 次就掌握啦！
                         </p>
                     </div>
-
-                    <!-- 掌握奖励提示 -->
                     <div v-else class="text-center bg-yellow-50 p-3 rounded-xl border border-yellow-200">
                         <p class="text-gray-600 font-bold">太棒了！你已经完全学会这个字了</p>
                         <p v-if="feedback.reward > 0" class="text-candy-orange font-bold text-xl mt-1">
@@ -338,7 +301,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-/* 弹跳入场动画 */
 .bounce-pop-enter-active {
     animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -348,21 +310,10 @@ onUnmounted(() => {
 .bounce-pop-leave-to {
     opacity: 0;
 }
-
 @keyframes bounce-in {
-    0% {
-        opacity: 0;
-        transform: scale(0.3);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.05);
-    }
-    70% {
-        transform: scale(0.9);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0% { opacity: 0; transform: scale(0.3); }
+    50% { opacity: 1; transform: scale(1.05); }
+    70% { transform: scale(0.9); }
+    100% { transform: scale(1); }
 }
 </style>

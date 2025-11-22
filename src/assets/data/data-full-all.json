@@ -976,8 +976,7 @@
             "飞机",
             "飞鸟",
             "飞翔",
-            "飞走",
-            "飞虫"
+            "飞走"
         ],
         "example_sentences": [
             "小鸟在天空中飞。",
@@ -998,15 +997,14 @@
         "example_words": [
             "虫子",
             "小虫",
-            "虫牙",
-            "鸡虫得失"
+            "昆虫"
         ],
         "example_sentences": [
             "小虫子在树叶上爬。",
             "咪猪头在花园里发现了一只小虫子。"
         ],
         "english_character": "insect",
-        "english_phonetic": "ˈɪn.sekt",
+        "english_honetic": "ˈɪn.sekt",
         "english_example_sentences": [
             "The little insect is crawling on the leaf.",
             "Piggy Mi found a little insect in the garden."

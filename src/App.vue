@@ -1,19 +1,22 @@
 <script setup>
-import { useRouter, RouterLink, RouterView } from 'vue-router'
-import { storeToRefs } from 'pinia'
+import { useRouter, RouterView } from 'vue-router'
 import { useGameStore } from '@/stores/game'
+// 1. 引入 Toast 组件
+import GameToast from '@/components/base/GameToast.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
 </script>
 
 <template>
-  <!-- <RouterView /> -->
-   <router-view v-slot="{ Component }">
-      <keep-alive include="Home,Study,Test,Collection,Statistics">
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
+  <router-view v-slot="{ Component }">
+    <keep-alive include="Home,Study,Test,Collection,Statistics">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
+  
+  <!-- 2. 放置在最外层，确保不被遮挡 -->
+  <GameToast />
 </template>
 
 <style scoped>

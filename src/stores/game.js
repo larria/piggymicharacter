@@ -15,6 +15,8 @@ export const useGameStore = defineStore('game', () => {
   const DAILY_MASTER_LIMIT = 30
   const REQUIRED_CORRECT_COUNT = 3
   const CARD_COST = 160
+  // 【新增】复习门槛：至少学会10个字
+  const MIN_REVIEW_COUNT = 10
 
   // ====================== 计算属性 (Getters) ======================
   const masteredCharacters = computed(() => {
@@ -200,6 +202,7 @@ export const useGameStore = defineStore('game', () => {
     DAILY_MASTER_LIMIT,
     REQUIRED_CORRECT_COUNT,
     CARD_COST,
+    MIN_REVIEW_COUNT,
     masteredCharacters,
     learnedCharacters,
     unlearnedCharacters,
