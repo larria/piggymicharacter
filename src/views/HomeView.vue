@@ -25,9 +25,20 @@ const studyRemaining = computed(() => {
 const isReviewLocked = computed(() => gameStore.learnedCharacters.length < gameStore.MIN_REVIEW_COUNT);
 // 还需要多少个字
 const reviewMissingCount = computed(() => Math.max(0, gameStore.MIN_REVIEW_COUNT - gameStore.learnedCharacters.length));
-// 今日还能掌握多少个字（Boss血量相关）
+// 今日（综合考虑下）还能掌握多少个字（Boss血量相关）
 const reviewRemaining = computed(() => {
-  return Math.max(0, gameStore.DAILY_MASTER_LIMIT - gameStore.getTodayMasterCount());
+  const todayDone = gameStore.getTodayMasterCount();
+  const remainingCandidates = gameStore.learnedCharacters.length; 
+  const potentialTotal = todayDone + remainingCandidates;
+  const dailyLimit = Math.min(gameStore.DAILY_MASTER_LIMIT, potentialTotal);
+  return Math.min(Math.max(0, gameStore.DAILY_MASTER_LIMIT - gameStore.getTodayMasterCount()), dailyLimit);
+});
+
+computed(() => {
+  const todayDone = gameStore.getTodayMasterCount();
+  const remainingCandidates = gameStore.learnedCharacters.length; 
+  const potentialTotal = todayDone + remainingCandidates;
+  return Math.min(gameStore.DAILY_MASTER_LIMIT, potentialTotal);
 });
 
 // 3. 震动控制
@@ -60,7 +71,7 @@ const showReviewBadgeInfo = () => {
   } else {
     // 用法三：指定 Success 类型 (绿色背景，或者用 info 蓝色也可以)
     showToast(
-      `今日挑战剩余 ${reviewRemaining.value} 次\n去打败怪兽吧！`, 
+      `今日剩余 ${reviewRemaining.value} 个字可以复习\n去打败怪兽吧！`, 
       'success'
     );
   }
