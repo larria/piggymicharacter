@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, shallowRef } from 'vue'
 
 import cData from '@/assets/data/data-full-all.json'
 
@@ -8,7 +8,8 @@ export const useGameStore = defineStore('game', () => {
   const magicPoints = ref(800)
   const characterStates = ref([])
   const collectedCards = ref([])
-  const allCharactersData = ref(cData)
+  // 使用 shallowRef，只有 .value 被替换时才触发更新，内部属性变化不追踪
+  const allCharactersData = shallowRef(cData)
 
   // ====================== 常量 (Constants) ======================
   const DAILY_LEARN_LIMIT = 30

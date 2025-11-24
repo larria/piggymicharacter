@@ -10,7 +10,8 @@ const gameStore = useGameStore()
 
 <template>
   <router-view v-slot="{ Component }">
-    <keep-alive include="Home,Study,Test,Collection,Statistics">
+    <!-- <keep-alive include="HomeView,StudyView,ExamView,MyCCardsView,MyPCardsView"> -->
+    <keep-alive include="HomeView">
       <component :is="Component" />
     </keep-alive>
   </router-view>
