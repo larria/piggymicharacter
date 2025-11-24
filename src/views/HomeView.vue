@@ -64,7 +64,7 @@ const showReviewBadgeInfo = () => {
   if (isReviewLocked.value) {
     // 用法二：指定 Warning 类型 (橙色背景)
     showToast(
-      `今天只认识了 ${gameStore.learnedCharacters.length} 个字\n还需要学会 ${reviewMissingCount.value} 个才能开启复习哦`,
+      `当前只认识了 ${gameStore.learnedCharacters.length} 个字\n还需要认识 ${reviewMissingCount.value} 个才能开启复习哦`,
       'warning',
       3500 // 稍微显示久一点
     );

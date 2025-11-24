@@ -10,6 +10,13 @@ export const toastState = reactive({
 
 let timer = null;
 
+// 【新增】手动隐藏 Toast 的方法
+export const hideToast = () => {
+  if (timer) clearTimeout(timer); // 清除正在进行的倒计时
+  toastState.show = false;        // 立即隐藏
+  timer = null;
+};
+
 /**
  * 显示全局 Toast
  * @param {string} message - 显示的文字，支持 \n 换行
@@ -25,7 +32,7 @@ export const showToast = (message, type = 'info', duration = 2500) => {
   toastState.show = true;
 
   timer = setTimeout(() => {
-    toastState.show = false;
-    timer = null;
+    // 使用抽离的关闭逻辑（也可以直接写在这里，但统一调用 hideToast 更规范）
+    hideToast();
   }, duration);
 };

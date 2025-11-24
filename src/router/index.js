@@ -1,7 +1,8 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-// 【新增】引入 store 用于路由守卫判断
 import { useGameStore } from '@/stores/game'
+// 【新增】引入隐藏 Toast 的方法
+import { hideToast } from '@/utils/gameToast'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -20,14 +21,10 @@ const router = createRouter({
       path: '/exam',
       name: 'exam',
       component: () => import('../views/ExamView.vue'),
-      // 【新增】路由独享守卫，拦截条件不足的进入
       beforeEnter: (to, from, next) => {
         const gameStore = useGameStore()
         const count = gameStore.learnedCharacters.length
-        // 判断逻辑：如果已学字数少于最低要求
         if (count < gameStore.MIN_REVIEW_COUNT) {
-          // 可以选择重定向回首页，或者不做跳转
-          // 这里选择重定向回首页
           next('/') 
         } else {
           next()
@@ -45,6 +42,12 @@ const router = createRouter({
       component: () => import('../views/MyPCardsView.vue'),
     },
   ],
+})
+
+// 【新增】全局前置守卫：路由跳转开始时，立即关闭 Toast
+router.beforeEach((to, from, next) => {
+  hideToast()
+  next()
 })
 
 export default router
