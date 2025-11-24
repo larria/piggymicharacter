@@ -10,11 +10,12 @@
 
 body {
   @apply bg-paper-white text-dark-text font-sans overflow-hidden;
-  /* 禁止长按选择，适合 App 体验 */
   user-select: none;
   -webkit-user-select: none;
-  /* 优化触控响应 */
-  touch-action: manipulation;
+  /* 禁止双击缩放，但允许平移和滚动 */
+  touch-action: pan-x pan-y; 
+  /* 防止 iOS 回弹效果影响全屏体验 */
+  overscroll-behavior: none;
 }
 
 #app {
