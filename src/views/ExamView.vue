@@ -75,7 +75,15 @@ const nextQuestion = () => {
     showReview.value = false;
 
     const learnedChars = gameStore.learnedCharacters;
-    if (learnedChars.length === 0) return;
+    if (learnedChars.length === 0) {
+        // 播放庆祝音效（可选）
+        audioManager.play('celebrate');
+        // 提示用户
+        showToast('太棒了！所有待复习的汉字都已掌握！', 'success');
+        // 跳转回首页
+        router.replace('/');
+        return;
+    }
 
     // 随机选择一个汉字
     const targetChar = learnedChars[Math.floor(Math.random() * learnedChars.length)];
