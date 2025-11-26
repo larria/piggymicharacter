@@ -167,12 +167,14 @@ const handleOptionClick = (option) => {
         sessionCorrectCount.value++;
         const res = gameStore.recordExamResult(currentQuestion.value.targetChar, true);
 
+        // 【修改】反馈数据中增加 char 字段
         feedback.value = {
             show: true,
             isMastered: res.isMastered,
             count: res.newCorrectCount,
             total: gameStore.REQUIRED_CORRECT_COUNT, 
-            reward: res.reward
+            reward: res.reward,
+            char: currentQuestion.value.targetChar // 新增：记录当前汉字
         };
 
         if (res.isMastered) {
@@ -271,34 +273,68 @@ onUnmounted(() => {
             </div>
         </GameModal>
 
-        <!-- 答对反馈弹层 -->
-        <Transition name="bounce-pop">
-            <div v-if="feedback.show" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-                <div class="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
-                <div class="relative bg-white rounded-3xl p-8 shadow-2xl border-4 border-candy-yellow flex flex-col items-center gap-4 min-w-[300px] transform scale-110">
-                    <div class="text-6xl mb-2 animate-bounce-sm">
-                        <span v-if="feedback.isMastered">🏆</span>
-                        <span v-else>🌟</span>
+        <!-- 答对反馈弹层 (底部弹出版) -->
+        <Transition name="slide-up">
+            <div v-if="feedback.show" class="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
+                <!-- 遮罩层 (可选，这里设为全透明以便保留游戏背景感，如果想要更聚焦可以加 bg-black/10) -->
+                <div class="absolute inset-0 bg-transparent"></div>
+                
+                <!-- 底部面板 -->
+                <div class="relative bg-white w-full rounded-t-[2.5rem] p-6 pb-12 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.2)] border-t-4 border-candy-yellow flex flex-col items-center gap-3 transform transition-transform">
+                    
+                    <!-- 装饰性光效背景 -->
+                    <div class="absolute -top-16 left-1/2 -translate-x-1/2 w-full h-20 bg-gradient-to-t from-white to-transparent opacity-80 pointer-events-none"></div>
+
+                    <!-- 顶部图标 (浮出面板一点点) -->
+                    <div class="absolute -top-10 bg-white rounded-full p-2 border-4 border-candy-yellow shadow-sm animate-bounce-sm">
+                        <span v-if="feedback.isMastered" class="text-5xl">🏆</span>
+                        <span v-else class="text-5xl">🌟</span>
                     </div>
-                    <h3 class="text-3xl font-bold text-candy-orange font-cartoon">
-                        {{ feedback.isMastered ? '恭喜掌握！' : '回答正确！' }}
-                    </h3>
-                    <div v-if="!feedback.isMastered" class="w-full space-y-2">
-                        <div class="flex justify-between text-gray-500 font-bold text-lg">
+
+                    <!-- 主要文案区域 (增加 pt-6 给图标留位置) -->
+                    <div class="pt-6 text-center">
+                        <h3 class="text-2xl font-bold text-gray-700 font-cartoon flex items-center justify-center gap-2">
+                            <!-- 掌握状态文案 -->
+                            <template v-if="feedback.isMastered">
+                                恭喜掌握
+                                <span class="char-highlight text-4xl bg-candy-yellow text-white px-3 py-1 rounded-xl shadow-sm rotate-3 inline-block mx-1 border-b-4 border-yellow-600">
+                                    {{ feedback.char }}
+                                </span>
+                            </template>
+                            
+                            <!-- 普通答对文案 -->
+                            <template v-else>
+                                <span class="char-highlight text-4xl bg-candy-blue text-white px-3 py-1 rounded-xl shadow-sm -rotate-3 inline-block mx-1 border-b-4 border-blue-700">
+                                    {{ feedback.char }}
+                                </span>
+                                <span class="text-candy-green">回答正确!</span>
+                            </template>
+                        </h3>
+                    </div>
+
+                    <!-- 进度或奖励区域 -->
+                    <div v-if="!feedback.isMastered" class="w-full max-w-sm space-y-2 mt-2">
+                        <div class="flex justify-between text-gray-400 font-bold text-sm px-2">
                             <span>熟练度</span>
                             <span>{{ feedback.count }} / {{ feedback.total }}</span>
                         </div>
-                        <div class="w-full h-4 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
-                            <div class="h-full bg-candy-yellow transition-all duration-500" :style="{ width: `${(feedback.count / feedback.total) * 100}%` }"></div>
+                        <div class="w-full h-5 bg-gray-100 rounded-full overflow-hidden border border-gray-200 shadow-inner relative">
+                            <!-- 进度条动画 -->
+                            <div class="h-full bg-gradient-to-r from-candy-yellow to-orange-400 transition-all duration-700 ease-out flex items-center justify-end pr-2" :style="{ width: `${(feedback.count / feedback.total) * 100}%` }">
+                                <div class="w-full h-full absolute inset-0 bg-white/30 animate-[shimmer_2s_infinite]"></div>
+                            </div>
                         </div>
-                        <p class="text-center text-candy-blue text-sm mt-2 font-bold">
-                            再答对 {{ feedback.total - feedback.count }} 次就掌握啦！
+                        <p class="text-center text-candy-blue text-xs font-bold mt-1 opacity-80">
+                            再答对 {{ feedback.total - feedback.count }} 次就完全掌握啦！
                         </p>
                     </div>
-                    <div v-else class="text-center bg-yellow-50 p-3 rounded-xl border border-yellow-200">
-                        <p class="text-gray-600 font-bold">太棒了！你已经完全学会这个字了</p>
-                        <p v-if="feedback.reward > 0" class="text-candy-orange font-bold text-xl mt-1">
+                    
+                    <div v-else class="text-center mt-2 animate-pulse">
+                        <p v-if="feedback.reward > 0" class="text-candy-orange font-black text-2xl drop-shadow-sm">
                             魔力值 +{{ feedback.reward }} ✨
+                        </p>
+                        <p v-else class="text-gray-400 text-sm font-bold">
+                            今日掌握名额已满
                         </p>
                     </div>
                 </div>
@@ -309,19 +345,40 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-.bounce-pop-enter-active {
-    animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+/* 底部滑入动画 */
+.slide-up-enter-active {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 带有轻微回弹效果 */
 }
-.bounce-pop-leave-active {
-    transition: opacity 0.2s ease;
+.slide-up-leave-active {
+    transition: all 0.3s ease-in;
 }
-.bounce-pop-leave-to {
+
+.slide-up-enter-from {
     opacity: 0;
+    transform: translateY(100%);
 }
-@keyframes bounce-in {
-    0% { opacity: 0; transform: scale(0.3); }
-    50% { opacity: 1; transform: scale(1.05); }
-    70% { transform: scale(0.9); }
-    100% { transform: scale(1); }
+.slide-up-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.slide-up-leave-from {
+    opacity: 1;
+    transform: translateY(0);
+}
+.slide-up-leave-to {
+    opacity: 0;
+    transform: translateY(100%);
+}
+
+/* 汉字高亮强调动画 */
+.char-highlight {
+    animation: pop-char 0.5s ease-out 0.1s backwards;
+}
+
+@keyframes pop-char {
+    0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+    60% { transform: scale(1.2) rotate(5deg); }
+    100% { transform: scale(1) rotate(var(--tw-rotate)); opacity: 1; }
 }
 </style>
