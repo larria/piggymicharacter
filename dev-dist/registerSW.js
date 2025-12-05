@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/piggymicharacter/dev-sw.js?dev-sw', { scope: '/piggymicharacter/', type: 'classic' })
