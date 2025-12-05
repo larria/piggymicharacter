@@ -82,7 +82,7 @@ define(['./workbox-5a5d9309'], (function (workbox) { 'use strict';
     "revision": "8f97fcda83ab74657f7ccb3a7afdc702"
   }, {
     "url": "index.html",
-    "revision": "0.734m8tiv7l"
+    "revision": "0.4hcbfl289e"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {

@@ -15,9 +15,10 @@ const isPlaying = ref(false);
 const activeKey = ref('');
 const isMounted = ref(true);
 const isInitialPlayDone = ref(!props.autoPlay);
-
-// 【新增】记录当前显示英文的句子索引，-1 表示没有
 const flippedSentenceIndex = ref(-1);
+
+// 【新增】播放会话 ID，解决竞态问题
+const playbackSessionId = ref(0);
 
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 const shouldContinue = () => isMounted.value && isPlaying.value;
@@ -30,12 +31,15 @@ const highlightText = (text, char) => {
     );
 };
 
-// ... (playSequence 函数保持不变) ...
 const playSequence = async () => {
     if (isPlaying.value) return;
     isPlaying.value = true;
 
+    // 自动播放开始，更新会话ID，防止之前的残留逻辑干扰
+    playbackSessionId.value++;
+
     try {
+        // ... (自动播放逻辑保持不变，省略中间代码，直接到底部) ...
         // 1. 正面：读汉字
         if (!isFlipped.value) {
             for (let i = 0; i < 3; i++) {
@@ -93,7 +97,10 @@ const playSequence = async () => {
 // 点击重读特定项 (中文)
 const playSpecific = async (text, key) => {
     if (!isInitialPlayDone.value) return;
-    // 如果正在读英文，先打断
+
+    // 【修改】让旧的英文播放逻辑失效
+    playbackSessionId.value++;
+
     if (flippedSentenceIndex.value !== -1) {
         flippedSentenceIndex.value = -1;
     }
@@ -110,22 +117,25 @@ const playSpecific = async (text, key) => {
     }
 };
 
-// 【新增】播放英文例句逻辑
+// 播放英文例句逻辑
 const playEnglishSentence = async (index) => {
-    // 安全检查：如果没有英文数据或未解锁，则不执行
     if (!isInitialPlayDone.value || !props.info.english_example_sentences?.[index]) return;
 
-    // 打断当前的所有播放
+    // 1. 生成本次播放的唯一 ID
+    const currentSessionId = ++playbackSessionId.value;
+
+    // 2. 状态设置
     isPlaying.value = false;
     tts.stop();
-    await wait(10); // 微小延迟确保状态重置
+    await wait(10);
 
-    // 设置状态：显示英文，高亮该行
+    // 这里再次检查 ID，防止 await 10ms 期间又被点击了
+    if (playbackSessionId.value !== currentSessionId) return;
+
     flippedSentenceIndex.value = index;
     activeKey.value = `sentence-${index}`;
 
     try {
-        // 调用 TTS，指定语言为英语
         await tts.speak(props.info.english_example_sentences[index], {
             lang: 'en-US',
             rate: 0.8
@@ -133,12 +143,15 @@ const playEnglishSentence = async (index) => {
     } catch (e) {
         console.error('English TTS error', e);
     } finally {
-        // 读完后恢复：显示回中文，取消高亮
-        if (isMounted.value) {
-            // 增加一点点延迟，让用户看完英文
+        // 【核心修改】只有当 ID 依然匹配时，才执行重置
+        // 如果这期间用户点击了别的（sessionId 变了），这里的重置就不执行
+        if (isMounted.value && playbackSessionId.value === currentSessionId) {
             await wait(200);
-            flippedSentenceIndex.value = -1;
-            activeKey.value = '';
+            // wait 之后再次检查（双重保险）
+            if (playbackSessionId.value === currentSessionId) {
+                flippedSentenceIndex.value = -1;
+                activeKey.value = '';
+            }
         }
     }
 };
@@ -146,10 +159,13 @@ const playEnglishSentence = async (index) => {
 const toggleFlip = async () => {
     if (!isInitialPlayDone.value) return;
 
+    // 【修改】翻转时也使旧逻辑失效
+    playbackSessionId.value++;
+
     isPlaying.value = false;
     tts.stop();
     activeKey.value = '';
-    flippedSentenceIndex.value = -1; // 翻转时重置英文显示
+    flippedSentenceIndex.value = -1;
 
     isFlipped.value = !isFlipped.value;
     if (!isFlipped.value) {
@@ -164,6 +180,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+    // 卸载时增加 ID，确保未完成的 finally 块不执行任何逻辑
+    playbackSessionId.value++;
     isMounted.value = false;
     isPlaying.value = false;
     tts.stop();
@@ -171,10 +189,11 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <!-- Template 部分完全不需要修改，保持原样即可 -->
     <div class="perspective-container w-full max-w-md aspect-[3/4] relative select-none" :class="isInitialPlayDone ? 'cursor-pointer' : 'cursor-default'" @click="toggleFlip">
         <div class="flip-card w-full h-full transition-transform duration-700 transform-style-3d" :class="{ 'flipped': isFlipped }">
 
-            <!-- 正面：汉字 (保持不变) -->
+            <!-- 正面：汉字 -->
             <div class="front absolute inset-0 backface-hidden bg-white rounded-3xl border-4 border-candy-blue shadow-xl flex flex-col items-center justify-center overflow-hidden">
                 <div class="absolute top-4 right-4 text-candy-blue opacity-50">
                     <PhSpeakerHigh size="32" />
@@ -197,7 +216,6 @@ onUnmounted(() => {
                     </div>
                 </div>
 
-                <!-- 词语列表 (保持不变) -->
                 <div class="flex flex-wrap gap-3 mb-8">
                     <span v-for="(word, idx) in info.example_words" :key="word" @click.stop="playSpecific(word, `word-${idx}`)" class="px-4 py-2 bg-white rounded-xl text-xl font-bold shadow-sm border transition-all duration-300" :class="[
                         activeKey === `word-${idx}` ? 'bg-candy-orange border-candy-orange scale-110 shadow-md' : 'border-gray-100',
@@ -209,31 +227,18 @@ onUnmounted(() => {
 
                 <h3 class="text-2xl font-bold text-candy-green mb-4">例句</h3>
                 <div class="space-y-4">
-                    <!-- 
-                        【修改】例句列表容器 
-                        改为 Flex 布局以容纳右侧按钮
-                    -->
                     <div v-for="(sentence, idx) in info.example_sentences" :key="idx" class="relative group">
                         <div @click.stop="playSpecific(sentence, `sentence-${idx}`)" class="flex items-start justify-between gap-2 text-lg leading-relaxed bg-white p-3 rounded-lg shadow-sm transition-all duration-300 border-l-4 min-h-[3.5rem]" :class="[
                             activeKey === `sentence-${idx}` ? 'border-candy-green bg-green-50 text-green-900 scale-105 z-10' : 'border-transparent text-gray-700',
                             isInitialPlayDone ? 'hover:bg-gray-50' : ''
                         ]">
-                            <!-- 
-                                【修改】内容区域 
-                                根据 flippedSentenceIndex 判断显示中文还是英文
-                            -->
                             <div class="flex-1 transition-opacity duration-300">
                                 <span v-if="flippedSentenceIndex === idx" class="text-candy-purple font-medium font-sans">
                                     {{ info.english_example_sentences?.[idx] || 'No English Translation' }}
                                 </span>
-                                <!-- 使用 v-html 高亮汉字 (仅在显示中文时) -->
                                 <span v-else v-html="highlightText(sentence, info.character)"></span>
                             </div>
 
-                            <!-- 
-                                【新增】翻译按钮 
-                                仅在 isInitialPlayDone 为 true 且有英文数据时显示
-                            -->
                             <button v-if="isInitialPlayDone && info.english_example_sentences?.[idx]" @click.stop="playEnglishSentence(idx)" class="p-2 -mr-1 rounded-full text-gray-300 hover:text-candy-purple hover:bg-purple-50 active:scale-90 transition-all" :class="{ 'text-candy-purple bg-purple-100 animate-pulse': flippedSentenceIndex === idx }" title="听英文">
                                 <PhTranslate size="20" weight="bold" />
                             </button>
