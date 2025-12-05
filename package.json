@@ -20,7 +20,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "make-cards": "node script/makePCard.js"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",

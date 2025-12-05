@@ -15,7 +15,24 @@ import GameModal from '@/components/base/GameModal.vue';
 const router = useRouter();
 const gameStore = useGameStore();
 
-const pCardTotalLen = 48;
+
+// 1. 使用 Vite 的 import.meta.glob 自动读取 cards 目录下所有以 c 开头 jpg 结尾的文件
+// key 是文件路径，value 是动态导入函数（这里我们只需要 key）
+const cardFiles = import.meta.glob('@/assets/images/cards/c*.jpg');
+
+// 2. 自动生成卡片 ID 列表
+// 解析路径中的数字 (例如 ".../c12.jpg" -> 12) 并排序
+const cardList = Object.keys(cardFiles)
+  .map(path => {
+    // 匹配文件名中的数字 c(\d+).jpg
+    const match = path.match(/c(\d+)\.jpg$/i);
+    return match ? parseInt(match[1], 10) : null;
+  })
+  .filter(id => id !== null) // 过滤掉无效的
+  .sort((a, b) => a - b);    // 按数字从小到大排序
+
+// 3. 计算总长度 (仅用于显示)
+const pCardTotalLen = computed(() => cardList.length);
 const selectedCardId = ref(null);
 const showUnlockModal = ref(false);
 // 引导弹窗
@@ -37,7 +54,6 @@ const viewerState = reactive({
 let startDistance = 0;
 
 // 生成卡片列表
-const cardList = Array.from({ length: pCardTotalLen }, (_, i) => i);
 const isCollected = (id) => gameStore.collectedCards.includes(id);
 const getImgUrl = (id) => new URL(`../assets/images/cards/c${id}.jpg`, import.meta.url).href;
 

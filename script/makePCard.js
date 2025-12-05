@@ -2,9 +2,15 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// 获取 __dirname 的等效值
+// 获取路径上下文
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// 定义关键路径
+// 1. 项目根目录
+const PROJECT_ROOT = path.resolve(__dirname, '../');
+// 2. 目标资源目录 (src/assets/images/cards)
+const TARGET_DIR = path.join(PROJECT_ROOT, 'src/assets/images/cards');
 
 // 动态导入 sharp
 let sharp;
@@ -12,104 +18,119 @@ try {
     const sharpModule = await import('sharp');
     sharp = sharpModule.default;
 } catch (error) {
-    console.error('错误：请先安装 sharp 依赖');
-    console.log('运行命令: npm install sharp');
+    console.error('❌ 错误：请先安装 sharp 依赖');
+    console.log('👉 运行命令: npm install sharp');
     process.exit(1);
 }
 
-// 支持的图片格式
 const SUPPORTED_FORMATS = ['.jpg', '.jpeg', '.png', '.webp', '.tiff', '.gif', '.bmp'];
 
-async function processImages(directoryPath) {
-    try {
-        if (!fs.existsSync(directoryPath)) {
-            console.error('错误：目录不存在');
-            return;
-        }
+/**
+ * 扫描目标目录，获取当前最大的索引值 (cN.jpg)
+ * @returns {number} 当前最大索引，如果没有文件则返回 -1
+ */
+function getCurrentMaxIndex(dir) {
+    if (!fs.existsSync(dir)) return -1;
+    
+    const files = fs.readdirSync(dir);
+    let max = -1;
+    // 正则匹配 c0.jpg, c1.jpg, c100.jpg 等
+    const regex = /^c(\d+)\.jpg$/i;
 
-        const stats = fs.statSync(directoryPath);
-        if (!stats.isDirectory()) {
-            console.error('错误：提供的路径不是目录');
-            return;
-        }
-
-        console.log(`开始处理目录: ${directoryPath}`);
-        
-        let processedCount = 0;
-        let errorCount = 0;
-        let fileCounter = 1;
-
-        async function walkDir(currentPath) {
-            const items = fs.readdirSync(currentPath);
-            
-            for (const item of items) {
-                const fullPath = path.join(currentPath, item);
-                const stat = fs.statSync(fullPath);
-                
-                if (stat.isDirectory()) {
-                    await walkDir(fullPath);
-                } else if (stat.isFile()) {
-                    const ext = path.extname(item).toLowerCase();
-                    
-                    if (SUPPORTED_FORMATS.includes(ext)) {
-                        try {
-                            await convertImage(fullPath, fileCounter, directoryPath);
-                            processedCount++;
-                            console.log(`✓ 已处理: ${item} -> c${fileCounter}.jpg`);
-                            fileCounter++;
-                        } catch (error) {
-                            errorCount++;
-                            console.error(`✗ 处理失败: ${item} - ${error.message}`);
-                        }
-                    }
-                }
+    files.forEach(file => {
+        const match = file.match(regex);
+        if (match) {
+            const num = parseInt(match[1], 10);
+            if (!isNaN(num) && num > max) {
+                max = num;
             }
         }
-
-        await walkDir(directoryPath);
-        
-        console.log('\n处理完成！');
-        console.log(`成功处理: ${processedCount} 个文件`);
-        console.log(`处理失败: ${errorCount} 个文件`);
-        
-    } catch (error) {
-        console.error('处理过程中发生错误:', error.message);
-    }
+    });
+    return max;
 }
 
-async function convertImage(filePath, counter, outputDir) {
-    const outputName = `c${counter}.jpg`;
-    const outputPath = path.join(outputDir, outputName);
-    
-    await sharp(filePath)
-        .jpeg({ 
-            quality: 80,
-            mozjpeg: true
-        })
-        .toFile(outputPath);
-}
-
-// 命令行版本主函数
-function main() {
-    const args = process.argv.slice(2);
-    
-    if (args.length === 0) {
-        console.log('使用方法: node img.js <目录路径>');
-        console.log('示例: node img.js /path/to/images');
+/**
+ * 主处理函数
+ */
+async function processImages(sourceDir) {
+    // 1. 检查输入参数
+    if (!sourceDir) {
+        console.error('❌ 错误：请提供包含新图片的[源目录]路径');
+        console.log('👉 示例: npm run make-cards ./raw-images');
         return;
     }
+
+    const absSourcePath = path.resolve(process.cwd(), sourceDir);
     
-    const directoryPath = args[0];
-    processImages(directoryPath);
+    if (!fs.existsSync(absSourcePath)) {
+        console.error(`❌ 源目录不存在: ${absSourcePath}`);
+        return;
+    }
+
+    // 2. 准备目标环境
+    if (!fs.existsSync(TARGET_DIR)) {
+        console.log(`📂 创建目标目录: ${TARGET_DIR}`);
+        fs.mkdirSync(TARGET_DIR, { recursive: true });
+    }
+
+    // 3. 计算起始索引
+    const currentMax = getCurrentMaxIndex(TARGET_DIR);
+    let nextIndex = currentMax + 1;
+
+    console.log('========================================');
+    console.log(`📂 目标目录: src/assets/images/cards`);
+    console.log(`📂 源目录:   ${path.relative(process.cwd(), absSourcePath)}`);
+    console.log(`🔢 存量检测: 发现最大索引 c${currentMax}.jpg`);
+    console.log(`🚀 新卡片将从 c${nextIndex}.jpg 开始编号`);
+    console.log('========================================\n');
+
+    // 4. 读取并处理源文件
+    const items = fs.readdirSync(absSourcePath);
+    let processedCount = 0;
+    let errorCount = 0;
+
+    // 过滤出支持的图片文件
+    const validFiles = items.filter(item => {
+        const ext = path.extname(item).toLowerCase();
+        const fullPath = path.join(absSourcePath, item);
+        return fs.statSync(fullPath).isFile() && SUPPORTED_FORMATS.includes(ext);
+    });
+
+    if (validFiles.length === 0) {
+        console.log('⚠️ 源目录中没有找到支持的图片文件。');
+        return;
+    }
+
+    for (const item of validFiles) {
+        const fullSourcePath = path.join(absSourcePath, item);
+        const targetFilename = `c${nextIndex}.jpg`;
+        const targetPath = path.join(TARGET_DIR, targetFilename);
+
+        try {
+            // 使用 sharp 转换格式并压缩保存
+            await sharp(fullSourcePath)
+                .jpeg({ 
+                    quality: 80, // 保持合理的质量体积比
+                    mozjpeg: true 
+                })
+                .toFile(targetPath);
+
+            console.log(`✅ [${String(nextIndex).padEnd(3)}] ${item} \t---> ${targetFilename}`);
+            
+            processedCount++;
+            nextIndex++;
+        } catch (error) {
+            console.error(`❌ [ERROR] 处理 ${item} 失败: ${error.message}`);
+            errorCount++;
+        }
+    }
+
+    console.log(`\n🎉 全部完成！`);
+    console.log(`📊 成功生成: ${processedCount} 张`);
+    if (errorCount > 0) console.log(`❗ 失败数量: ${errorCount} 张`);
+    console.log(`⏭️ 下次生成的起始索引将是: c${nextIndex}`);
 }
 
-// 如果直接运行此脚本
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-    console.log('图片转换工具 - 命令行版本');
-    console.log('支持格式:', SUPPORTED_FORMATS.join(', '));
-    console.log('输出格式: JPG (质量80)');
-    console.log('输出命名: c1.jpg, c2.jpg, ...');
-    console.log('输出目录: 输入的路径\n');
-    
-    main();
-}
+// 执行脚本
+const args = process.argv.slice(2);
+processImages(args[0]);
