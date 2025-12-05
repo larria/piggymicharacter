@@ -22,7 +22,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "make-cards": "node script/makePCard.js",
-    "deploy": "npm run build && gh-pages -d dist" 
+    "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
@@ -47,6 +47,7 @@
     "unplugin-vue-components": "^30.0.0",
     "vant": "^4.9.21",
     "vite": "^7.1.11",
+    "vite-plugin-pwa": "^1.2.0",
     "vite-plugin-vue-devtools": "^8.0.3"
   }
 }
