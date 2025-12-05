@@ -21,7 +21,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "make-cards": "node script/makePCard.js"
+    "make-cards": "node script/makePCard.js",
+    "deploy": "npm run build && gh-pages -d dist" 
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
@@ -37,6 +38,7 @@
     "@vueuse/core": "^14.0.0",
     "animate.css": "^4.1.1",
     "autoprefixer": "^10.4.22",
+    "gh-pages": "^6.3.0",
     "howler": "^2.2.4",
     "postcss": "^8.5.6",
     "sharp": "^0.34.5",
