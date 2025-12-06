@@ -8,12 +8,17 @@ import MainLayout from '@/components/layout/MainLayout.vue';
 import GameButton from '@/components/base/GameButton.vue';
 import MagicCapsule from '@/components/base/MagicCapsule.vue';
 import GameModal from '@/components/base/GameModal.vue';
+// 引入图标
 import { PhBookOpen, PhTrophy, PhImages, PhChartBar, PhLockKey, PhDownloadSimple, PhUploadSimple } from '@phosphor-icons/vue';
 
 const router = useRouter();
 const gameStore = useGameStore();
 
-// --- 状态与计算属性 ---
+// ====================== 资源引用 ======================
+// 动态引入头像，确保构建时能正确处理路径
+const avatarUrl = new URL('@/assets/images/piggy-mi.png', import.meta.url).href;
+
+// ====================== 状态与计算属性 ======================
 
 // 1. 汉字初识数据
 const studyRemaining = computed(() => {
@@ -31,21 +36,60 @@ const reviewRemaining = computed(() => {
   return Math.min(Math.max(0, gameStore.DAILY_MASTER_LIMIT - gameStore.getTodayMasterCount()), dailyLimit);
 });
 
-// 【修改】删除旧的 statsText computed，直接在模板中渲染
-
-// 4. 震动控制
+// 3. 动画状态
 const isShaking = ref(false);
+const isAvatarAnimating = ref(false); // 头像动画状态
 
-// 【新增】导入相关状态
+// 4. 导入导出相关状态
 const fileInput = ref(null);
 const showImportModal = ref(false);
-const pendingImportData = ref(null); // 暂存解析后的数据
+const pendingImportData = ref(null);
 
-// --- 交互逻辑 ---
+// ====================== 交互逻辑 ======================
 
 const triggerShake = () => {
   isShaking.value = true;
   setTimeout(() => isShaking.value = false, 500);
+};
+
+// 【新增】点击头像的互动逻辑
+const handleAvatarClick = () => {
+  // 1. 播放动效
+  if (isAvatarAnimating.value) return;
+  isAvatarAnimating.value = true;
+
+  // 2. 播放音效 (correct 音效比较神奇可爱，适合作为互动音)
+  audioManager.play('correct');
+
+  // 3. 生成加油语
+  const messages = [
+    '你好呀！爸爸的咪猪头 🐷',
+    '今天也要开心学习哦！✨',
+    '你真棒！已经认识这么多字了！📚',
+    '坚持就是胜利，加油加油！💪',
+    '我是你最好的识字伙伴！🌟'
+  ];
+
+  // 根据进度追加特殊夸奖
+  const totalLearned = gameStore.learnedCharacters.length;
+  const totalMastered = gameStore.masteredCharacters.length;
+
+  let dynamicMsg = messages[Math.floor(Math.random() * messages.length)]; // 默认随机
+
+  if (gameStore.getTodayMasterCount() >= 5) {
+    dynamicMsg = '今天学得太棒了，给你点赞！👍';
+  } else if (totalMastered > 50) {
+    dynamicMsg = `哇！你已经掌握 ${totalMastered} 个汉字啦！天才！🏆`;
+  } else if (totalLearned === 0) {
+    dynamicMsg = '欢迎来到识字世界，快去认识新朋友吧！🎈';
+  }
+
+  showToast(dynamicMsg, 'success');
+
+  // 4. 动画复位
+  setTimeout(() => {
+    isAvatarAnimating.value = false;
+  }, 1000); // 配合 CSS 动画时长
 };
 
 const showStudyBadgeInfo = () => {
@@ -69,7 +113,6 @@ const showReviewBadgeInfo = () => {
   }
 };
 
-// 【修改】更新点击气泡的反馈文案
 const showStatsInfo = () => {
   audioManager.play('click');
   showToast('进度：已初识(蓝) / 已掌握(绿)');
@@ -92,22 +135,18 @@ const navTo = (route) => {
       return;
     }
   }
-
   router.push(route);
 };
 
-// 1. 导出逻辑
+// ====================== 存档管理逻辑 ======================
+
 const handleExport = () => {
   audioManager.play('click');
   try {
     const data = gameStore.generateBackupData();
     const jsonStr = JSON.stringify(data, null, 2);
-
-    // 创建下载链接
     const blob = new Blob([jsonStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-
-    // 生成带时间的文件名: piggymi_save_20231201_1230.json
     const date = new Date();
     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
     const timeStr = date.toTimeString().slice(0, 5).replace(/:/g, '');
@@ -120,7 +159,6 @@ const handleExport = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
     showToast('存档已下载到本地', 'success');
   } catch (e) {
     console.error(e);
@@ -128,16 +166,14 @@ const handleExport = () => {
   }
 };
 
-// 2. 触发导入（点击隐藏的文件输入框）
 const triggerImport = () => {
   audioManager.play('click');
   if (fileInput.value) {
-    fileInput.value.value = ''; // 清空，确保重复选择同一文件也能触发 change
+    fileInput.value.value = '';
     fileInput.value.click();
   }
 };
 
-// 3. 处理文件选择
 const handleFileChange = (event) => {
   const file = event.target.files[0];
   if (!file) return;
@@ -148,45 +184,23 @@ const handleFileChange = (event) => {
       console.log('📂 开始解析文件...');
       const rawJson = JSON.parse(e.target.result);
 
-      // 【新增】智能提取逻辑：寻找真正的存档载荷
-      let targetPayload = null; // 这将指向包含 magicPoints/characterStates 的那一层
-      let finalImportData = null; // 这将是我们传给 Store 的最终格式
+      let finalImportData = null;
+      const isPayload = (obj) => obj && Array.isArray(obj.characterStates) && Array.isArray(obj.collectedCards);
 
-      // 辅助检查函数：判断一个对象是否长得像存档数据
-      const isPayload = (obj) => {
-        return obj &&
-          Array.isArray(obj.characterStates) &&
-          Array.isArray(obj.collectedCards);
-      };
-
-      // 🕵️ 侦探模式：在不同层级寻找数据
       if (rawJson?.data && isPayload(rawJson.data)) {
-        // 情况 1: 标准格式 { version: '1.0', data: { characterStates... } }
-        console.log('✅ 识别为标准格式');
         finalImportData = rawJson;
-      }
-      else if (rawJson?.data?.data && isPayload(rawJson.data.data)) {
-        // 情况 2: API 包装格式 { status: 0, data: { version: '1.0', data: { ... } } }
-        // 你遇到的就是这种情况
-        console.log('✅ 识别为 API 包装格式，已自动解包');
+      } else if (rawJson?.data?.data && isPayload(rawJson.data.data)) {
         finalImportData = rawJson.data;
-      }
-      else if (isPayload(rawJson)) {
-        // 情况 3: 裸数据格式 { characterStates... } (没有 version 外壳)
-        console.log('✅ 识别为裸数据格式');
+      } else if (isPayload(rawJson)) {
         finalImportData = { data: rawJson, timestamp: Date.now() };
       }
 
-      // 最终校验
       if (!finalImportData || !finalImportData.data) {
-        console.error('❌ 结构不匹配，原始数据:', rawJson);
-        throw new Error('未找到有效的存档数据 (Missing characterStates)');
+        throw new Error('未找到有效的存档数据');
       }
 
-      console.log('🎉 数据提取成功，准备导入');
       pendingImportData.value = finalImportData;
       showImportModal.value = true;
-
     } catch (err) {
       console.error('💥 导入错误:', err);
       audioManager.play('wrong');
@@ -198,19 +212,13 @@ const handleFileChange = (event) => {
   reader.readAsText(file);
 };
 
-// 4. 确认导入
 const confirmImport = () => {
   if (!pendingImportData.value) return;
-
   const result = gameStore.restoreBackupData(pendingImportData.value);
-
   if (result.success) {
     audioManager.play('celebrate');
     showImportModal.value = false;
     showToast(result.message, 'success');
-    // 可选：稍微延迟后刷新页面以确保所有状态（包括store外部的潜在状态）都重置，
-    // 但由于我们用了 reactive store，通常不需要刷新。
-    // 这里为了最稳妥的体验，不做强制刷新，依靠 Vue 的响应式。
   } else {
     audioManager.play('wrong');
     showToast(result.message, 'error');
@@ -223,28 +231,44 @@ const confirmImport = () => {
     <!-- 顶部栏 -->
     <template #header>
       <div class="flex items-center gap-4 w-full justify-between">
-        <div class="flex items-center gap-2 bg-white/80 backdrop-blur rounded-full p-2 pr-4 border-2 border-white shadow-sm">
-          <div class="w-10 h-10 bg-candy-blue rounded-full flex items-center justify-center text-2xl">🐷</div>
-          <span class="font-bold text-dark-text">咪猪头</span>
-        </div>
-        <!-- 【新增】数据管理按钮组 -->
-        <div class="flex gap-2">
-          <button @click="handleExport" class="w-10 h-10 bg-white/60 backdrop-blur rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-white hover:scale-110 active:scale-95 transition-all text-candy-blue" title="备份存档">
-            <PhDownloadSimple size="20" weight="bold" />
+        <!-- 左侧区域：头像 + 存档按钮 -->
+        <div class="flex items-center gap-4">
+
+          <!-- 【修改】咪猪头头像按钮 -->
+          <button @click="handleAvatarClick" class="flex items-center gap-2 bg-white/80 backdrop-blur rounded-full p-1.5 pr-4 border-2 border-white shadow-md transition-transform hover:scale-105 active:scale-95 group relative overflow-hidden" :class="{ 'animate-jello': isAvatarAnimating }">
+            <!-- 
+               图片容器：
+               1. 使用 object-cover 保持比例
+               2. group-hover 添加微旋转效果
+            -->
+            <div class="w-11 h-11 rounded-full border-2 border-candy-blue overflow-hidden bg-white shadow-inner relative z-10">
+              <img :src="avatarUrl" alt="咪猪头" class="w-full h-full object-cover group-hover:rotate-12 transition-transform duration-300" />
+            </div>
+
+            <span class="font-bold text-dark-text text-lg relative z-10">咪猪头</span>
+
+            <!-- 装饰性背景光效 -->
+            <div class="absolute inset-0 bg-gradient-to-r from-candy-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
-          <button @click="triggerImport" class="w-10 h-10 bg-white/60 backdrop-blur rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-white hover:scale-110 active:scale-95 transition-all text-candy-orange" title="导入存档">
-            <PhUploadSimple size="20" weight="bold" />
-          </button>
-          <!-- 隐藏的文件输入 -->
-          <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange">
+
+          <!-- 数据管理按钮组 -->
+          <div class="flex gap-2">
+            <button @click="handleExport" class="w-10 h-10 bg-white/60 backdrop-blur rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-white hover:scale-110 active:scale-95 transition-all text-candy-blue" title="备份存档">
+              <PhDownloadSimple size="20" weight="bold" />
+            </button>
+            <button @click="triggerImport" class="w-10 h-10 bg-white/60 backdrop-blur rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-white hover:scale-110 active:scale-95 transition-all text-candy-orange" title="导入存档">
+              <PhUploadSimple size="20" weight="bold" />
+            </button>
+            <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange">
+          </div>
         </div>
+
         <MagicCapsule />
       </div>
     </template>
 
-    <!-- 中央地图区域 -->
+    <!-- 中央地图区域 (保持不变) -->
     <div class="flex-1 flex flex-col items-center justify-center gap-10 pb-10 relative">
-
       <!-- 1. 识字学校 -->
       <div class="relative w-full max-w-sm group">
         <GameButton variant="primary" size="lg" :block="true" @click="navTo('/study')" class="shadow-xl">
@@ -280,37 +304,28 @@ const confirmImport = () => {
 
       <!-- 3. 底部功能区 -->
       <div class="flex gap-6 w-full max-w-sm mt-2">
-        <!-- 画片按钮 -->
         <GameButton variant="warning" class="flex-1 shadow-lg" @click="navTo('/collection')">
           <PhImages weight="fill" class="w-6 h-6" />
           <span class="text-xl">画片</span>
         </GameButton>
 
-        <!-- 统计按钮 -->
         <div class="flex-1 relative group">
           <GameButton variant="info" class="w-full shadow-lg" @click="navTo('/statistics')">
             <PhChartBar weight="fill" class="w-6 h-6" />
             <span class="text-xl">统计</span>
           </GameButton>
-
-          <!-- 
-             【修改】统计数据胶囊气泡
-             内容：已初识(蓝) / 已掌握(绿)
-             样式：保留紫色边框，内部文字颜色独立
-           -->
           <div class="absolute -top-4 -right-2 z-10 cursor-pointer transition-transform hover:scale-105 active:scale-95" @click.stop="showStatsInfo">
             <div class="bg-white border-2 border-candy-purple rounded-full px-3 h-8 flex items-center justify-center shadow-md text-sm font-bold whitespace-nowrap gap-1">
-              <!-- 已初识：蓝色 -->
               <span class="text-candy-blue text-base">{{ gameStore.learnedCharacters.length }}</span>
-              <!-- 分隔符：浅灰 -->
               <span class="text-gray-300">/</span>
-              <!-- 已掌握：绿色 -->
               <span class="text-candy-green text-base">{{ gameStore.masteredCharacters.length }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 导入确认弹窗 -->
     <GameModal :show="showImportModal" title="恢复存档" @close="showImportModal = false">
       <div class="text-center space-y-6 px-4">
         <div class="text-6xl animate-bounce-sm">📂</div>
@@ -319,13 +334,10 @@ const confirmImport = () => {
           <p class="text-sm text-candy-red font-bold mt-2 bg-red-50 p-2 rounded-lg border border-red-100">
             ⚠️ 警告：当前的游戏进度将被覆盖且无法找回！
           </p>
-          <!-- 简单的预览信息 -->
           <div v-if="pendingImportData" class="mt-4 text-left bg-gray-50 p-3 rounded-xl border border-gray-200 text-sm">
             <p>📅 存档时间: {{ new Date(pendingImportData.timestamp || Date.now()).toLocaleString() }}</p>
-            <!-- 使用 ?. 确保 data 存在，|| 0 确保显示数字 -->
             <p>✨ 魔力值: {{ pendingImportData.data?.magicPoints || 0 }}</p>
-            <!-- 关键修改：加上 ?. 防止 characterStates 为 undefined 时读取 length 报错 -->
-            <p>📚 总共记录: {{ pendingImportData.data?.characterStates?.length || 0 }} 个字</p>
+            <p>📚 已初识: {{ pendingImportData.data?.characterStates?.length || 0 }} 个字</p>
           </div>
         </div>
         <div class="flex justify-center gap-4">
@@ -334,6 +346,7 @@ const confirmImport = () => {
         </div>
       </div>
     </GameModal>
+
   </MainLayout>
 </template>
 
@@ -358,6 +371,35 @@ const confirmImport = () => {
   }
   40%, 60% {
     transform: translate3d(4px, 0, 0);
+  }
+}
+
+/* 果冻特效动画：点击头像时触发 */
+.animate-jello {
+  animation: jello-horizontal 0.9s both;
+}
+
+@keyframes jello-horizontal {
+  0% {
+    transform: scale3d(1, 1, 1);
+  }
+  30% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+  40% {
+    transform: scale3d(0.75, 1.25, 1);
+  }
+  50% {
+    transform: scale3d(1.15, 0.85, 1);
+  }
+  65% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+  75% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
   }
 }
 </style>
