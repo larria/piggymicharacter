@@ -194,6 +194,52 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  /**
+   * 生成备份数据对象
+   */
+  function generateBackupData() {
+    return {
+      version: '1.0', // 版本号，方便未来做迁移
+      timestamp: Date.now(),
+      data: {
+        magicPoints: magicPoints.value,
+        characterStates: characterStates.value,
+        collectedCards: collectedCards.value
+      }
+    }
+  }
+
+  /**
+   * 恢复存档数据
+   * @param {Object} backupData 解析后的JSON对象
+   * @returns {Object} { success: boolean, message: string }
+   */
+  function restoreBackupData(backupData) {
+    try {
+      // 1. 基础结构校验
+      if (!backupData || !backupData.data) {
+        return { success: false, message: '无效的存档文件格式' }
+      }
+
+      const { data } = backupData
+
+      // 2. 字段校验 (简单校验关键字段是否存在)
+      if (typeof data.magicPoints !== 'number' || !Array.isArray(data.characterStates) || !Array.isArray(data.collectedCards)) {
+        return { success: false, message: '存档数据缺失或损坏' }
+      }
+
+      // 3. 应用数据
+      magicPoints.value = data.magicPoints
+      characterStates.value = data.characterStates
+      collectedCards.value = data.collectedCards
+
+      return { success: true, message: '存档导入成功！' }
+    } catch (e) {
+      console.error(e)
+      return { success: false, message: '导入过程中发生错误' }
+    }
+  }
+
   return {
     magicPoints,
     characterStates,
@@ -218,6 +264,8 @@ export const useGameStore = defineStore('game', () => {
     setAllCharactersData,
     getStats,
     getCharacterCorrectCount,
+    generateBackupData,
+    restoreBackupData
   }
 }, {
   persist: {
