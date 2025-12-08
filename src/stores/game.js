@@ -16,7 +16,7 @@ export const useGameStore = defineStore('game', () => {
   const DAILY_MASTER_LIMIT = 30
   const REQUIRED_CORRECT_COUNT = 3
   const CARD_COST = 160
-  // 【新增】复习门槛：至少学会10个字
+  // 复习门槛：至少学会10个字
   const MIN_REVIEW_COUNT = 10
 
   // ====================== 计算属性 (Getters) ======================
@@ -36,6 +36,14 @@ export const useGameStore = defineStore('game', () => {
     const allChars = getAllCharacters()
     const learnedList = new Set([...masteredCharacters.value, ...learnedCharacters.value])
     return allChars.filter(char => !learnedList.has(char))
+  })
+
+  // 【新增】获取所有未掌握的字（包含：完全未学的 + 已初识但未掌握的）
+  // 供家长金手指界面使用
+  const notMasteredCharacters = computed(() => {
+    const allChars = getAllCharacters()
+    const masteredSet = new Set(masteredCharacters.value)
+    return allChars.filter(char => !masteredSet.has(char))
   })
 
   // ====================== 内部辅助函数 ======================
@@ -61,7 +69,7 @@ export const useGameStore = defineStore('game', () => {
     return characterStates.value.find(state => state.character === character)
   }
 
-  // 获取指定汉字的当前正确次数 +++
+  // 获取指定汉字的当前正确次数
   function getCharacterCorrectCount(character) {
     const state = getCharacterState(character);
     if (!state?.stateList) return 0;
@@ -94,7 +102,7 @@ export const useGameStore = defineStore('game', () => {
     return count;
   }
 
-  // 【新增】获取今日所有答对的次数（用于UI展示，提供即时反馈）
+  // 获取今日所有答对的次数（用于UI展示，提供即时反馈）
   function getTodayCorrectCount() {
     const today = new Date().toDateString();
     let count = 0;
@@ -128,7 +136,40 @@ export const useGameStore = defineStore('game', () => {
     return { success: true, message: '初识成功' }
   }
 
-  // +++ 修改方法：使其返回 newCorrectCount +++
+  // 【新增】家长金手指：强制掌握指定汉字
+  // 规则：无论该字之前什么状态，直接重置为“昨日初识”+“3次正确测验”
+  function cheatMasterCharacter(character) {
+    const now = Date.now()
+    const oneDayAgo = now - 24 * 60 * 60 * 1000 // 昨天的这个时候
+
+    // 构造完美的“已掌握”履历
+    const perfectStateList = [
+      { action: '初识', date: oneDayAgo }, // 昨天学的
+      { action: '测验', isCorrect: true, date: now }, // 刚刚考对第1次
+      { action: '测验', isCorrect: true, date: now + 100 }, // 刚刚考对第2次
+      { action: '测验', isCorrect: true, date: now + 200 }  // 刚刚考对第3次
+    ]
+
+    // 查找该字是否存在
+    const index = characterStates.value.findIndex(s => s.character === character)
+
+    if (index !== -1) {
+      // 如果存在，直接覆盖履历，确保状态干净
+      characterStates.value[index].stateList = perfectStateList
+    } else {
+      // 如果不存在，创建新记录
+      characterStates.value.push({
+        character: character,
+        stateList: perfectStateList
+      })
+    }
+
+    // 强制增加魔力值 (初识3分 + 掌握3分 = 6分)
+    magicPoints.value += 6
+
+    return { success: true, message: `已强制掌握：${character}` }
+  }
+
   function recordExamResult(character, isCorrect) {
     let state = getCharacterState(character)
     if (!state || !isCharacterLearned(state)) {
@@ -253,11 +294,13 @@ export const useGameStore = defineStore('game', () => {
     masteredCharacters,
     learnedCharacters,
     unlearnedCharacters,
+    notMasteredCharacters, // 导出新 Getter
     getCharacterState,
     getTodayLearnCount,
     getTodayMasterCount,
     getTodayCorrectCount,
     learnCharacter,
+    cheatMasterCharacter, // 导出新 Action
     recordExamResult,
     exchangeCard,
     isCardCollected,

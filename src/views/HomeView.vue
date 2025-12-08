@@ -8,8 +8,8 @@ import MainLayout from '@/components/layout/MainLayout.vue';
 import GameButton from '@/components/base/GameButton.vue';
 import MagicCapsule from '@/components/base/MagicCapsule.vue';
 import GameModal from '@/components/base/GameModal.vue';
-// 引入图标
-import { PhBookOpen, PhTrophy, PhImages, PhChartBar, PhLockKey, PhDownloadSimple, PhUploadSimple } from '@phosphor-icons/vue';
+// 引入图标 (新增 PhKey)
+import { PhBookOpen, PhTrophy, PhImages, PhChartBar, PhLockKey, PhDownloadSimple, PhUploadSimple, PhKey } from '@phosphor-icons/vue';
 
 const router = useRouter();
 const gameStore = useGameStore();
@@ -45,6 +45,10 @@ const fileInput = ref(null);
 const showImportModal = ref(false);
 const pendingImportData = ref(null);
 
+// 5. 【新增】家长模式状态
+const showParentModal = ref(false);
+const parentPassword = ref('');
+
 // ====================== 交互逻辑 ======================
 
 const triggerShake = () => {
@@ -52,7 +56,7 @@ const triggerShake = () => {
   setTimeout(() => isShaking.value = false, 500);
 };
 
-// 【新增】点击头像的互动逻辑
+// 点击头像的互动逻辑
 const handleAvatarClick = () => {
   // 1. 播放动效
   if (isAvatarAnimating.value) return;
@@ -136,6 +140,26 @@ const navTo = (route) => {
     }
   }
   router.push(route);
+};
+
+// ====================== 【新增】家长模式逻辑 ======================
+
+const openParentModal = () => {
+  audioManager.play('click');
+  parentPassword.value = ''; // 重置密码
+  showParentModal.value = true;
+};
+
+const checkPassword = () => {
+  if (parentPassword.value === '271911') {
+    audioManager.play('unlock'); // 播放解锁音效
+    showParentModal.value = false;
+    router.push('/parents-god-mode');
+  } else {
+    audioManager.play('wrong');
+    showToast('密码错误，请重试', 'error');
+    parentPassword.value = ''; // 清空方便重试
+  }
 };
 
 // ====================== 存档管理逻辑 ======================
@@ -231,16 +255,11 @@ const confirmImport = () => {
     <!-- 顶部栏 -->
     <template #header>
       <div class="flex items-center gap-4 w-full justify-between">
-        <!-- 左侧区域：头像 + 存档按钮 -->
+        <!-- 左侧区域：头像 + 存档按钮 + 家长按钮 -->
         <div class="flex items-center gap-4">
 
-          <!-- 【修改】咪猪头头像按钮 -->
+          <!-- 咪猪头头像按钮 -->
           <button @click="handleAvatarClick" class="flex items-center gap-2 bg-white/80 backdrop-blur rounded-full p-1.5 pr-4 border-2 border-white shadow-md transition-transform hover:scale-105 active:scale-95 group relative overflow-hidden" :class="{ 'animate-jello': isAvatarAnimating }">
-            <!-- 
-               图片容器：
-               1. 使用 object-cover 保持比例
-               2. group-hover 添加微旋转效果
-            -->
             <div class="w-11 h-11 rounded-full border-2 border-candy-blue overflow-hidden bg-white shadow-inner relative z-10">
               <img :src="avatarUrl" alt="咪猪头" class="w-full h-full object-cover group-hover:rotate-12 transition-transform duration-300" />
             </div>
@@ -260,6 +279,11 @@ const confirmImport = () => {
               <PhUploadSimple size="20" weight="bold" />
             </button>
             <input ref="fileInput" type="file" accept=".json" class="hidden" @change="handleFileChange">
+
+            <!-- 【新增】家长金手指入口 -->
+            <button @click="openParentModal" class="w-10 h-10 bg-white/60 backdrop-blur rounded-full flex items-center justify-center border-2 border-white shadow-sm hover:bg-white hover:scale-110 active:scale-95 transition-all text-candy-purple" title="家长模式">
+              <PhKey size="20" weight="fill" />
+            </button>
           </div>
         </div>
 
@@ -343,6 +367,25 @@ const confirmImport = () => {
         <div class="flex justify-center gap-4">
           <GameButton variant="secondary" @click="showImportModal = false">取消</GameButton>
           <GameButton variant="danger" @click="confirmImport">确认覆盖</GameButton>
+        </div>
+      </div>
+    </GameModal>
+
+    <!-- 【新增】家长密码弹窗 -->
+    <GameModal :show="showParentModal" title="家长验证" @close="showParentModal = false">
+      <div class="flex flex-col items-center gap-6 px-4 py-2">
+        <div class="text-gray-600 text-center font-bold">
+          请输入密码进入管理后台
+        </div>
+
+        <!-- 密码输入框 -->
+        <div class="relative w-full max-w-[220px]">
+          <input v-model="parentPassword" type="tel" maxlength="6" class="w-full text-center text-3xl tracking-[0.5em] font-bold py-3 border-b-4 border-candy-blue outline-none bg-transparent focus:border-candy-purple transition-colors text-dark-text placeholder-gray-300" placeholder="••••••" />
+        </div>
+
+        <div class="flex gap-4 w-full justify-center">
+          <GameButton variant="secondary" @click="showParentModal = false">取消</GameButton>
+          <GameButton variant="primary" @click="checkPassword">确认</GameButton>
         </div>
       </div>
     </GameModal>

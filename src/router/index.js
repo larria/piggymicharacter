@@ -1,7 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useGameStore } from '@/stores/game'
-// 【新增】引入隐藏 Toast 的方法
 import { hideToast } from '@/utils/gameToast'
 
 const router = createRouter({
@@ -25,7 +24,7 @@ const router = createRouter({
         const gameStore = useGameStore()
         const count = gameStore.learnedCharacters.length
         if (count < gameStore.MIN_REVIEW_COUNT) {
-          next('/') 
+          next('/')
         } else {
           next()
         }
@@ -41,10 +40,16 @@ const router = createRouter({
       name: 'collection',
       component: () => import('../views/MyPCardsView.vue'),
     },
+    // 【新增】家长金手指页面
+    {
+      path: '/parents-god-mode',
+      name: 'parents',
+      component: () => import('../views/ParentsView.vue'),
+    },
   ],
 })
 
-// 【新增】全局前置守卫：路由跳转开始时，立即关闭 Toast
+// 全局前置守卫：路由跳转开始时，立即关闭 Toast
 router.beforeEach((to, from, next) => {
   hideToast()
   next()
