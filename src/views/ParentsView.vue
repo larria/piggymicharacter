@@ -12,6 +12,8 @@ const gameStore = useGameStore();
 
 // 搜索过滤
 const searchText = ref('');
+// 【新增】记录正在处理中的汉字，用于展示动画延迟
+const processingList = ref([]);
 
 // 根据搜索词过滤未掌握的汉字列表
 const filteredList = computed(() => {
@@ -22,15 +24,23 @@ const filteredList = computed(() => {
 
 // 处理一键掌握
 const handleQuickMaster = (char) => {
-    // 1. 调用 Store 里的金手指方法 (在第一步中已添加)
-    const res = gameStore.cheatMasterCharacter(char);
+    // 防止重复点击
+    if (processingList.value.includes(char)) return;
 
-    // 2. 反馈
-    if (res.success) {
-        audioManager.play('correct');
-        // 显示更明确的提示
-        showToast(`"${char}" 已强制设为掌握！\n魔力值 +6`, 'success', 1500);
-    }
+    // 1. 先标记为处理中 (视觉上立即反馈勾选状态)
+    processingList.value.push(char);
+
+    // 2. 播放音效提示
+    audioManager.play('correct');
+    showToast(`"${char}" 已强制设为掌握！\n魔力值 +6`, 'success', 1000);
+
+    // 3. 延迟执行实际的数据移除，让用户看清当前字已完成
+    // 解决“点击后瞬间消失导致鼠标悬停在下一个字上”的视觉Bug
+    setTimeout(() => {
+        gameStore.cheatMasterCharacter(char);
+        // 移除处理状态（此时该字通常已经从 filteredList 中消失了）
+        processingList.value = processingList.value.filter(c => c !== char);
+    }, 400);
 };
 </script>
 
@@ -73,11 +83,13 @@ const handleQuickMaster = (char) => {
             <div class="flex-1 overflow-y-auto no-scrollbar">
                 <div v-if="filteredList.length > 0" class="bg-white/40 backdrop-blur-md rounded-[2rem] p-6 shadow-inner border border-white/50 min-h-[300px]">
                     <div class="flex flex-wrap gap-4 justify-center content-start">
-                        <button v-for="char in filteredList" :key="char" @click="handleQuickMaster(char)" class="relative group w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-3xl md:text-4xl font-bold bg-white border-b-[6px] border-gray-200 text-gray-600 shadow-md transition-all duration-200 hover:-translate-y-1 hover:border-emerald-600 hover:bg-candy-green hover:text-white hover:shadow-xl active:translate-y-1 active:border-b-0 active:shadow-none">
+                        <!-- 【修改】绑定动态 class：如果是处理中状态，强制显示打勾样式并禁用交互 -->
+                        <button v-for="char in filteredList" :key="char" @click="handleQuickMaster(char)" class="relative group w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-3xl md:text-4xl font-bold bg-white border-b-[6px] border-gray-200 text-gray-600 shadow-md transition-all duration-200" :class="processingList.includes(char) ? 'scale-95 opacity-60 cursor-default border-emerald-600 bg-candy-green text-white' : 'hover:-translate-y-1 hover:border-emerald-600 hover:bg-candy-green hover:text-white hover:shadow-xl active:translate-y-1 active:border-b-0 active:shadow-none'">
                             {{ char }}
 
                             <!-- Hover 时的对勾图标提示 -->
-                            <div class="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 scale-0 group-hover:scale-100 bg-white rounded-full text-candy-green shadow-sm">
+                            <!-- 【修改】增加逻辑：如果正在处理中，强制显示图标 -->
+                            <div class="absolute -top-2 -right-2 transition-all duration-200 bg-white rounded-full text-candy-green shadow-sm" :class="processingList.includes(char) ? 'opacity-100 scale-100' : 'opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100'">
                                 <PhCheckCircle weight="fill" size="24" />
                             </div>
                         </button>
